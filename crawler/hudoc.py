@@ -10,12 +10,14 @@ from urllib.parse import unquote
 from multiprocessing.pool import ThreadPool
 
 # import grequests
+import json
 import requests
 import pandas
 import tqdm
 from bs4 import BeautifulSoup
 from sqlalchemy import create_engine
 from sqlalchemy.dialects import mysql
+from nltk.tokenize import sent_tokenize
 
 from config import Config
 
@@ -86,7 +88,10 @@ def get_text(response, **kwargs):
 
 
 def get_text_from_url(url):
-    response = requests.get(url, stream=True, headers=HEADER_INFO)
+    try:
+        response = requests.get(url, stream=True, headers=HEADER_INFO)
+    except:
+        response = requests.get(url, headers=HEADER_INFO)
     try:
         return get_text(response)
     except NoDocxException:
@@ -100,6 +105,8 @@ def download_documents(col, lang='ENG'):
     urls = df['url'].tolist()
     texts = list(tqdm.tqdm(ThreadPool(8).imap(get_text_from_url, urls, 16)))
 
+    # texts = list(map(get_text_from_url, urls))
+
     return texts
 
 
@@ -112,17 +119,26 @@ def update_database(lang='ENG'):
     dtype_dict = {'docname': mysql.TEXT(unicode=True),
                   'url': mysql.TEXT(unicode=True),
                   'text': mysql.LONGTEXT(unicode=True),
+                  'sents': mysql.LONGTEXT(unicode=True),
                   'extractedappno': mysql.LONGTEXT}
 
-    # collections['text'] = download_documents('COMMUNICATEDCASES', lang='ENG')
-    # collections.to_sql('CommunicatedCases', engine, if_exists='replace', dtype=dtype_dict)
-    # del collections
+    collection_text = download_documents('COMMUNICATEDCASES', lang='ENG')
+    collections['text'] = collection_text
+    collections['sents'] = list(map(lambda x: json.dumps(sent_tokenize(x)), collection_text))
+    collections.to_sql('CommunicatedCases', engine, if_exists='replace', dtype=dtype_dict)
+    del collections
+    del collection_text
 
-    decisions['text'] = download_documents('DECISIONS', lang='ENG')
+    decisions_text = download_documents('DECISIONS', lang='ENG')
+    decisions['text'] = decisions_text
+    decisions['sents'] = list(map(lambda x: json.dumps(sent_tokenize(x)), decisions_text))
     decisions.to_sql('Decisions', engine, if_exists='replace', dtype=dtype_dict)
     del decisions
+    del decisions_text
 
-    judgements['text'] = download_documents('JUDGMENTS', lang='ENG')
+    judgements_text = download_documents('JUDGMENTS', lang='ENG')
+    judgements['text'] = judgements_text
+    judgements['sents'] = list(map(lambda x: json.dumps(sent_tokenize(x)), judgements_text))
     print(len(judgements['text']))
     judgements.to_sql('Judgments', engine, if_exists='replace', dtype=dtype_dict)
 
