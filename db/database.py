@@ -20,7 +20,7 @@ class Prediction(DeclarativeBase):
     sent_result = Column(Text(128))
     sent_proba = Column(Text(128))
     modelname = Column(Unicode(64))
-    appno = Column(String(16))
+    appno = Column(String(64))
     pred_type = Column(String(16))
 
 
@@ -33,6 +33,7 @@ class Model(DeclarativeBase):
     date = Column(Date())
     accuracy = Column(Float())
     fscore = Column(Float())
+    article = Column(String(64))
 
 engine = create_engine(Config.SQLALCHEMY_DATABASE_URI, echo=True)
 metadata.reflect(engine)

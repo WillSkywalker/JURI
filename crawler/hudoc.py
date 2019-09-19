@@ -92,7 +92,6 @@ def get_text(response, **kwargs):
 
 
 def get_text_from_url(url):
-    return SAMPLE
     try:
         response = requests.get(url, stream=True, headers=HEADER_INFO)
     except:

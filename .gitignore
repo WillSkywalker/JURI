@@ -5,6 +5,7 @@ __pycache__/
 
 venv/
 *.csv
+config/
 
 # C extensions
 *.so
