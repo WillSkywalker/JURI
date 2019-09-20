@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}{{ d.docname }}{% endblock %}
+{% block main %}
+<!-- Main -->
+<div id="main">
+    <div class="inner">
+        <header>
+            <h1>{{ d.docname }}</h1>
+
+            <ul class="actions">
+                <li><a href="#" class="button primary">Admissibility</a></li>
+                <li><a href="#" class="button">Judgment</a></li>
+            </ul>
+        </header>
+        <section>
+            <div class="row">
+                <div class="col-4 col-12-medium">
+                    <h3>Information</h3>
+                    <ul class="alt">
+                        <li>Dolor pulvinar etiam.</li>
+                        <li>Sagittis adipiscing.</li>
+                        <li>Felis enim feugiat.</li>
+                    </ul>
+                    <h3>Our Prediction</h3>
+                    <ul class="alt">
+                        <li>Dolor pulvinar etiam.</li>
+                        <li>Sagittis adipiscing.</li>
+                        <li>Felis enim feugiat.</li>
+                    </ul>
+                </div>
+                <div class="col-8 col-12-medium">
+                    <p>{{ d.text }}</p>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}

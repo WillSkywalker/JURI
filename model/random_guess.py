@@ -57,12 +57,13 @@ def decision_predict():
                 tn += 1
             else:
                 fn += 1
-
-        pred = Prediction(result=res, proba=resn, sent_result=json.dumps(sent_result),
-                          sent_proba=json.dumps(sent_proba), modelname=MODEL_NAME,
-                          appno=decision.appno, pred_type='DECISIONS')
-        session.add(pred)
-        session.commit()
+        old = session.query(Prediction).filter_by(modelname=MODEL_NAME, appno=decision.appno, pred_type='JUDGMENTS').first()
+        if not old:
+            pred = Prediction(result=res, proba=resn, sent_result=json.dumps(sent_result),
+                              sent_proba=json.dumps(sent_proba), modelname=MODEL_NAME,
+                              appno=decision.appno, pred_type='DECISIONS')
+            session.add(pred)
+            session.commit()
 
     precision = tp / (tp + fp)
     recall = tp / (tp + fn)
@@ -74,8 +75,6 @@ def decision_predict():
               fscore=2 * (precision * recall) / (precision + recall))
     session.add(m)
     session.commit()
-
-
 
 
 def judgment_predict():
@@ -98,11 +97,13 @@ def judgment_predict():
         if resn < 0.5:
             resn = 1 - resn
 
-        pred = Prediction(result=res, proba=resn, sent_result=json.dumps(sent_result),
-                          sent_proba=json.dumps(sent_proba), modelname=MODEL_NAME,
-                          appno=decision.appno, pred_type='DECISIONS')
-        session.add(pred)
-        session.commit()
+        old = session.query(Prediction).filter_by(modelname=MODEL_NAME, appno=decision.appno, pred_type='JUDGMENTS').first()
+        if not old:
+            pred = Prediction(result=res, proba=resn, sent_result=json.dumps(sent_result),
+                              sent_proba=json.dumps(sent_proba), modelname=MODEL_NAME,
+                              appno=decision.appno, pred_type='JUDGMENTS')
+            session.add(pred)
+            session.commit()
 
         if not session.query(Judgments).filter_by(appno=decision.appno).first():
             continue

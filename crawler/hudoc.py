@@ -4,6 +4,7 @@
 import os
 import time
 import logging
+import datetime
 import argparse
 import unicodedata
 from urllib.parse import unquote
@@ -81,7 +82,8 @@ def get_text(response, **kwargs):
         soup = BeautifulSoup(response.text, 'html.parser')
         response.close()
         if soup.find('div'):
-            text = soup.find('div').text
+            spans = soup.find('div').find_all('span')
+            text = '\n'.join(list(map(lambda x: x.text, spans)))
         else:
             text = ''
         return unicodedata.normalize("NFKD", text).encode('utf-8').decode('utf-8-sig').strip()
@@ -114,6 +116,10 @@ def download_documents(col, lang='ENG'):
     return texts
 
 
+def update_datetime(s):
+    return datetime.datetime.strptime(s, '%m/%d/%Y %I:%M:%S %p')
+
+
 def update_database(lang='ENG'):
     engine = create_engine(Config.SQLALCHEMY_DATABASE_URI, encoding='utf-8', echo=True)
     collections = pandas.read_csv(os.path.join(DIRECTORY, '%s_%s.csv' % ('COMMUNICATEDCASES', lang)))
@@ -127,6 +133,7 @@ def update_database(lang='ENG'):
                   'extractedappno': mysql.LONGTEXT}
 
     collection_text = download_documents('COMMUNICATEDCASES', lang='ENG')
+    collections['kpdate'] = list(map(update_datetime, collections['kpdate']))
     collections['text'] = collection_text
     collections['sents'] = list(map(lambda x: json.dumps(sent_tokenize(x)), collection_text))
     collections.to_sql('CommunicatedCases', engine, if_exists='replace', dtype=dtype_dict)
@@ -134,6 +141,7 @@ def update_database(lang='ENG'):
     del collection_text
 
     decisions_text = download_documents('DECISIONS', lang='ENG')
+    decisions['kpdate'] = list(map(update_datetime, decisions['kpdate']))
     decisions['text'] = decisions_text
     decisions['sents'] = list(map(lambda x: json.dumps(sent_tokenize(x)), decisions_text))
     decisions.to_sql('Decisions', engine, if_exists='replace', dtype=dtype_dict)
@@ -141,6 +149,7 @@ def update_database(lang='ENG'):
     del decisions_text
 
     judgements_text = download_documents('JUDGMENTS', lang='ENG')
+    judgements['kpdate'] = list(map(update_datetime, judgements['kpdate']))
     judgements['text'] = judgements_text
     judgements['sents'] = list(map(lambda x: json.dumps(sent_tokenize(x)), judgements_text))
     print(len(judgements['text']))
@@ -150,6 +159,9 @@ def update_database(lang='ENG'):
         con.execute('alter table CommunicatedCases add column `id` int(10) unsigned PRIMARY KEY AUTO_INCREMENT;')
         con.execute('alter table Decisions add column `id` int(10) unsigned PRIMARY KEY AUTO_INCREMENT;')
         con.execute('alter table Judgments add column `id` int(10) unsigned PRIMARY KEY AUTO_INCREMENT;')
+        con.execute('ALTER TABLE CommunicatedCases ADD INDEX idx_text(appno(15));')
+        con.execute('ALTER TABLE Decisions ADD INDEX idx_text(appno(15));')
+        con.execute('ALTER TABLE Judgments ADD INDEX idx_text(appno(15));')
 
 
 def main():

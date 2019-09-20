@@ -21,7 +21,7 @@
                         <div class="inner">
 
                             <!-- Logo -->
-                                <a href="index.html" class="logo">
+                                <a href="/" class="logo">
                                     <span class="symbol"><img src="{{ url_for('static', filename='images/logo.png') }}" alt="" /></span><span class="title">JURI Says</span>
                                 </a>
 
@@ -55,22 +55,12 @@
                         <div class="inner">
                             <section>
                                 <h2>About us</h2>
-                                <form method="post" action="#">
-                                    <div class="fields">
-                                        <div class="field half">
-                                            <input type="text" name="name" id="name" placeholder="Name" />
-                                        </div>
-                                        <div class="field half">
-                                            <input type="email" name="email" id="email" placeholder="Email" />
-                                        </div>
-                                        <div class="field">
-                                            <textarea name="message" id="message" placeholder="Message"></textarea>
-                                        </div>
-                                    </div>
-                                    <ul class="actions">
-                                        <li><input type="submit" value="Send" class="primary" /></li>
-                                    </ul>
-                                </form>
+                                <ul>
+                                    <li><b>Masha Medvedeva</b> PhD candidate, Center for Language and Cognition Groningen & Department of Legal Methods, University of Groningen</li>
+                                    <li><b>Dr. Martijn Wieling</b> Center for Language and Cognition Groningen, University of Groningen</li>
+                                    <li><b>Prof.Dr. Michel Vols</b> Department of Legal Methods, University of Groningen</li>
+                                    <li><b>Xu Xiao</b> Research Assistant, Center for Language and Cognition Groningen, University of Groningen</li>
+                                </ul>
                             </section>
                             <section>
                                 <h2>Contact</h2>
@@ -99,6 +89,12 @@
             <script src="{{ url_for('static', filename='assets/js/breakpoints.min.js') }}"></script>
             <script src="{{ url_for('static', filename='assets/js/util.js') }}"></script>
             <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
+            <script type="text/javascript">
+            function jump(url){
+                window.location.replace(url);
+            }
+
+            </script>
 
     </body>
 </html>
