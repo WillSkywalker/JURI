@@ -13,7 +13,7 @@
 				<span class="image">
 					<img src="{{ url_for('static', filename='images/pic01.jpg') }}" alt="" />
 				</span>
-				<a href="generic.html">
+				<a href="{{ url_for('list_desc') }}">
 					<h2>Admissibility</h2>
 					<div class="content">
 						<p>Predicting admissibility of cases according to relavent facts.</p>
@@ -27,7 +27,7 @@
 				<a href="generic.html">
 					<h2>Judgments</h2>
 					<div class="content">
-						<p>Judgment predictions based on documents published by ECtHR Court.</p>
+						<p>Recent judgment predictions based on documents published by ECtHR Court.</p>
 					</div>
 				</a>
 			</article>
@@ -35,7 +35,7 @@
 				<span class="image">
 					<img src="{{ url_for('static', filename='images/pic03.png') }}" alt="" />
 				</span>
-				<a href="generic.html">
+				<a href="{{ url_for('list_model') }}">
 					<h2>Models</h2>
 					<div class="content">
 						<p>Compare all available prediction models.</p>

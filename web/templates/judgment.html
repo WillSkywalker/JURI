@@ -9,8 +9,8 @@
             <div class="inner row">
                 <div class="col-6">
             <ul class="actions">
-                <li><a href="#" class="button primary">Admissibility</a></li>
-                <li><a href="{{ url_for('application_judg', appno = d.appno | replace('/', 'e')) }}" class="button">Judgment</a></li>
+                <li><a href="{{ url_for('application_desc', appno = d.appno | replace('/', 'e')) }}" class="button">Admissibility</a></li>
+                <li><a href="#" class="button primary">Judgment</a></li>
             </ul>
             </div>
                 <div class="col-6 ">
@@ -21,7 +21,7 @@
                 <li>
                 <select name="order" id="order" onchange="window.location=this.value;">
                     {% for name in modelnames %}
-                    <option value="{{ url_for('application_desc', appno = d.appno | replace('/', 'e')) }}?modelname={{ name[0] }}" {% if mname == name %}selected="selected"{% endif %}>{{name[0]}}</option>
+                    <option value="{{ url_for('application_judg', appno = d.appno | replace('/', 'e')) }}?modelname={{ name[0] }}" {% if mname == name %}selected="selected"{% endif %}>{{name[0]}}</option>
                     {% endfor %}
                 </select>
                 </li>
@@ -35,46 +35,64 @@
                 <div class="col-4 col-12-medium">
                     <h3>Information</h3>
                     <ul class="alt">
-                        <li><b>Time: </b>{{ d.kpdate }}</li>
+                        <li><b>Admissibility decision time: </b>{{ d.kpdate }}</li>
                         <li><b>Application number: </b>{{ d.appno }}</li>
                         <li><b>Country: </b>{{ d.respondent }}</li>
-                        <li><b>Conclusion: </b>{{ d.conclusion }}</li>
-                        {% if d.res == 0 %}
+                        {% if j %}
+                        <li><b>Conclusion: </b>{{ j.conclusion }}</li>
+                        {% if j.res == 0 %}
                         <li style='color: green;'><b>Result: </b>PASS</li>
                         {% else %}
                         <li style='color: red;'><b>Result: </b>FAIL</li>
                         {% endif %}
+                        {% else %}
+                        <li>No published judgement yet.</li>
+                        {% endif %}
+
                     </ul>
                     <h3>Our Prediction</h3>
                     <ul class="alt">
-                        <li><b>Probability: </b>{{ dp.proba }}</li>
-                        {% if dp.result %}
+                        {% if jp %}
+                        <li><b>Probability: </b>{{ jp.proba }}</li>
+                        {% if jp.result %}
                         <li style='color: red;'><b>Result: </b>FAIL</li>
                         {% else %}
                         <li style='color: green;'><b>Result: </b>PASS</li>
                         {% endif %}
+                        {% else %}
+                        <li>No prediction with this model.</li>
+                        {% endif %}
 
-                        {% if d.res == dp.result %}
+                        {% if j and jp %}
+                        {% if d.res == jp.result %}
                         <li></li>
                         <li style='background-color: green; color: white; text-align: center;'><h2>Consistant</h2></li>
                         {% else %}
                         <li style='background-color: red; color: white; text-align: center;'><h2>Inconsistant</h2></li>
                         {% endif %}
+                        {% else %}
+                        <li style='background-color: grey; color: white; text-align: center;'><h2>Unknown</h2></li>
+                        {% endif %}
                         </li>
                     </ul>
                 </div>
                 <div class="col-8 col-12-medium">
+                    <h2>Admissibility Decision</h2>
                     <p>
                         {% for sent in sents %}
-                        {% if sent_result[loop.index0] == 0 %}
-                        <span data-toggle="popover" data-placement="top" data-trigger="hover" title="PASS" data-content="Probability: {{sent_proba[loop.index0]}}">
+                        <span>
                             {% autoescape false %}{{ sent | replace('\n', '<br>') }}{% endautoescape %}</span>
-                        {% else %}
-                        <span data-toggle="popover" data-placement="top" data-trigger="hover" title="FAIL" data-content="Probability: {{sent_proba[loop.index0]}}">
-                            {% autoescape false %}{{ sent | replace('\n', '<br>') }}{% endautoescape %}</span>
-                        {% endif %}
                         {% endfor %}
                     </p>
+                    <h2>Judgment</h2>
+                    {% if j %}
+                        {% for sent in jsents %}
+                        <span>
+                            {% autoescape false %}{{ sent | replace('\n', '<br>') }}{% endautoescape %}</span>
+                        {% endfor %}
+                    {% else %}
+                        <p>The official judgment is not published yet.</p>
+                    {% endif %}
                 </div>
             </div>
         </section>

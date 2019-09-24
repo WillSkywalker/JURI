@@ -70,7 +70,7 @@ def list_desc(page=1):
     order = request.args.get('order')
     if order == 'c':
         pagination = Decisions.query.order_by(Decisions.respondent).paginate(page, per_page=30, error_out=False)
-    elif order == 'tp':
+    elif order == 'ta':
         pagination = Decisions.query.order_by(Decisions.kpdate).paginate(page, per_page=30, error_out=False)
     else:
         pagination = Decisions.query.order_by(-Decisions.kpdate).paginate(page, per_page=30, error_out=False)
@@ -80,23 +80,75 @@ def list_desc(page=1):
         return abort(404)
 
 
+@app.route('/list_model')
+@app.route('/list_model/<int:page>')
+def list_model(page=1):
+    order = request.args.get('order')
+    if order == 'acc':
+        pagination = Model.query.order_by(-Model.accuracy).paginate(page, per_page=10, error_out=False)
+    elif order == 'f1':
+        pagination = Model.query.order_by(-Model.fscore).paginate(page, per_page=10, error_out=False)
+    elif order == 'ta':
+        pagination = Model.query.order_by(Model.date).paginate(page, per_page=10, error_out=False)
+    else:
+        pagination = Model.query.order_by(-Model.date).paginate(page, per_page=10, error_out=False)
+    if pagination.items:
+        return render_template('list-model.html', pagination=pagination, page=page, order=order)
+    else:
+        return abort(404)
+
+
 # @line_profile
-@app.route('/app/<appno>')
-def application(appno):
+@app.route('/app/desc/<appno>')
+def application_desc(appno):
     apno = appno.replace('e', '/')
-    # order = request.args.get('order')
+    mname = request.args.get('modelname')
     desc = Decisions.query.filter_by(appno=apno).first()
     if desc:
         desc.res = admissibility_anal_simple(desc.conclusion)
+        sents = json.loads(desc.sents)
+    else:
+        abort(404)
+
+    if mname:
+        desc_pred = Prediction.query.filter_by(appno=apno, pred_type='DECISIONS', modelname=mname).first()
+    else:
+        desc_pred = Prediction.query.filter_by(appno=apno, pred_type='DECISIONS').first()
+    model = Model.query.filter_by(modelname=desc_pred.modelname).first() if desc_pred else None
+    modelnames = Prediction.query.filter_by(appno=apno, pred_type='DECISIONS').with_entities(Prediction.modelname).all()
+    sent_result = json.loads(desc_pred.sent_result)
+    sent_proba = json.loads(desc_pred.sent_proba)
+    return render_template('application.html', d=desc, sents=sents, dp=desc_pred, model=model,
+                           modelnames=modelnames, mname=mname, sent_result=sent_result, sent_proba=sent_proba)
+
+
+@app.route('/app/judg/<appno>')
+def application_judg(appno):
+    apno = appno.replace('e', '/')
+    mname = request.args.get('modelname')
+    desc = Decisions.query.filter_by(appno=apno).first()
+    if desc:
+        desc.res = admissibility_anal_simple(desc.conclusion)
+        sents = json.loads(desc.sents)
     judg = Judgments.query.filter_by(appno=apno).first()
     if judg:
         judg.res = conclusion_simple(judg.conclusion)
+        jsents = json.loads(judg.sents)
     if not desc and not judg:
         abort(404)
-    desc_pred = Prediction.query.filter_by(appno=apno, pred_type='DECISIONS').first()
-    judg_pred = Prediction.query.filter_by(appno=apno, pred_type='JUDGMENTS').first()
-    model = Model.query.filter_by(modelname=desc_pred.modelname).first() if desc_pred else None
-    return render_template('application.html', d=desc, j=judg, dp=desc_pred, jp=judg_pred, model=model)
+    if mname:
+        judg_pred = Prediction.query.filter_by(appno=apno, pred_type='JUDGMENTS', modelname=mname).first()
+    else:
+        judg_pred = Prediction.query.filter_by(appno=apno, pred_type='JUDGMENTS').first()
+
+    model = Model.query.filter_by(modelname=judg_pred.modelname).first() if judg_pred else None
+    modelnames = Prediction.query.filter_by(appno=apno, pred_type='DECISIONS').with_entities(Prediction.modelname).all()
+    # sent_result = json.loads(judg_pred.sent_result)
+    # sent_proba = json.loads(judg_pred.sent_proba)
+    sent_result = None
+    sent_proba = None
+    return render_template('judgment.html', d=desc, j=judg, jp=judg_pred, **locals())
+
 
 
 @app.route('/api/case/<appno>')

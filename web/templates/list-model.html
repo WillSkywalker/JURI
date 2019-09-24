@@ -25,12 +25,13 @@
 <div id="main">
     <div class="inner">
         <header>
-            <h1>List of cases</h1>
+            <h1>List of models</h1>
             <div class="col-12">
                 <select name="order" id="order" onchange="window.location=this.value;">
-                    <option value="{{ url_for('list_desc', page=page, ) }}?order=td" {% if order == 'td' %}selected="selected"{% endif %}>Time (Descending)</option>
-                    <option value="{{ url_for('list_desc', page=page, ) }}?order=ta" {% if order == 'ta' %}selected="selected"{% endif %}>Time (Ascending)</option>
-                    <option value="{{ url_for('list_desc', page=page) }}?order=c" {% if order == 'c' %}selected="selected"{% endif %}>Country</option>
+                    <option value="{{ url_for('list_model', page=page, ) }}?order=td" {% if order == 'td' %}selected="selected"{% endif %}>Date (Descending)</option>
+                    <option value="{{ url_for('list_model', page=page, ) }}?order=ta" {% if order == 'ta' %}selected="selected"{% endif %}>Date (Ascending)</option>
+                    <option value="{{ url_for('list_model', page=page) }}?order=acc" {% if order == 'acc' %}selected="selected"{% endif %}>Accuracy</option>
+                    <option value="{{ url_for('list_model', page=page) }}?order=f1" {% if order == 'f1' %}selected="selected"{% endif %}>F-score</option>
                 </select>
             </div>
         </header>
@@ -40,23 +41,29 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Application Number</th>
-                        <th>Title</th>
-                        <th>Date</th>
+                        <th>Model name</th>
+                        <th>Description</th>
+                        <th>Author</th>
+                        <th>ECHR Article</th>
+                        <th>Accuracy</th>
+                        <th>F-score</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for item in pagination.items %}
                     <tr>
+                        <td>{{ item.modelname }}</td>
                         <td>
-                            {% if item.appno|length > 15 %}
-                            {{ item.appno[:15] }}...
+                            {% if item.description|length > 60 %}
+                            {{ item.description[:60] }}...
                             {% else %}
-                            {{ item.appno }}
+                            {{ item.description }}
                             {% endif %}
                         </td>
-                        <td><a href="{{ url_for('application_desc', appno = item.appno | replace('/', 'e')) }}">{{ item.docname }}</a></td>
-                        <td>{{ item.kpdate }}</td>
+                        <td>{{ item.author }}</td>
+                        <td>{{ item.article }}</td>
+                        <td>{{ item.accuracy }}</td>
+                        <td>{{ item.fscore }}</td>
                     </tr>
                     {% endfor %}
 

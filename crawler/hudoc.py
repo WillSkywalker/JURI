@@ -4,6 +4,7 @@
 import os
 import time
 import logging
+import itertools
 import datetime
 import argparse
 import unicodedata
@@ -82,8 +83,9 @@ def get_text(response, **kwargs):
         soup = BeautifulSoup(response.text, 'html.parser')
         response.close()
         if soup.find('div'):
-            spans = soup.find('div').find_all('span')
-            text = '\n'.join(list(map(lambda x: x.text, spans)))
+            ps = itertools.chain(*list(map(lambda x: x.find_all('p'), soup.find_all('div'))))
+            spans = [''.join(list(map(lambda x: x.text, p.find_all('span')))) for p in ps]
+            text = '\n'.join(spans)
         else:
             text = ''
         return unicodedata.normalize("NFKD", text).encode('utf-8').decode('utf-8-sig').strip()
@@ -140,6 +142,11 @@ def update_database(lang='ENG'):
     del collections
     del collection_text
 
+    with engine.connect() as con:
+        con.execute('alter table CommunicatedCases add column `id` int(10) unsigned PRIMARY KEY AUTO_INCREMENT;')
+        con.execute('ALTER TABLE CommunicatedCases ADD INDEX idx_text(appno(15));')
+
+
     decisions_text = download_documents('DECISIONS', lang='ENG')
     decisions['kpdate'] = list(map(update_datetime, decisions['kpdate']))
     decisions['text'] = decisions_text
@@ -147,6 +154,10 @@ def update_database(lang='ENG'):
     decisions.to_sql('Decisions', engine, if_exists='replace', dtype=dtype_dict)
     del decisions
     del decisions_text
+
+    with engine.connect() as con:
+        con.execute('alter table Decisions add column `id` int(10) unsigned PRIMARY KEY AUTO_INCREMENT;')
+        con.execute('ALTER TABLE Decisions ADD INDEX idx_text(appno(15));')
 
     judgements_text = download_documents('JUDGMENTS', lang='ENG')
     judgements['kpdate'] = list(map(update_datetime, judgements['kpdate']))
@@ -156,11 +167,7 @@ def update_database(lang='ENG'):
     judgements.to_sql('Judgments', engine, if_exists='replace', dtype=dtype_dict)
 
     with engine.connect() as con:
-        con.execute('alter table CommunicatedCases add column `id` int(10) unsigned PRIMARY KEY AUTO_INCREMENT;')
-        con.execute('alter table Decisions add column `id` int(10) unsigned PRIMARY KEY AUTO_INCREMENT;')
         con.execute('alter table Judgments add column `id` int(10) unsigned PRIMARY KEY AUTO_INCREMENT;')
-        con.execute('ALTER TABLE CommunicatedCases ADD INDEX idx_text(appno(15));')
-        con.execute('ALTER TABLE Decisions ADD INDEX idx_text(appno(15));')
         con.execute('ALTER TABLE Judgments ADD INDEX idx_text(appno(15));')
 
 

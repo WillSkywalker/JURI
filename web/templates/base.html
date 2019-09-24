@@ -9,6 +9,7 @@
         <title>{% block title %}{% endblock %} - JURI Says</title>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/main.css') }}" />
         <noscript><link rel="stylesheet" href="{{ url_for('static', filename='assets/css/noscript.css') }}" /></noscript>
     </head>
@@ -39,11 +40,11 @@
                     <nav id="menu">
                         <h2>Menu</h2>
                         <ul>
-                            <li><a href="index.html">Home</a></li>
-                            <li><a href="generic.html">Ipsum veroeros</a></li>
-                            <li><a href="generic.html">Tempus etiam</a></li>
-                            <li><a href="generic.html">Consequat dolor</a></li>
-                            <li><a href="elements.html">Elements</a></li>
+                            <li><a href="/">Home</a></li>
+                            <li><a href="{{ url_for('list_desc') }}">Decisions</a></li>
+                            <li><a href="generic.html">Judgments</a></li>
+                            <li><a href="{{ url_for('list_model') }}">Models</a></li>
+                            <li><a href="#">About us</a></li>
                         </ul>
                     </nav>
 
@@ -57,20 +58,15 @@
                                 <h2>About us</h2>
                                 <ul>
                                     <li><b>Masha Medvedeva</b> PhD candidate, Center for Language and Cognition Groningen & Department of Legal Methods, University of Groningen</li>
-                                    <li><b>Dr. Martijn Wieling</b> Center for Language and Cognition Groningen, University of Groningen</li>
-                                    <li><b>Prof.Dr. Michel Vols</b> Department of Legal Methods, University of Groningen</li>
+                                    <li><b>Prof. Dr. Martijn Wieling</b> Center for Language and Cognition Groningen, University of Groningen</li>
+                                    <li><b>Prof. Dr. Michel Vols</b> Department of Legal Methods, University of Groningen</li>
                                     <li><b>Xu Xiao</b> Research Assistant, Center for Language and Cognition Groningen, University of Groningen</li>
                                 </ul>
                             </section>
                             <section>
                                 <h2>Contact</h2>
                                 <ul class="icons">
-                                    <li><a href="#" class="icon brands style2 fa-twitter"><span class="label">Twitter</span></a></li>
-                                    <li><a href="#" class="icon brands style2 fa-facebook-f"><span class="label">Facebook</span></a></li>
-                                    <li><a href="#" class="icon brands style2 fa-instagram"><span class="label">Instagram</span></a></li>
-                                    <li><a href="#" class="icon brands style2 fa-dribbble"><span class="label">Dribbble</span></a></li>
                                     <li><a href="#" class="icon brands style2 fa-github"><span class="label">GitHub</span></a></li>
-                                    <li><a href="#" class="icon brands style2 fa-500px"><span class="label">500px</span></a></li>
                                     <li><a href="#" class="icon solid style2 fa-phone"><span class="label">Phone</span></a></li>
                                     <li><a href="#" class="icon solid style2 fa-envelope"><span class="label">Email</span></a></li>
                                 </ul>
@@ -89,12 +85,16 @@
             <script src="{{ url_for('static', filename='assets/js/breakpoints.min.js') }}"></script>
             <script src="{{ url_for('static', filename='assets/js/util.js') }}"></script>
             <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
             <script type="text/javascript">
             function jump(url){
                 window.location.replace(url);
             }
 
             </script>
+            {% block scripts %}
+            {% endblock %}
 
     </body>
 </html>
