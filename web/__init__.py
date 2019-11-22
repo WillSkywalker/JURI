@@ -59,13 +59,13 @@ def conclusion_simple(desc):
         return 1
 
 
-@app.route('/')
+@app.route('/juri/')
 def index():
     return render_template('index.html')
 
 # @line_profile
-@app.route('/list')
-@app.route('/list/<int:page>')
+@app.route('/juri/list')
+@app.route('/juri/list/<int:page>')
 def list_desc(page=1):
     order = request.args.get('order')
     if order == 'c':
@@ -80,8 +80,8 @@ def list_desc(page=1):
         return abort(404)
 
 
-@app.route('/list_model')
-@app.route('/list_model/<int:page>')
+@app.route('/juri/list_model')
+@app.route('/juri/list_model/<int:page>')
 def list_model(page=1):
     order = request.args.get('order')
     if order == 'acc':
@@ -99,7 +99,7 @@ def list_model(page=1):
 
 
 # @line_profile
-@app.route('/app/desc/<appno>')
+@app.route('/juri/app/desc/<appno>')
 def application_desc(appno):
     apno = appno.replace('e', '/')
     mname = request.args.get('modelname')
@@ -122,7 +122,7 @@ def application_desc(appno):
                            modelnames=modelnames, mname=mname, sent_result=sent_result, sent_proba=sent_proba)
 
 
-@app.route('/app/judg/<appno>')
+@app.route('/juri/app/judg/<appno>')
 def application_judg(appno):
     apno = appno.replace('e', '/')
     mname = request.args.get('modelname')
