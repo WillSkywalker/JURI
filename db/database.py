@@ -20,6 +20,7 @@ class Prediction(DeclarativeBase):
     id = Column(Integer, primary_key=True)
     result = Column(Boolean())
     proba = Column(Float())
+    sents = Column(Text(4294000000))
     sent_result = Column(Text(128))
     sent_proba = Column(Text(128))
     modelname = Column(Unicode(64), index=True)

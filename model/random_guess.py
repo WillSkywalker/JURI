@@ -27,11 +27,23 @@ def admissibility_anal_simple(desc):
         return 1
 
 
+#0 - violation
+#1 - no
+def violation_anal_simple(desc):
+    if not desc:
+        return 1
+    if 'Violation of' in desc:
+        return 0
+    else:
+        return 1
+
+
 def decision_predict():
     tp, fp, tn, fn = 0, 0, 0, 0
     for decision in session.query(Decisions):
         conclusion = admissibility_anal_simple(decision.conclusion)
         resn = random.random()
+        sents = decision.sents
         sent_result = []
         sent_proba = []
         for sent in json.loads(decision.sents):
@@ -59,7 +71,7 @@ def decision_predict():
                 fn += 1
         old = session.query(Prediction).filter_by(modelname=MODEL_NAME, appno=decision.appno, pred_type='JUDGMENTS').first()
         if not old:
-            pred = Prediction(result=res, proba=resn, sent_result=json.dumps(sent_result),
+            pred = Prediction(result=res, proba=resn, sents=sents, sent_result=json.dumps(sent_result),
                               sent_proba=json.dumps(sent_proba), modelname=MODEL_NAME,
                               appno=decision.appno, pred_type='DECISIONS')
             session.add(pred)
@@ -82,6 +94,7 @@ def judgment_predict():
     for decision in session.query(Decisions):
 
         resn = random.random()
+        sents = decision.sents
         sent_result = []
         sent_proba = []
         for sent in json.loads(decision.sents):
@@ -98,8 +111,10 @@ def judgment_predict():
             resn = 1 - resn
 
         old = session.query(Prediction).filter_by(modelname=MODEL_NAME, appno=decision.appno, pred_type='JUDGMENTS').first()
+        if old:
+            res = old.result
         if not old:
-            pred = Prediction(result=res, proba=resn, sent_result=json.dumps(sent_result),
+            pred = Prediction(result=res, proba=resn, sents=sents, sent_result=json.dumps(sent_result),
                               sent_proba=json.dumps(sent_proba), modelname=MODEL_NAME,
                               appno=decision.appno, pred_type='JUDGMENTS')
             session.add(pred)
@@ -108,7 +123,10 @@ def judgment_predict():
         if not session.query(Judgments).filter_by(appno=decision.appno).first():
             continue
         judgment = session.query(Judgments).filter_by(appno=decision.appno).first()
-        conclusion = admissibility_anal_simple(judgment.conclusion)
+        conclusion = violation_anal_simple(judgment.conclusion)
+        print('='*30)
+        print(res, conclusion)
+        print('='*30)
         if res == 0:
             if res == conclusion:
                 tp += 1
@@ -120,6 +138,7 @@ def judgment_predict():
             else:
                 fn += 1
 
+    print('===================>\n', tp, fp, tn, fn)
     precision = tp / (tp + fp)
     recall = tp / (tp + fn)
     m = Model(modelname=MODEL_NAME,
@@ -134,3 +153,4 @@ def judgment_predict():
 
 if __name__ == '__main__':
     decision_predict()
+    judgment_predict()

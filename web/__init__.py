@@ -80,6 +80,30 @@ def list_desc(page=1):
         return abort(404)
 
 
+@app.route('/juri/latest')
+def list_judg():
+    mname = request.args.get('modelname')
+
+    pred_raw = Decisions.query.order_by(-Decisions.kpdate).limit(10).all()
+    resc_raw = Judgments.query.order_by(-Judgments.kpdate).limit(10).all()
+
+    appno_pred = [item.appno for item in pred_raw]
+    appno_resc = [item.appno for item in resc_raw]
+
+    if mname:
+        pred = Prediction.query.filter(Prediction.appno.in_(appno_pred)).filter_by(pred_type='DECISIONS', modelname=mname).order_by(-Prediction.id).limit(10).all()
+        resc = Prediction.query.filter(Prediction.appno.in_(appno_resc)).filter_by(pred_type='JUDGMENTS', modelname=mname).order_by(-Prediction.id).limit(10).all()
+    else:
+        pred = Prediction.query.filter(Prediction.appno.in_(appno_pred)).filter_by(pred_type='DECISIONS').order_by(-Prediction.id).limit(10).all()
+        resc = Prediction.query.filter(Prediction.appno.in_(appno_resc)).filter_by(pred_type='JUDGMENTS').order_by(-Prediction.id).limit(10).all()
+
+    if pred or resc:
+        # print(len(list(zip(resc_raw, resc))))
+        return render_template('list-judg.html', pred=zip(pred_raw, pred), resc=zip(resc_raw, resc))
+    else:
+        return abort(404)
+
+
 @app.route('/juri/list_model')
 @app.route('/juri/list_model/<int:page>')
 def list_model(page=1):

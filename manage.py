@@ -11,5 +11,12 @@ def profile(length=25, profile_dir='tmpp'):
     toolbar = flask_debugtoolbar.DebugToolbarExtension(app)
     app.run()
 
+
+@manager.command
+def create():
+    from web import db
+    db.create_all()
+
+
 if __name__ == '__main__':
     manager.run()
