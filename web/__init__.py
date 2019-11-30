@@ -173,7 +173,7 @@ def application_judg(appno):
         judg_pred = Prediction.query.filter_by(appno=apno, pred_type='JUDGMENTS').first()
 
     model = Model.query.filter_by(modelname=judg_pred.modelname).first() if judg_pred else None
-    modelnames = Prediction.query.filter_by(appno=apno, pred_type='DECISIONS').with_entities(Prediction.modelname).all()
+    modelnames = Prediction.query.filter_by(appno=apno, pred_type='JUDGMENTS').with_entities(Prediction.modelname).all()
     # sent_result = json.loads(judg_pred.sent_result)
     # sent_proba = json.loads(judg_pred.sent_proba)
     sent_result = None
