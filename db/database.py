@@ -25,7 +25,7 @@ class Prediction(DeclarativeBase):
     sent_result = Column(Text(4294000000))
     sent_proba = Column(Text(4294000000))
     modelname = Column(Unicode(64), index=True)
-    appno = Column(Text(128))
+    appno = Column(Text(4294000000))
     pred_type = Column(String(16))
 
 
