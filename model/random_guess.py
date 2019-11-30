@@ -6,6 +6,7 @@ from sqlalchemy.orm import sessionmaker
 
 from config.config import Config
 from db.database import CommunicatedCases, Decisions, Judgments, Prediction, Model
+from model.base import BaseDecisionModel
 
 MODEL_NAME = 'random'
 AUTHOR = 'Xu Xiao'
@@ -15,6 +16,46 @@ DATE = datetime.datetime.now()
 engine = create_engine(Config.SQLALCHEMY_DATABASE_URI, encoding='utf-8', echo=True)
 Session = sessionmaker(bind=engine)
 session = Session()
+
+
+class RandomModel(BaseDecisionModel):
+    """random guess"""
+    def __init__(self, name='RandomClass', author='Xu Yan-che', date=datetime.datetime.now()):
+        super(RandomModel, self).__init__(name, author, date)
+
+    def predict(self, x):
+        conclusion = self.conclusion(x.conclusion)
+        resn = random.random()
+        sents = x.sents
+        sent_result = []
+        sent_proba = []
+        for sent in json.loads(x.sents):
+            rand = random.random()
+            if rand > 0.5:
+                sent_result.append(1)
+                sent_proba.append(rand)
+            else:
+                sent_result.append(0)
+                sent_proba.append(1-rand)
+
+        res = 1 if resn > 0.5 else 0
+
+        if resn < 0.5:
+            resn = 1 - resn
+
+        if res == 0:
+            if res == conclusion:
+                self.tp += 1
+            else:
+                self.fp += 1
+        else:
+            if res == conclusion:
+                self.tn += 1
+            else:
+                self.fn += 1
+
+        return res, resn, sents, sent_result, sent_proba
+
 
 #0 - admissible/partly admissible
 #1 - no
@@ -69,7 +110,7 @@ def decision_predict():
                 tn += 1
             else:
                 fn += 1
-        old = session.query(Prediction).filter_by(modelname=MODEL_NAME, appno=decision.appno, pred_type='JUDGMENTS').first()
+        old = session.query(Prediction).filter_by(modelname=MODEL_NAME, appno=decision.appno, pred_type='DECISIONS').first()
         if not old:
             pred = Prediction(result=res, proba=resn, sents=sents, sent_result=json.dumps(sent_result),
                               sent_proba=json.dumps(sent_proba), modelname=MODEL_NAME,

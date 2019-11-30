@@ -67,12 +67,13 @@
                     <p>
                         {% for sent in sents %}
                         {% if sent_result[loop.index0] == 0 %}
-                        <span data-toggle="popover" data-placement="top" data-trigger="hover" title="PASS" data-content="Probability: {{sent_proba[loop.index0]}}">
+                        <span data-toggle="popover" data-placement="top" data-trigger="hover" title="PASS" data-content="Probability: {{sent_proba[loop.index0]}}" {% if loop.index0 in critical_indexes %} style="background:{{critical_indexes[loop.index0]}}" {% endif %}>
                             {% autoescape false %}{{ sent | replace('\n', '<br>') }}{% endautoescape %}</span>
                         {% else %}
-                        <span data-toggle="popover" data-placement="top" data-trigger="hover" title="FAIL" data-content="Probability: {{sent_proba[loop.index0]}}">
+                        <span data-toggle="popover" data-placement="top" data-trigger="hover" title="FAIL" data-content="Probability: {{sent_proba[loop.index0]}}" {% if loop.index0 in critical_indexes %} style="background:{{critical_indexes[loop.index0]}}" {% endif %}>
                             {% autoescape false %}{{ sent | replace('\n', '<br>') }}{% endautoescape %}</span>
                         {% endif %}
+                        <br>
                         {% endfor %}
                     </p>
                 </div>

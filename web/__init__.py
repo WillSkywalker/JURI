@@ -97,11 +97,11 @@ def list_judg():
         pred = Prediction.query.filter(Prediction.appno.in_(appno_pred)).filter_by(pred_type='DECISIONS').order_by(-Prediction.id).limit(10).all()
         resc = Prediction.query.filter(Prediction.appno.in_(appno_resc)).filter_by(pred_type='JUDGMENTS').order_by(-Prediction.id).limit(10).all()
 
-    if pred or resc:
+    # if pred or resc:
         # print(len(list(zip(resc_raw, resc))))
-        return render_template('list-judg.html', pred=zip(pred_raw, pred), resc=zip(resc_raw, resc))
-    else:
-        return abort(404)
+    return render_template('list-judg.html', pred=zip(pred_raw, pred), resc=zip(resc_raw, resc))
+    # else:
+        # return abort(404)
 
 
 @app.route('/juri/list_model')
@@ -127,23 +127,30 @@ def list_model(page=1):
 def application_desc(appno):
     apno = appno.replace('e', '/')
     mname = request.args.get('modelname')
-    desc = Decisions.query.filter_by(appno=apno).first()
-    if desc:
-        desc.res = admissibility_anal_simple(desc.conclusion)
-        sents = json.loads(desc.sents)
-    else:
-        abort(404)
+    desc = Decisions.query.filter_by(appno=apno).first_or_404()
 
     if mname:
         desc_pred = Prediction.query.filter_by(appno=apno, pred_type='DECISIONS', modelname=mname).first()
     else:
         desc_pred = Prediction.query.filter_by(appno=apno, pred_type='DECISIONS').first()
+
+    desc.res = desc_pred
+    sents = json.loads(desc_pred.sents)
+
     model = Model.query.filter_by(modelname=desc_pred.modelname).first() if desc_pred else None
     modelnames = Prediction.query.filter_by(appno=apno, pred_type='DECISIONS').with_entities(Prediction.modelname).all()
     sent_result = json.loads(desc_pred.sent_result)
     sent_proba = json.loads(desc_pred.sent_proba)
+    max_idx = sent_proba.index(max([p if sent_result[i] == 0 else -1 for i, p in enumerate(sent_proba)]))
+    min_idx = sent_proba.index(max([p if sent_result[i] == 1 else -1 for i, p in enumerate(sent_proba)]))
+    critical_indexes = {
+        max_idx: "#d7ffd9",
+        min_idx: "#ffcccb"
+    }
+    print(critical_indexes)
     return render_template('application.html', d=desc, sents=sents, dp=desc_pred, model=model,
-                           modelnames=modelnames, mname=mname, sent_result=sent_result, sent_proba=sent_proba)
+                           modelnames=modelnames, mname=mname, sent_result=sent_result, sent_proba=sent_proba,
+                           critical_indexes=critical_indexes)
 
 
 @app.route('/juri/app/judg/<appno>')

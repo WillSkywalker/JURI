@@ -18,7 +18,8 @@ class Prediction(DeclarativeBase):
         Index("idx_appno", "appno", mysql_length=15),
     )
     id = Column(Integer, primary_key=True)
-    result = Column(Boolean())
+    gold = Column(Integer())
+    result = Column(Integer())
     proba = Column(Float())
     sents = Column(Text(4294000000))
     sent_result = Column(Text(128))
@@ -31,7 +32,7 @@ class Prediction(DeclarativeBase):
 class Model(DeclarativeBase):
     __tablename__ = 'Model'
     id = Column(Integer, primary_key=True)
-    modelname = Column(Unicode(64), index=True)
+    modelname = Column(Unicode(64))
     description = Column(Unicode(128))
     author = Column(Unicode(64))
     date = Column(Date())
