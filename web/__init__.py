@@ -18,7 +18,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 
-from flask_debugtoolbar_lineprofilerpanel.profile import line_profile
+#from flask_debugtoolbar_lineprofilerpanel.profile import line_profile
 
 
 app = Flask(__name__)
