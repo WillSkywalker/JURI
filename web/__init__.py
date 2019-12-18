@@ -134,15 +134,19 @@ def application_desc(appno):
     else:
         desc_pred = Prediction.query.filter_by(appno=apno, pred_type='DECISIONS').first()
 
-    desc.res = desc_pred
+    desc.res = admissibility_anal_simple(desc.conclusion)
     sents = json.loads(desc_pred.sents)
 
     model = Model.query.filter_by(modelname=desc_pred.modelname).first() if desc_pred else None
     modelnames = Prediction.query.filter_by(appno=apno, pred_type='DECISIONS').with_entities(Prediction.modelname).all()
     sent_result = json.loads(desc_pred.sent_result)
     sent_proba = json.loads(desc_pred.sent_proba)
-    max_idx = sent_proba.index(max([p if sent_result[i] == 0 else -1 for i, p in enumerate(sent_proba)]))
-    min_idx = sent_proba.index(max([p if sent_result[i] == 1 else -1 for i, p in enumerate(sent_proba)]))
+    try:
+        max_idx = sent_proba.index(max([p if sent_result[i] == 0 else -1 for i, p in enumerate(sent_proba)]))
+        min_idx = sent_proba.index(max([p if sent_result[i] == 1 else -1 for i, p in enumerate(sent_proba)]))
+    except ValueError:
+        max_idx = -1
+        min_idx = -1
     critical_indexes = {
         max_idx: "#d7ffd9",
         min_idx: "#ffcccb"

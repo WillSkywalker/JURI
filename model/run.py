@@ -1,4 +1,5 @@
 from model.random_guess import RandomModel
+from model.naive_bayes_allcase import NBModel_judgments
 
 import json
 import datetime
@@ -50,7 +51,6 @@ def judgment_predict(m):
                                   appno=decision.appno, pred_type='JUDGMENTS')
                 session.add(pred)
                 session.commit()
-
     precision = m.tp / (m.tp + m.fp)
     recall = m.tp / (m.tp + m.fn)
     m = Model(modelname=m.name,
@@ -63,7 +63,5 @@ def judgment_predict(m):
     session.commit()
 
 if __name__ == '__main__':
-    dm = RandomModel('random-class decision', 'Xu Yan-che')
-    jm = RandomModel('random-class judgment', 'Xu Yan-che')
-    decision_predict(dm)
+    jm = NBModel_judgments()
     judgment_predict(jm)
