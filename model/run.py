@@ -46,7 +46,7 @@ def judgment_predict(m):
             result, proba, sents, sent_result, sent_proba = m.predict(decision)
             old = session.query(Prediction).filter_by(modelname=m.name, appno=decision.appno, pred_type='JUDGMENTS').first()
             if not old:
-                pred = Prediction(result=result, proba=proba, sents=sents, sent_result=json.dumps(sent_result),
+                pred = Prediction(result=result, proba=proba, sents=json.dumps(sents), sent_result=json.dumps(sent_result),
                                   sent_proba=json.dumps(sent_proba), modelname=m.name,
                                   appno=decision.appno, pred_type='JUDGMENTS')
                 session.add(pred)
