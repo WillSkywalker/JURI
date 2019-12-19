@@ -52,8 +52,9 @@ class NBModel_judgments(BaseDecisionModel):
         # get all text
         # decisions = Decisions.query.filter(Decisions.appno.in_(appnos)).with_entities(Decisions.text).all()
         decisions = [session.query(Decisions).filter_by(appno=a).with_entities(Decisions.text).first() for a in appnos]
-        #decisions = [d.text for d in decisions]  # convert to str
-        decisions = [d.sents for d in decisions]
+        decisions = [d.text for d in decisions]  # convert to str
+        decisions = [d.split('\n') for d in decisions] #add nltk sent tokenization?
+        #decisions = [json.loads(d.sents) for d in decisions]
         decisions = [' '.join(extract_parts_judgments(d)[7]) for d in decisions]
 
         # In case you need CommunicatedCases
