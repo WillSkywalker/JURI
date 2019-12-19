@@ -68,8 +68,8 @@ class NBModel_judgments(BaseDecisionModel):
         resn = random.random()
         sents = json.loads(x.sents)[:20]  # suppose we use first 20 sents
         string = ' '.join(sents)  # for prediction
-        res = self.clf.predict([string])[0]  # class
-        resn = self.clf.predict_proba([string])[0][res]  # proba
+        res = int(self.clf.predict([string])[0])  # class
+        resn = float(self.clf.predict_proba([string])[0][res])  # proba
 
         sent_result = []
         sent_proba = []
