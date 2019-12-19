@@ -54,7 +54,7 @@ class NBModel_judgments(BaseDecisionModel):
         decisions = [session.query(Decisions).filter_by(appno=a).with_entities(Decisions.text).first() for a in appnos]
         #decisions = [d.text for d in decisions]  # convert to str
         decisions = [d.sents for d in decisions]
-        decisions = ''.join(extract_parts_judgments(decisions)[7])
+        decisions = [' '.join(extract_parts_judgments(d)[7]) for d in decisions]
 
         # In case you need CommunicatedCases
         # ccs = CommunicatedCases.query.filter(CommunicatedCases.appno.in_(appnos)).all()
