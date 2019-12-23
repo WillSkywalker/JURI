@@ -1,5 +1,5 @@
 from model.random_guess import RandomModel
-from model.naive_bayes_allcase import NBModel_judgments
+from model.naive_bayes_allcase_use_facts import NBModel_judgments
 
 import json
 import datetime
