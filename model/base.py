@@ -6,6 +6,7 @@ from sqlalchemy.orm import sessionmaker
 
 from config.config import Config
 from db.database import CommunicatedCases, Decisions, Judgments, Prediction, Model
+from model.extract_facts_judgments import extract_parts_judgments
 
 engine = create_engine(Config.SQLALCHEMY_DATABASE_URI, encoding='utf-8', echo=True)
 Session = sessionmaker(bind=engine)
@@ -42,7 +43,7 @@ class BaseDecisionModel:
         '''
         override this with your own text extraction and vectorization.
         If you want to add communicated cases, use
-        session.query(CommunicatedCases).filter_by(appno=dec.appno).text
+        session.query(CommunicatedCases).filter_by(appno=dec.appno).first().text
         '''
         return dec.text
 
@@ -55,6 +56,7 @@ class BaseDecisionModel:
         # self.Xtrain, self.Xtest, self.Ytrain, self.Ytest = \
         #     train_test_split(self.X, self.Y, test_size=0.2)
         # self.classifier = SomeClassifier().train(self.Xtrain, self.Ytrain)
+        pass
 
     def predict(self, x):
         '''
