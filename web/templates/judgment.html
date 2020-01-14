@@ -41,9 +41,9 @@
                         {% if j %}
                         <li><b>Conclusion: </b>{{ j.conclusion }}</li>
                         {% if j.res == 0 %}
-                        <li style='color: green;'><b>Result: </b>PASS</li>
+                        <li style='color: green;'><b>Result: </b>Violation</li>
                         {% else %}
-                        <li style='color: red;'><b>Result: </b>FAIL</li>
+                        <li style='color: red;'><b>Result: </b>No violation</li>
                         {% endif %}
                         {% else %}
                         <li>No published judgement yet.</li>
@@ -55,16 +55,16 @@
                         {% if jp %}
                         <li><b>Probability: </b>{{ jp.proba }}</li>
                         {% if jp.result %}
-                        <li style='color: red;'><b>Result: </b>FAIL</li>
+                        <li style='color: red;'><b>Result: </b>No violation</li>
                         {% else %}
-                        <li style='color: green;'><b>Result: </b>PASS</li>
+                        <li style='color: green;'><b>Result: </b>Violation</li>
                         {% endif %}
                         {% else %}
                         <li>No prediction with this model.</li>
                         {% endif %}
 
                         {% if j and jp %}
-                        {% if d.res == jp.result %}
+                        {% if j.res == jp.result %}
                         <li></li>
                         <li style='background-color: green; color: white; text-align: center;'><h2>Consistant</h2></li>
                         {% else %}
@@ -77,11 +77,17 @@
                     </ul>
                 </div>
                 <div class="col-8 col-12-medium">
-                    <h2>Admissibility Decision</h2>
+                    <h2>Text used for prediction</h2>
                     <p>
                         {% for sent in sents %}
-                        <span>
+                        {% if sent_result[loop.index0] == 0 %}
+                        <span data-toggle="popover" data-placement="top" data-trigger="hover" title="VIOLATION" data-content="Probability: {{sent_proba[loop.index0]}}" {% if loop.index0 in critical_indexes %} style="background:{{critical_indexes[loop.index0]}}" {% endif %}>
                             {% autoescape false %}{{ sent | replace('\n', '<br>') }}{% endautoescape %}</span>
+                        {% else %}
+                        <span data-toggle="popover" data-placement="top" data-trigger="hover" title="NO VIOLATION" data-content="Probability: {{sent_proba[loop.index0]}}" {% if loop.index0 in critical_indexes %} style="background:{{critical_indexes[loop.index0]}}" {% endif %}>
+                            {% autoescape false %}{{ sent | replace('\n', '<br>') }}{% endautoescape %}</span>
+                        {% endif %}
+                        <br>
                         {% endfor %}
                     </p>
                     <h2>Judgment</h2>

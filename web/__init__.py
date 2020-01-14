@@ -16,7 +16,7 @@ from db.database import metadata, CommunicatedCases, Decisions, Judgments, Predi
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
+from sqlalchemy.sql import exists
 
 #from flask_debugtoolbar_lineprofilerpanel.profile import line_profile
 
@@ -44,7 +44,7 @@ Model.__bases__ = Model.__bases__ + (db.Model,)
 def admissibility_anal_simple(desc):
     if not desc:
         raise NoDecisionError
-    if 'Admissible' in desc or 'Partly admissible' in desc:
+    if 'Admissible' in desc or 'Partly admissible' in desc or 'Partly inadmissible' in desc:
         return 0
     else:
         return 1
@@ -63,6 +63,7 @@ def conclusion_simple(desc):
 def index():
     return render_template('index.html')
 
+
 # @line_profile
 @app.route('/juri/list')
 @app.route('/juri/list/<int:page>')
@@ -75,17 +76,40 @@ def list_desc(page=1):
     else:
         pagination = Decisions.query.order_by(-Decisions.kpdate).paginate(page, per_page=30, error_out=False)
     if pagination.items:
-        return render_template('list.html', pagination=pagination, page=page, order=order)
+        return render_template('list.html', pagination=pagination, page=page, order=order,
+                               list_name='list_judg', entry_name='application_judg')
+    else:
+        return abort(404)
+
+# @line_profile
+@app.route('/juri/list/judg')
+@app.route('/juri/list/judg/<int:page>')
+def list_judg(page=1):
+    order = request.args.get('order')
+    if order == 'c':
+        pagination = Judgments.query.filter(exists().where(Prediction.appno == Judgments.appno)).\
+                                     order_by(Judgments.respondent).paginate(page, per_page=30, error_out=False)
+    elif order == 'ta':
+        pagination = Judgments.query.filter(exists().where(Prediction.appno == Judgments.appno)).\
+                                     order_by(Judgments.kpdate).paginate(page, per_page=30, error_out=False)
+    else:
+        pagination = Judgments.query.filter(exists().where(Prediction.appno == Judgments.appno)).\
+                                     order_by(-Judgments.kpdate).paginate(page, per_page=30, error_out=False)
+    if pagination.items:
+        return render_template('list.html', pagination=pagination, page=page, order=order,
+                               list_name='list_judg', entry_name='application_judg')
     else:
         return abort(404)
 
 
 @app.route('/juri/latest')
-def list_judg():
+def latest():
     mname = request.args.get('modelname')
 
     pred_raw = Decisions.query.order_by(-Decisions.kpdate).limit(10).all()
-    resc_raw = Judgments.query.order_by(-Judgments.kpdate).limit(10).all()
+    resc_raw = Judgments.query.filter(exists().\
+                                      where(Prediction.appno == Judgments.appno)).\
+                                      order_by(-Judgments.kpdate).limit(10).all()
 
     appno_pred = [item.appno for item in pred_raw]
     appno_resc = [item.appno for item in resc_raw]
@@ -97,11 +121,11 @@ def list_judg():
         pred = Prediction.query.filter(Prediction.appno.in_(appno_pred)).filter_by(pred_type='DECISIONS').order_by(-Prediction.id).limit(10).all()
         resc = Prediction.query.filter(Prediction.appno.in_(appno_resc)).filter_by(pred_type='JUDGMENTS').order_by(-Prediction.id).limit(10).all()
 
-    # if pred or resc:
-        # print(len(list(zip(resc_raw, resc))))
-    return render_template('list-judg.html', pred=zip(pred_raw, pred), resc=zip(resc_raw, resc))
-    # else:
-        # return abort(404)
+    if pred or resc:
+        print(list(zip(resc_raw, resc)))
+        return render_template('latest.html', pred=zip(pred_raw, pred), resc=zip(resc_raw, resc))
+    else:
+        return abort(404)
 
 
 @app.route('/juri/list_model')
@@ -178,10 +202,10 @@ def application_judg(appno):
 
     model = Model.query.filter_by(modelname=judg_pred.modelname).first() if judg_pred else None
     modelnames = Prediction.query.filter_by(appno=apno, pred_type='JUDGMENTS').with_entities(Prediction.modelname).all()
-    # sent_result = json.loads(judg_pred.sent_result)
-    # sent_proba = json.loads(judg_pred.sent_proba)
-    sent_result = None
-    sent_proba = None
+    sent_result = json.loads(judg_pred.sent_result)
+    sent_proba = json.loads(judg_pred.sent_proba)
+    # sent_result = None
+    # sent_proba = None
     return render_template('judgment.html', d=desc, j=judg, jp=judg_pred, **locals())
 
 

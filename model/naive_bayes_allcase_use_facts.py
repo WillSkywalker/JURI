@@ -14,8 +14,9 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
 from model.extract_facts_judgments import extract_parts_judgments, JudgmentNoTextError
 
-MODEL_NAME = 'Naive Bayes all cases'
+MODEL_NAME = 'Naive Bayes all cases v2'
 AUTHOR = 'Xu Xiao'
+DESCRIPTION = 'Naive Bayes model using the fact section of Admissibility documents'
 DATE = datetime.datetime.today()
 
 
@@ -26,12 +27,22 @@ session = Session()
 
 class NBModel_judgments(BaseDecisionModel):
     """naive bayes"""
-    def __init__(self, name=MODEL_NAME, author=AUTHOR, date=DATE):
-        super(NBModel_judgments, self).__init__(name, author, date)
+    def __init__(self, name=MODEL_NAME, author=AUTHOR, date=DATE, description=DESCRIPTION):
+        super(NBModel_judgments, self).__init__(name, author, date, description)
         self.clf = Pipeline([
             ('vect', TfidfVectorizer()),
             ('clf', MultinomialNB()),
         ])
+
+    @staticmethod
+    def admissibility(desc):
+        '''you may override this with your own implementation'''
+        if not desc:
+            return 1
+        if 'Admissible' in desc or 'Partly admissible' in desc or 'Partly inadmissible' in desc:
+            return 0
+        else:
+            return 1
 
     @staticmethod
     def conclusion_simple(desc):
@@ -42,6 +53,8 @@ class NBModel_judgments(BaseDecisionModel):
             return 0
         else:
             return 1
+
+    conclusion = conclusion_simple
 
     def train(self):
         # get all appnos
@@ -57,6 +70,7 @@ class NBModel_judgments(BaseDecisionModel):
         # Filter by time
         # decisions = [session.query(Decisions).filter_by(appno=a).filter(Decisions.date < datetime.date(2019, 1, 1)).with_entities(Decisions.text).first() for a in appnos]
 
+        # decisions = [d for d in decisions if self.admissibility(d.conclusion) == 0]
         decisions = [d.text for d in decisions]  # convert to str
         decisions = [d.split('\n') for d in decisions]  # add nltk sent tokenization?
         #decisions = [json.loads(d.sents) for d in decisions]
@@ -102,16 +116,17 @@ class NBModel_judgments(BaseDecisionModel):
             sent_result.append(int(sent_res))
             sent_proba.append(float(sent_resn))
 
-        if res == 0:
-            if res == conclusion:
-                self.tp += 1
-            else:
-                self.fp += 1
-        else:
-            if res == conclusion:
-                self.tn += 1
-            else:
-                self.fn += 1
+        # if res == 0:
+        #     if res == conclusion:
+        #         self.tp += 1
+        #     else:
+        #         self.fp += 1
+        # else:
+        #     if res == conclusion:
+        #         self.tn += 1
+        #     else:
+        #         self.fn += 1
+        # moved to run.py
 
         return res, resn, sents, sent_result, sent_proba
 

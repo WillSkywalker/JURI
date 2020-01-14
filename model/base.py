@@ -33,7 +33,7 @@ class BaseDecisionModel:
         '''you may override this with your own implementation'''
         if not desc:
             return 1
-        if 'Admissible' in desc or 'Partly admissible' in desc:
+        if 'Admissible' in desc or 'Partly admissible' in desc or 'Partly inadmissible' in desc:
             return 0
         else:
             return 1
