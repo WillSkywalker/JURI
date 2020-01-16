@@ -126,7 +126,6 @@ class NBModel_judgments(BaseDecisionModel):
                 self.tn += 1
             else:
                 self.fn += 1
-        moved to run.py
 
         return res, resn, sents, sent_result, sent_proba
 
