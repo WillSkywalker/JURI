@@ -61,7 +61,10 @@ def conclusion_simple(desc):
 
 @app.route('/juri/')
 def index():
-    return render_template('index.html')
+    resc = Judgments.query.filter(exists().where(Prediction.appno == Judgments.appno)).\
+                                  order_by(-Judgments.kpdate).limit(5).all()
+    mdl = Model.query.order_by(-Model.date).limit(5).all()
+    return render_template('index.html', resc=resc, mdl=mdl)
 
 
 # @line_profile
@@ -165,9 +168,15 @@ def application_desc(appno):
     modelnames = Prediction.query.filter_by(appno=apno, pred_type='DECISIONS').with_entities(Prediction.modelname).all()
     sent_result = json.loads(desc_pred.sent_result)
     sent_proba = json.loads(desc_pred.sent_proba)
+    critical_indexes = {}
     try:
         max_idx = sent_proba.index(max([p if sent_result[i] == 0 else -1 for i, p in enumerate(sent_proba)]))
         min_idx = sent_proba.index(max([p if sent_result[i] == 1 else -1 for i, p in enumerate(sent_proba)]))
+        if len(list(set(sent_result))) > 2:
+            for i in list(set(sent_result) ^ set([1, 2])):
+                idx = sent_proba.index(max([p if sent_result[i] == i else -1
+                                            for i, p in enumerate(sent_proba)]))
+                critical_indexes[idx] = '#66ccff'
     except ValueError:
         max_idx = -1
         min_idx = -1
@@ -206,6 +215,23 @@ def application_judg(appno):
     sent_proba = json.loads(judg_pred.sent_proba)
     # sent_result = None
     # sent_proba = None
+    critical_indexes = {}
+    try:
+        max_idx = sent_proba.index(max([p if sent_result[i] == 0 else -1 for i, p in enumerate(sent_proba)]))
+        min_idx = sent_proba.index(max([p if sent_result[i] == 1 else -1 for i, p in enumerate(sent_proba)]))
+        if len(list(set(sent_result))) > 2:
+            for i in list(set(sent_result) ^ set([1, 2])):
+                idx = sent_proba.index(max([p if sent_result[i] == i else -1
+                                            for i, p in enumerate(sent_proba)]))
+                critical_indexes[idx] = '#66ccff'
+    except ValueError:
+        max_idx = -1
+        min_idx = -1
+    critical_indexes = {
+        max_idx: "#d7ffd9",
+        min_idx: "#ffcccb"
+    }
+    print(critical_indexes)
     return render_template('judgment.html', d=desc, j=judg, jp=judg_pred, **locals())
 
 

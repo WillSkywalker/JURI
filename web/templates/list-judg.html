@@ -30,7 +30,7 @@
         <section>
             <div class="row">
             <div class="col-6 col-12-medium">
-                <h2>Recent predictions</h2>
+                <h2>Recent admissibility predictions</h2>
                     {% for item, pre in pred %}
 
                         <h3><a href="{{ url_for('application_desc', appno = item.appno | replace('/', 'e')) }}">{{ item.docname }}</a></h3>
@@ -50,7 +50,7 @@
 
         </div>
         <div class='col-6 col-12-medium'>
-            <h2>Recent results</h2>
+            <h2>Recent judgment predictions</h2>
                     {% for item, pre in resc %}
 
                         <h3><a href="{{ url_for('application_judg', appno = item.appno | replace('/', 'e')) }}">{{ item.docname }}</a></h3>

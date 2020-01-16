@@ -21,15 +21,14 @@ session = Session()
 def decision_predict(m):
     m.train()
     for decision in session.query(Decisions):
-        if decision.conclusion:
-            result, proba, sents, sent_result, sent_proba = m.predict(decision)
-            old = session.query(Prediction).filter_by(modelname=m.name, appno=decision.appno, pred_type='DECISIONS').first()
-            if not old:
-                pred = Prediction(result=result, proba=proba, sents=sents, sent_result=json.dumps(sent_result),
-                                  sent_proba=json.dumps(sent_proba), modelname=m.name,
-                                  appno=decision.appno, pred_type='DECISIONS', gold=m.conclusion(decision.conclusion))
-                session.add(pred)
-                session.commit()
+        result, proba, sents, sent_result, sent_proba = m.predict(decision)
+        old = session.query(Prediction).filter_by(modelname=m.name, appno=decision.appno, pred_type='DECISIONS').first()
+        if not old:
+            pred = Prediction(result=result, proba=proba, sents=sents, sent_result=json.dumps(sent_result),
+                              sent_proba=json.dumps(sent_proba), modelname=m.name,
+                              appno=decision.appno, pred_type='DECISIONS', gold=m.conclusion(decision.conclusion))
+            session.add(pred)
+            session.commit()
 
     precision = m.tp / (m.tp + m.fp)
     recall = m.tp / (m.tp + m.fn)
@@ -46,7 +45,7 @@ def decision_predict(m):
 def predict(m, pred_type):
     m.train()
     for decision in session.query(Decisions):
-        if pred_type == 'DECISIONS' or m.conclusion(decision.conclusion) == 0:
+        if pred_type == 'DECISIONS' or m.admissibility(decision.conclusion) == 0:
             result, proba, sents, sent_result, sent_proba = m.predict(decision)
             old = session.query(Prediction).filter_by(modelname=m.name, appno=decision.appno, pred_type=pred_type).first()
             if not old:

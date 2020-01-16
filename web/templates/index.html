@@ -43,6 +43,30 @@
 				</a>
 			</article>
 		</section>
+		<hr>
+		<section>
+			<div class="row">
+				<div class="col-6">
+					<h3>Recent cases</h3>
+					<ul>
+					{% for item in resc %}
+
+                        <li><a href="{{ url_for('application_judg', appno = item.appno | replace('/', 'e')) }}">{{ item.docname }}</a> ({{item.kpdate.date()}})</li>
+
+                    {% endfor %}
+                    </ul>
+				</div>
+				<div class="col-6">
+					<h3>Recent Models</h3>
+					<ul>
+					{% for item in mdl %}
+                        <li>{{ item.modelname }}</a> ({{item.date}})</li>
+
+                    {% endfor %}
+                    </ul>
+				</div>
+			</div>
+		</section>
 	</div>
 </div>
 {% endblock %}

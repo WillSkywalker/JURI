@@ -58,9 +58,9 @@
 
                         {% if d.res == dp.result %}
                         <li></li>
-                        <li style='background-color: green; color: white; text-align: center;'><h2>Consistant</h2></li>
+                        <li style='background-color: green; color: white; text-align: center;'><h2>Consistent</h2></li>
                         {% else %}
-                        <li style='background-color: red; color: white; text-align: center;'><h2>Inconsistant</h2></li>
+                        <li style='background-color: red; color: white; text-align: center;'><h2>Inconsistent</h2></li>
                         {% endif %}
                         </li>
                     </ul>
@@ -69,10 +69,10 @@
                     <p>
                         {% for sent in sents %}
                         {% if sent_result[loop.index0] == 0 %}
-                        <span data-toggle="popover" data-placement="top" data-trigger="hover" title="PASS" data-content="Probability: {{sent_proba[loop.index0]}}" {% if loop.index0 in critical_indexes %} style="background:{{critical_indexes[loop.index0]}}" {% endif %}>
+                        <span data-toggle="popover" data-placement="top" title="VIOLATION" data-content="Probability: {{sent_proba[loop.index0]}}" {% if loop.index0 in critical_indexes %} style="background:{{critical_indexes[loop.index0]}}" class="criticalspan" data-trigger="click" {% else %} data-trigger="hover" {% endif %}>
                             {% autoescape false %}{{ sent | replace('\n', '<br>') }}{% endautoescape %}</span>
-                        {% else %}
-                        <span data-toggle="popover" data-placement="top" data-trigger="hover" title="FAIL" data-content="Probability: {{sent_proba[loop.index0]}}" {% if loop.index0 in critical_indexes %} style="background:{{critical_indexes[loop.index0]}}" {% endif %}>
+                        {% elif sent_result[loop.index0] == 1 %}
+                        <span data-toggle="popover" data-placement="top" title="NO VIOLATION" data-content="Probability: {{sent_proba[loop.index0]}}" {% if loop.index0 in critical_indexes %} style="background:{{critical_indexes[loop.index0]}}" class="criticalspan" data-trigger="click" {% else %} data-trigger="hover" {% endif %}>
                             {% autoescape false %}{{ sent | replace('\n', '<br>') }}{% endautoescape %}</span>
                         {% endif %}
                         <br>
@@ -85,9 +85,17 @@
 </div>
 {% endblock %}
 {% block scripts %}
+<style type="text/css">
+span:hover {
+box-shadow: 0 0 11px rgba(33,33,33,.2);
+}
+</style>
 <script type="text/javascript">
 $(function () {
   $('[data-toggle="popover"]').popover()
 })
+$('.criticalspan')
+    .popover('show')
+    .off('hover');
 </script>
 {% endblock %}
