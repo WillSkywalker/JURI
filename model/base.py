@@ -15,10 +15,11 @@ session = Session()
 
 class BaseDecisionModel:
     '''Please inherit your model from BaseModel'''
-    def __init__(self, name, author, date=datetime.datetime.now()):
+    def __init__(self, name, author, description, date=datetime.datetime.now()):
         super(BaseDecisionModel, self).__init__()
         self.name = name
         self.author = author
+        self.description = description
         self.date = date
         self.tp, self.fp, self.tn, self.fn = 0, 0, 0, 0
 
@@ -74,10 +75,11 @@ class BaseDecisionModel:
 
 class BaseJudgmentModel:
     '''Please inherit your model from BaseModel'''
-    def __init__(self, name, author, date=datetime.datetime.now()):
+    def __init__(self, name, author, description, date=datetime.datetime.now()):
         super(BaseJudgmentModel, self).__init__()
         self.name = name
         self.author = author
+        self.description = description
         self.date = date
         self.tp, self.fp, self.tn, self.fn = 0, 0, 0, 0
 

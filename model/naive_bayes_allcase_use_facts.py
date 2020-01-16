@@ -116,17 +116,17 @@ class NBModel_judgments(BaseDecisionModel):
             sent_result.append(int(sent_res))
             sent_proba.append(float(sent_resn))
 
-        # if res == 0:
-        #     if res == conclusion:
-        #         self.tp += 1
-        #     else:
-        #         self.fp += 1
-        # else:
-        #     if res == conclusion:
-        #         self.tn += 1
-        #     else:
-        #         self.fn += 1
-        # moved to run.py
+        if res == 0:
+            if res == conclusion:
+                self.tp += 1
+            else:
+                self.fp += 1
+        else:
+            if res == conclusion:
+                self.tn += 1
+            else:
+                self.fn += 1
+        moved to run.py
 
         return res, resn, sents, sent_result, sent_proba
 
