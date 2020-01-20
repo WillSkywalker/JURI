@@ -33,6 +33,7 @@ class Prediction(DeclarativeBase):
 class Model(DeclarativeBase):
     __tablename__ = 'Model'
     id = Column(Integer, primary_key=True)
+    pred_type = Column(String(16))
     modelname = Column(Unicode(64))
     description = Column(Unicode(128))
     author = Column(Unicode(64))

@@ -63,13 +63,24 @@ def conclusion_simple(desc):
 def index():
     mname = request.args.get('modelname')
     if not mname:
-        mname = Model.query.order_by(Model.fscore).first().modelname
-    preds = Decisions.query.filter(exists().where(Prediction.appno == Decisions.appno)).\
-                                  filter_by(pred_type='JUDGMENTS').order_by(-Decisions.kpdate).limit(5).all()
+        mname = Model.query.filter_by(pred_type='JUDGMENTS').order_by(-Model.fscore).first().modelname
+
+    preds = Prediction.query.filter_by(pred_type='JUDGMENTS', modelname=mname).\
+        filter(exists().where(Prediction.appno == Judgments.appno)).\
+        order_by(-Prediction.kpdate).limit(5).all()
+
+    appnos = [pred.appno for pred in preds]
+    to_be_preds = Judgments.query.filter(Judgments.appno.in_(appnos)).all()
+
     rests = Judgments.query.filter(exists().where(Prediction.appno == Judgments.appno)).\
-                                  order_by(-Judgments.kpdate).limit(5).all()
-    mdl = Model.query.order_by(-Model.date).limit(5).all()
-    return render_template('index.html', preds=preds, rests=rests)
+        order_by(-Judgments.kpdate).limit(5).all()
+    appnos = [rest.appno for rest in rests]
+    pred_rests = Prediction.query.filter_by(pred_type='JUDGMENTS', modelname=mname).\
+        filter(Prediction.appno.in_(appnos)).all()
+
+    preds = zip(preds, to_be_preds)
+    rests = zip(pred_rests, rests)
+    return render_template('index.html', preds=preds, rests=rests, mname=mname)
 
 
 # @line_profile

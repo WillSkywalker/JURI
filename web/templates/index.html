@@ -49,9 +49,16 @@
 				<div class="col-6">
 					<h3>Recently predicted</h3>
 					<ul>
-					{% for item in preds %}
+					{% for pred, judg in preds %}
 
-                        <li><a href="{{ url_for('application_judg', appno = item.appno | replace('/', 'e')) }}">{{ item.docname }}</a> ({{item.kpdate.date()}})</li>
+                        <li><a href="{{ url_for('application_judg', appno = judg.appno | replace('/', 'e')) }}">{{ judg.docname }}</a> ({{pred.kpdate}})
+                        	<br>
+                        {% if pred.result == 0 %}
+                        <b>Prediction: </b><span style='color: green;'>Violation</span>
+                        {% else %}
+                        <b>Prediction: </b><span style='color: red;'>No violation</span>
+                        {% endif %}
+
 
                     {% endfor %}
                     </ul>
@@ -59,9 +66,24 @@
 				<div class="col-6">
 					<h3>Recently published</h3>
 					<ul>
-					{% for item in rests %}
-                        <li>{{ item.docname }}</a> ({{item.kpdate.date()}})</li>
-
+					{% for pred, judg in rests %}
+                        <li><a href="{{ url_for('application_judg', appno = judg.appno | replace('/', 'e')) }}">{{ judg.docname }}</a> ({{pred.kpdate}})
+                        	<br>
+                        
+                        <b>Prediction: </b>
+                        {% if pred.result == 0 %}
+                        <span style='color: green;'>Violation</span>
+                        {% else %}
+                        <span style='color: red;'>No violation</span>
+                        {% endif %}
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <b>Judgment: </b>
+                        {% if judg.res == 0 %}
+                        <span style='color: green;'>Violation</span>
+                        {% else %}
+                        <span style='color: red;'>No violation</span>
+                        {% endif %}
+                        </li>
                     {% endfor %}
                     </ul>
 				</div>
