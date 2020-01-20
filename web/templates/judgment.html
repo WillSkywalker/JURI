@@ -40,21 +40,23 @@
                         {% else %}
                         <li><b>Admissibility date: </b>{{ d.kpdate.date() }}</li>
                         {% endif %}
-                        <li><b>Application number: </b>{{ d.appno }}</li>
-                        <li><b>Country: </b>{{ d.respondent }}</li>
+                        <li><b>Application number(s): </b>{{ d.appno }}</li>
+                        <li><b>Country code: </b>{{ d.respondent }}</li>
                         {% if j %}
-                        <li><b>Conclusion: </b>{{ j.conclusion }}</li>
+                        <li><b>Label: </b>{{ j.conclusion }}</li>
                         {% if j.res == 0 %}
                         <li style='color: green;'><b>Result: </b>Violation</li>
+                        <a href="#judgment-text" class="button" style="display:flex;justify-content:center;align-items:center;">SEE FINAL JUDGMENT</a>
                         {% else %}
                         <li style='color: red;'><b>Result: </b>No violation</li>
+                        <a href="#judgment-text" class="button" style="display:flex;justify-content:center;align-items:center;">SEE FINAL JUDGMENT</a>
                         {% endif %}
                         {% else %}
                         <li>No published judgement yet.</li>
                         {% endif %}
 
                     </ul>
-                    <h3>Our Prediction</h3>
+                    <h3>JURI Prediction</h3>
                     <ul class="alt">
                         {% if jp %}
                         <li><b>Probability: </b>{{ jp.proba }}</li>
@@ -94,6 +96,7 @@
                         <br>
                         {% endfor %}
                     </p>
+                    <div id="judgment-text">
                     <h2>Judgment</h2>
                     {% if j %}
                         {% for sent in jsents %}
@@ -103,6 +106,7 @@
                     {% else %}
                         <p>The official judgment is not published yet.</p>
                     {% endif %}
+                    </div>
                 </div>
             </div>
         </section>
