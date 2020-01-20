@@ -4,6 +4,7 @@ import random
 import logging
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.sql import exists
 
 from config.config import Config
 from db.database import CommunicatedCases, Decisions, Judgments, Prediction, Model
@@ -62,14 +63,15 @@ class NBModel_judgments(BaseDecisionModel):
 
     def train(self):
         # get all appnos
-        judgs = session.query(Judgments).with_entities(Judgments.appno).all()
-        decs = session.query(Decisions).with_entities(Decisions.appno).all()
-        appnos = set(judgs) & set(decs)
-        appnos = [i[0] for i in appnos]
+        # judgs = session.query(Judgments).with_entities(Judgments.appno).all()
+        # decs = session.query(Decisions).with_entities(Decisions.appno).all()
+        # appnos = set(judgs) & set(decs)
+        # appnos = [i[0] for i in appnos]
 
         # get all text
         # decisions = Decisions.query.filter(Decisions.appno.in_(appnos)).with_entities(Decisions.text).all()
-        decisions = [session.query(Decisions).filter_by(appno=a).with_entities(Decisions.text).first() for a in appnos]
+        decisions = session.query(Decisions).filter(exists().where(Decisions.appno == Judgments.appno)).all()
+        decisions = [decision for decision in decisions if self.conclusion(decision.conclusion) == 0]
 
         # Filter by time
         # decisions = [session.query(Decisions).filter_by(appno=a).filter(Decisions.date < datetime.date(2019, 1, 1)).with_entities(Decisions.text).first() for a in appnos]
