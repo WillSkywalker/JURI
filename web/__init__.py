@@ -177,7 +177,7 @@ def application_desc(appno):
     if mname:
         desc_pred = Prediction.query.filter_by(appno=apno, pred_type='DECISIONS', modelname=mname).first()
     else:
-        desc_pred = Prediction.query.filter_by(appno=apno, pred_type='DECISIONS').first()
+        desc_pred = Prediction.query.filter_by(appno=apno, pred_type='DECISIONS').order_by(-Prediction.id).first()
 
     desc.res = admissibility_anal_simple(desc.conclusion)
     sents = json.loads(desc_pred.sents)
@@ -225,7 +225,7 @@ def application_judg(appno):
     if mname:
         judg_pred = Prediction.query.filter_by(appno=apno, pred_type='JUDGMENTS', modelname=mname).first()
     else:
-        judg_pred = Prediction.query.filter_by(appno=apno, pred_type='JUDGMENTS').first()
+        judg_pred = Prediction.query.filter_by(appno=apno, pred_type='JUDGMENTS').order_by(-Prediction.id).first()
 
     model = Model.query.filter_by(modelname=judg_pred.modelname).first() if judg_pred else None
     modelnames = Prediction.query.filter_by(appno=apno, pred_type='JUDGMENTS').with_entities(Prediction.modelname).all()

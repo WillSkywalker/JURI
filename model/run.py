@@ -1,6 +1,7 @@
 from model.random_guess import RandomModel
 from model.naive_bayes_allcase_use_facts import NBModel_judgments
 
+import logging
 import json
 import datetime
 from sqlalchemy import create_engine
@@ -10,8 +11,9 @@ from sqlalchemy.sql import exists
 from config.config import Config
 from db.database import CommunicatedCases, Decisions, Judgments, Prediction, Model
 from model.base import BaseDecisionModel
+from model.extract_facts_judgments import extract_parts_judgments, JudgmentNoTextError
 
-from sklearn.metrics import accuracy_score, f1_score
+from sklearn.metrics import accuracy_score, f1_score, classification_report, confusion_matrix
 
 engine = create_engine(Config.SQLALCHEMY_DATABASE_URI, encoding='utf-8', echo=True)
 Session = sessionmaker(bind=engine)
@@ -36,6 +38,7 @@ def decision_predict(m):
               description='A class-sample model using random guess, for decision',
               author=m.author,
               date=m.date,
+              pred_type='DECISIONS',
               accuracy=(m.tp + m.tn) / (m.tp + m.tn + m.fp + m.fn),
               fscore=2 * (precision * recall) / (precision + recall))
     session.add(m)
@@ -43,26 +46,52 @@ def decision_predict(m):
 
 
 def predict(m, pred_type):
+    # Train
     m.train()
-    for decision in session.query(Decisions):
+
+    # Make predictions on cases that aren't published yet
+    for decision in session.query(Decisions).filter(~exists().where(Decisions.appno == Judgments.appno)):
         if pred_type == 'DECISIONS' or m.admissibility(decision.conclusion) == 0:
             result, proba, sents, sent_result, sent_proba = m.predict(decision)
             old = session.query(Prediction).filter_by(modelname=m.name, appno=decision.appno, pred_type=pred_type).first()
             if not old:
                 pred = Prediction(result=result, proba=proba, sents=json.dumps(sents), sent_result=json.dumps(sent_result),
-                                  sent_proba=json.dumps(sent_proba), modelname=m.name,
+                                  sent_proba=json.dumps(sent_proba), modelname=m.name, kpdate=decision.kpdate,
                                   appno=decision.appno, pred_type=pred_type)
                 session.add(pred)
                 session.commit()
 
-    precision = m.tp / (m.tp + m.fp)
-    recall = m.tp / (m.tp + m.fn)
-    m = Model(modelname=m.name + pred_type,
+    # Evaluation, further report saved at local
+    jdgs = session.query(Judgments).filter(exists().where(Decisions.appno == Judgments.appno)).limit(100).all()
+    appnos = [j.appno for j in jdgs]
+    ds = Decisions.query.filter(Decisions.appno.in_(appnos)).all()
+    ds = [d.text for d in ds]
+    ds = [d.split('\n') for d in ds]
+    new_appnos = []
+    testset = []
+    for i, d in enumerate(ds):
+        try:
+            testset.append(' '.join(extract_parts_judgments(d)[7]))
+            new_appnos.append(appnos[i])
+        except JudgmentNoTextError:
+            logging.warning(appnos[i])
+
+    results = [session.query(Judgments).filter_by(appno=a).with_entities(Judgments.conclusion).first() for a in new_appnos]
+    results = [m.conclusion(res.conclusion) for res in results]
+    assert len(testset) == len(results)
+    predictions = m.fit(testset)
+    accuracy = accuracy_score(predictions, results)
+    fscore = f1_score(predictions, results, average='micro')
+    logging.warning(classification_report(predictions, results))
+    logging.warning(confusion_matrix(predictions, results))
+
+    m = Model(modelname=m.name,
               description=m.description,
               author=m.author,
               date=m.date,
-              accuracy=(m.tp + m.tn) / (m.tp + m.tn + m.fp + m.fn),
-              fscore=2 * (precision * recall) / (precision + recall))
+              pred_type=pred_type,
+              accuracy=accuracy,
+              fscore=fscore)
     session.add(m)
     session.commit()
 
