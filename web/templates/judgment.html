@@ -35,7 +35,11 @@
                 <div class="col-4 col-12-medium">
                     <h3>Information</h3>
                     <ul class="alt">
+                        {% if j %}
                         <li><b>Date: </b>{{ j.kpdate.date() }}</li>
+                        {% else %}
+                        <li><b>Admissibility date: </b>{{ d.kpdate.date() }}</li>
+                        {% endif %}
                         <li><b>Application number: </b>{{ d.appno }}</li>
                         <li><b>Country: </b>{{ d.respondent }}</li>
                         {% if j %}
