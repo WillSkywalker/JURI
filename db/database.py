@@ -18,6 +18,7 @@ class Prediction(DeclarativeBase):
         Index("idx_appno", "appno", mysql_length=15),
     )
     id = Column(Integer, primary_key=True)
+    kpdate = Column(Date())
     gold = Column(Integer())
     result = Column(Integer())
     proba = Column(Float())

@@ -47,9 +47,9 @@
 		<section>
 			<div class="row">
 				<div class="col-6">
-					<h3>Recent cases</h3>
+					<h3>Recently predicted</h3>
 					<ul>
-					{% for item in resc %}
+					{% for item in preds %}
 
                         <li><a href="{{ url_for('application_judg', appno = item.appno | replace('/', 'e')) }}">{{ item.docname }}</a> ({{item.kpdate.date()}})</li>
 
@@ -57,10 +57,10 @@
                     </ul>
 				</div>
 				<div class="col-6">
-					<h3>Recent Models</h3>
+					<h3>Recently published</h3>
 					<ul>
-					{% for item in mdl %}
-                        <li>{{ item.modelname }}</a> ({{item.date}})</li>
+					{% for item in rests %}
+                        <li>{{ item.docname }}</a> ({{item.kpdate.date()}})</li>
 
                     {% endfor %}
                     </ul>

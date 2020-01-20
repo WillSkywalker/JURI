@@ -61,10 +61,15 @@ def conclusion_simple(desc):
 
 @app.route('/juri/')
 def index():
-    resc = Judgments.query.filter(exists().where(Prediction.appno == Judgments.appno)).\
+    mname = request.args.get('modelname')
+    if not mname:
+        mname = Model.query.order_by(Model.fscore).first().modelname
+    preds = Decisions.query.filter(exists().where(Prediction.appno == Decisions.appno)).\
+                                  filter_by(pred_type='JUDGMENTS').order_by(-Decisions.kpdate).limit(5).all()
+    rests = Judgments.query.filter(exists().where(Prediction.appno == Judgments.appno)).\
                                   order_by(-Judgments.kpdate).limit(5).all()
     mdl = Model.query.order_by(-Model.date).limit(5).all()
-    return render_template('index.html', resc=resc, mdl=mdl)
+    return render_template('index.html', preds=preds, rests=rests)
 
 
 # @line_profile
