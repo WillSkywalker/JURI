@@ -52,8 +52,8 @@ def admissibility_anal_simple(desc):
 
 def conclusion_simple(desc):
     if not desc:
-        raise NoDecisionError
-    if 'Violation of Article 6' in desc or 'Violation of Art. 6' in desc or 'Violations of Art. 6' in desc:
+        return 1
+    if 'Violation of ' in desc or 'Violations of ' in desc:
         return 0
     else:
         return 1
@@ -71,9 +71,13 @@ def index():
 
     appnos = [pred.appno for pred in preds]
     to_be_preds = Judgments.query.filter(Judgments.appno.in_(appnos)).all()
+    for j in to_be_preds:
+        j.res = conclusion_simple(j.conclusion)
 
     rests = Judgments.query.filter(exists().where(Prediction.appno == Judgments.appno)).\
         order_by(-Judgments.kpdate).limit(5).all()
+    for j in rests:
+        j.res = conclusion_simple(j.conclusion)
     appnos = [rest.appno for rest in rests]
     pred_rests = Prediction.query.filter_by(pred_type='JUDGMENTS', modelname=mname).\
         filter(Prediction.appno.in_(appnos)).all()
