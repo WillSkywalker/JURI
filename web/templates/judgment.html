@@ -35,7 +35,7 @@
                 <div class="col-4 col-12-medium">
                     <h3>Information</h3>
                     <ul class="alt">
-                        <li><b>Admissibility decision time: </b>{{ d.kpdate }}</li>
+                        <li><b>Date: </b>{{ j.kpdate.date() }}</li>
                         <li><b>Application number: </b>{{ d.appno }}</li>
                         <li><b>Country: </b>{{ d.respondent }}</li>
                         {% if j %}
