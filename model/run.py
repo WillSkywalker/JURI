@@ -64,7 +64,7 @@ def predict(m, pred_type):
     # Evaluation, further report saved at local
     jdgs = session.query(Judgments).filter(exists().where(Decisions.appno == Judgments.appno)).limit(100).all()
     appnos = [j.appno for j in jdgs]
-    ds = Decisions.query.filter(Decisions.appno.in_(appnos)).all()
+    ds = session.query(Decisions).filter(Decisions.appno.in_(appnos)).all()
     ds = [d.text for d in ds]
     ds = [d.split('\n') for d in ds]
     new_appnos = []

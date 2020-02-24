@@ -71,26 +71,27 @@ class NBModel_judgments(BaseDecisionModel):
         # get all text
         # decisions = Decisions.query.filter(Decisions.appno.in_(appnos)).with_entities(Decisions.text).all()
         decisions = session.query(Decisions).filter(exists().where(Decisions.appno == Judgments.appno)).all()
-        decisions = [decision for decision in decisions if self.conclusion(decision.conclusion) == 0]
+        decisions = [decision for decision in decisions if self.admissibility(decision.conclusion) == 0]
 
         # Filter by time
         # decisions = [session.query(Decisions).filter_by(appno=a).filter(Decisions.date < datetime.date(2019, 1, 1)).with_entities(Decisions.text).first() for a in appnos]
 
         # decisions = [d for d in decisions if self.admissibility(d.conclusion) == 0]
-        decisions = [d.text for d in decisions]  # convert to str
-        decisions = [d.split('\n') for d in decisions]  # add nltk sent tokenization?
+        # texts = [d.text for d in decisions]  # convert to str
+        # texts = [d.split('\n') for d in texts]  # add nltk sent tokenization?
         #decisions = [json.loads(d.sents) for d in decisions]
 
         # decisions = [' '.join(extract_parts_judgments(d)[7]) for d in decisions]
         new_appnos = []
         new_decisions = []
-        for i, d in enumerate(decisions):
+        for d in decisions:
             try:
-                print('OOOOO:', appnos[i])
-                new_decisions.append(' '.join(extract_parts_judgments(d)[7]))
-                new_appnos.append(appnos[i])
+                print('OOOOO:', d.appno)
+                text = d.text.split('\n')
+                new_decisions.append(' '.join(extract_parts_judgments(text)[7]))
+                new_appnos.append(d.appno)
             except JudgmentNoTextError:
-                logging.warning(appnos[i])
+                logging.warning(d.appno)
 
         # In case you need CommunicatedCases
         # ccs = CommunicatedCases.query.filter(CommunicatedCases.appno.in_(appnos)).all()
@@ -137,5 +138,6 @@ class NBModel_judgments(BaseDecisionModel):
 
 
 if __name__ == '__main__':
-    decision_predict()
-    judgment_predict()
+    # decision_predict()
+    # judgment_predict()
+    pass
