@@ -1,5 +1,5 @@
 from model.random_guess import RandomModel
-from model.naive_bayes_allcase_use_facts import NBModel_judgments
+from model.naive_bayes_allcase_use_facts import NBModel_judgments, NBModel_comms
 
 import logging
 import json
@@ -79,7 +79,7 @@ def predict(m, pred_type):
     results = [session.query(Judgments).filter_by(appno=a).with_entities(Judgments.conclusion).first() for a in new_appnos]
     results = [m.conclusion(res.conclusion) for res in results]
     assert len(testset) == len(results)
-    predictions = m.fit(testset)
+    predictions = m.clf.fit(testset)
     accuracy = accuracy_score(predictions, results)
     fscore = f1_score(predictions, results, average='micro')
     logging.warning(classification_report(predictions, results))
@@ -95,6 +95,48 @@ def predict(m, pred_type):
     session.add(m)
     session.commit()
 
+
+def predict_communicated(m):
+    m.train()
+
+    # Make predictions on cases that aren't published yet
+    for comm in session.query(CommunicatedCases).filter(~exists().where(CommunicatedCases.appno == Judgments.appno)):
+        result, proba, sents, sent_result, sent_proba = m.predict(comm)
+        old = session.query(Prediction).filter_by(modelname=m.name, appno=comm.appno, pred_type='COMM').first()
+        if not old:
+            pred = Prediction(result=result, proba=proba, sents=json.dumps(sents), sent_result=json.dumps(sent_result),
+                              sent_proba=json.dumps(sent_proba), modelname=m.name, kpdate=comm.kpdate,
+                              appno=comm.appno, pred_type='COMM')
+            session.add(pred)
+            session.commit()
+
+    # Evaluation, further report saved at local
+    jdgs = session.query(Judgments).filter(exists().where(CommunicatedCases.appno == Judgments.appno)).limit(100).all()
+    appnos = [j.appno for j in jdgs]
+    ds = [session.query(CommunicatedCases).filter_by(appno=appno).first() for appno in appnos]
+    ds = [d.text for d in ds]
+
+    results = [session.query(Judgments).filter_by(appno=a).with_entities(Judgments.conclusion).first() for a in appnos]
+    results = [m.conclusion(res.conclusion) for res in results]
+    assert len(ds) == len(results)
+    predictions = m.clf.predict(ds)
+    accuracy = accuracy_score(predictions, results)
+    fscore = f1_score(predictions, results, average='micro')
+    logging.warning(classification_report(predictions, results))
+    logging.warning(confusion_matrix(predictions, results))
+
+    m = Model(modelname=m.name,
+              description=m.description,
+              author=m.author,
+              date=m.date,
+              pred_type='COMM',
+              accuracy=float(accuracy),
+              fscore=float(fscore))
+    session.add(m)
+    session.commit()
+
 if __name__ == '__main__':
-    jm = NBModel_judgments()
-    predict(jm, pred_type='JUDGMENTS')
+    # jm = NBModel_judgments()
+    # predict(jm, pred_type='JUDGMENTS')
+    cm = NBModel_comms()
+    predict_communicated(cm)

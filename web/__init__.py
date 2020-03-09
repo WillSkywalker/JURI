@@ -10,6 +10,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_moment import Moment
 
 import json
+import random
 
 from config.config import Config
 from db.database import metadata, CommunicatedCases, Decisions, Judgments, Prediction, Model
@@ -64,9 +65,9 @@ def index():
     mname = request.args.get('modelname')
     if not mname:
         mname = Model.query.filter_by(pred_type='JUDGMENTS').order_by(-Model.fscore).first().modelname
+        cmname = Model.query.filter_by(pred_type='COMM').order_by(-Model.fscore).first().modelname
 
-    preds = Prediction.query.filter_by(pred_type='JUDGMENTS', modelname=mname).\
-        filter(~exists().where(Prediction.appno == Judgments.appno)).\
+    preds = Prediction.query.filter_by(pred_type='COMM').\
         order_by(-Prediction.kpdate).limit(5).all()
 
     appnos = [pred.appno for pred in preds]
@@ -119,6 +120,26 @@ def list_judg(page=1):
     if pagination.items:
         return render_template('list.html', pagination=pagination, page=page, order=order,
                                list_name='list_judg', entry_name='application_judg')
+    else:
+        return abort(404)
+
+
+@app.route('/juri/list/comm')
+@app.route('/juri/list/comm/<int:page>')
+def list_comm(page=1):
+    order = request.args.get('order')
+    if order == 'c':
+        pagination = CommunicatedCases.query.filter(exists().where(Prediction.appno == CommunicatedCases.appno)).\
+                                     order_by(CommunicatedCases.respondent).paginate(page, per_page=30, error_out=False)
+    elif order == 'ta':
+        pagination = CommunicatedCases.query.filter(exists().where(Prediction.appno == CommunicatedCases.appno)).\
+                                     order_by(CommunicatedCases.kpdate).paginate(page, per_page=30, error_out=False)
+    else:
+        pagination = CommunicatedCases.query.filter(exists().where(Prediction.appno == CommunicatedCases.appno)).\
+                                     order_by(-CommunicatedCases.kpdate).paginate(page, per_page=30, error_out=False)
+    if pagination.items:
+        return render_template('list.html', pagination=pagination, page=page, order=order,
+                               list_name='list_comm', entry_name='application_comm')
     else:
         return abort(404)
 
@@ -235,23 +256,90 @@ def application_judg(appno):
     # sent_proba = None
     critical_indexes = {}
     try:
-        max_idx = sent_proba.index(max([p if sent_result[i] == 0 else -1 for i, p in enumerate(sent_proba)]))
-        min_idx = sent_proba.index(max([p if sent_result[i] == 1 else -1 for i, p in enumerate(sent_proba)]))
+        max_prob = max([p for i, p in enumerate(sent_proba) if sent_result[i] == 0], default=None)
+        max_sent = sents[sent_proba.index(max_prob)] if max_prob else None
+        min_prob = max([p for i, p in enumerate(sent_proba) if sent_result[i] == 1], default=None)
+        min_sent = sents[sent_proba.index(min_prob)] if min_prob else None
+        max_idxes = [i for i, p in enumerate(sent_proba) if sent_result[i] == 0 and p > 0.9]
+        min_idxes = [i for i, p in enumerate(sent_proba) if sent_result[i] == 1 and p > 0.9]
         if len(list(set(sent_result))) > 2:
             for i in list(set(sent_result) ^ set([1, 2])):
                 idx = sent_proba.index(max([p if sent_result[i] == i else -1
                                             for i, p in enumerate(sent_proba)]))
                 critical_indexes[idx] = '#66ccff'
     except ValueError:
-        max_idx = -1
-        min_idx = -1
+        max_idxes = []
+        min_idxes = []
     critical_indexes = {
-        max_idx: "#d7ffd9",
-        min_idx: "#ffcccb"
+        # max_idx: "#d7ffd9",
+        # min_idx: "#ffcccb"
     }
+    for idx in max_idxes:
+        critical_indexes[idx] = "#d7ffd9"
+    for idx in min_idxes:
+        critical_indexes[idx] = "#ffcccb"
     print(critical_indexes)
+    sent_num = len(sents)
+    rand1 = random.randrange(sent_num//5, sent_num//2)
+    rand2 = random.randrange(sent_num//2, sent_num*4//5)
     return render_template('judgment.html', d=desc, j=judg, jp=judg_pred, **locals())
 
+
+@app.route('/juri/app/comm/<appno>')
+def application_comm(appno):
+    apno = appno.replace('e', '/')
+    mname = request.args.get('modelname')
+    comm = CommunicatedCases.query.filter_by(appno=apno).first()
+
+    judg = Judgments.query.filter_by(appno=apno).first()
+    if judg:
+        judg.res = conclusion_simple(judg.conclusion)
+        jsents = json.loads(judg.sents)
+    if not comm and not judg:
+        abort(404)
+    if mname:
+        judg_pred = Prediction.query.filter_by(appno=apno, pred_type='COMM', modelname=mname).first()
+    else:
+        judg_pred = Prediction.query.filter_by(appno=apno, pred_type='COMM').order_by(-Prediction.id).first()
+
+    model = Model.query.filter_by(modelname=judg_pred.modelname).first() if judg_pred else None
+    modelnames = Prediction.query.filter_by(appno=apno, pred_type='COMM').with_entities(Prediction.modelname).all()
+    sents = json.loads(judg_pred.sents)
+    sent_result = json.loads(judg_pred.sent_result)
+    sent_proba = json.loads(judg_pred.sent_proba)
+    # sent_result = None
+    # sent_proba = None
+    critical_indexes = {}
+    try:
+        max_prob = max([p for i, p in enumerate(sent_proba) if sent_result[i] == 0], default=None)
+        max_sent = sents[sent_proba.index(max_prob)] if max_prob else None
+        min_prob = max([p for i, p in enumerate(sent_proba) if sent_result[i] == 1], default=None)
+        min_sent = sents[sent_proba.index(min_prob)] if min_prob else None
+        max_idxes = [i for i, p in enumerate(sent_proba) if sent_result[i] == 0 and p > 0.96]
+        min_idxes = [i for i, p in enumerate(sent_proba) if sent_result[i] == 1 and p > 0.96]
+        if len(list(set(sent_result))) > 2:
+            for i in list(set(sent_result) ^ set([1, 2])):
+                idx = sent_proba.index(max([p if sent_result[i] == i else -1
+                                            for i, p in enumerate(sent_proba)]))
+                critical_indexes[idx] = '#66ccff'
+    except ValueError as e:
+        print('error', e)
+        max_idxes = []
+        min_idxes = []
+    critical_indexes = {
+        # max_idx: "#d7ffd9",
+        # min_idx: "#ffcccb"
+    }
+    for idx in max_idxes:
+        critical_indexes[idx] = "#d7ffd9"
+    for idx in min_idxes:
+        critical_indexes[idx] = "#ffcccb"
+    print(max_idxes)
+    print(critical_indexes)
+    sent_num = len(sents)
+    rand1 = random.randrange(sent_num//5, sent_num//2)
+    rand2 = random.randrange(sent_num//2, sent_num*4//5)
+    return render_template('comm.html', d=comm, j=judg, jp=judg_pred, **locals())
 
 
 @app.route('/api/case/<appno>')

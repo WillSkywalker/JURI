@@ -66,7 +66,7 @@
         </div>
         <div class='pagination pagination-lg' style="margin-left:auto;margin-right:auto;">
 
-            <a class="page-link next page-numbers" href="{% if pagination.has_prev %}{{ url_for('list_desc',
+            <a class="page-link next page-numbers" href="{% if pagination.has_prev %}{{ url_for(list_name,
             page = pagination.page - 1) }}{% else %}#{% endif %}">previous</a>
 
             {% for p in pagination.iter_pages() %}

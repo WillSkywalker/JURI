@@ -5,7 +5,7 @@
 <div id="main">
 	<div class="inner">
 		<header>
-			<h1>Predicting judicial decisions of the European Court of Human Rights with <a href="http://html5up.net" style='color:#f2849e'>JURI</a>.</h1>
+			<h1>JURI is predicting judgment results from the European Court of Human Rights with an accuracy of <a href="http://html5up.net" style='color:#f2849e'>86%</a>.</h1>
 			<p>JURI reads press releases from previous years and decisions of the cases judged by the European Court of Human Rights and predicts decisions the Court will make. Every week it learns from its mistakes.</p>
 		</header>
 		<section class="tiles">
@@ -13,10 +13,10 @@
 				<span class="image">
 					<img src="{{ url_for('static', filename='images/pic01.jpg') }}" alt="" />
 				</span>
-				<a href="{{ url_for('list_desc') }}">
-					<h2>Admissibility</h2>
+				<a href="{{ url_for('list_comm') }}">
+					<h2>Communications</h2>
 					<div class="content">
-						<p>Predicting admissibility of cases according to relavent facts.</p>
+						<p>Recent judgment predictions based on communications made by ECtHR Court.</p>
 					</div>
 				</a>
 			</article>
@@ -47,7 +47,7 @@
 		<section>
 			<div class="row">
 				<div class="col-6">
-					<h3>Recently predicted</h3>
+					<h3>Based on Communications</h3>
 					<ul>
 					{% for pred, judg in preds %}
 
@@ -64,7 +64,7 @@
                     </ul>
 				</div>
 				<div class="col-6">
-					<h3>Recently published</h3>
+					<h3>Based on admissibility decisions</h3>
 					<ul>
 					{% for pred, judg in rests %}
                         <li><a href="{{ url_for('application_judg', appno = judg.appno | replace('/', 'e')) }}?modelname={{ mname }}">{{ judg.docname }}</a> ({{pred.kpdate}})

@@ -21,7 +21,7 @@
                 <li>
                 <select name="order" id="order" onchange="window.location=this.value;">
                     {% for name in modelnames %}
-                    <option value="{{ url_for('application_judg', appno = d.appno | replace('/', 'e')) }}?modelname={{ name[0] }}" {% if mname == name %}selected="selected"{% endif %}>{{name[0]}}</option>
+                    <option value="{{ url_for('application_comm', appno = d.appno | replace('/', 'e')) }}?modelname={{ name[0] }}" {% if mname == name %}selected="selected"{% endif %}>{{name[0]}}</option>
                     {% endfor %}
                 </select>
                 </li>
