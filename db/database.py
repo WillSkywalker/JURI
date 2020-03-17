@@ -42,6 +42,19 @@ class Model(DeclarativeBase):
     fscore = Column(Float())
     article = Column(String(64))
 
+
+class WeeklyReport(DeclarativeBase):
+    __tablename__ = 'WeeklyReport'
+    id = Column(Integer, primary_key=True)
+    modelname = Column(Unicode(64))
+    description = Column(Unicode(128))
+    author = Column(Unicode(64))
+    date = Column(Date())
+    accuracy = Column(Float())
+    fscore = Column(Float())
+    press_id = Column(Integer())
+
+
 engine = create_engine(Config.SQLALCHEMY_DATABASE_URI, echo=True)
 metadata.reflect(engine)
 Base = automap_base(metadata=metadata)
@@ -51,3 +64,4 @@ Base.prepare(engine, reflect=True)
 CommunicatedCases = getattr(Base.classes, 'CommunicatedCases')
 Decisions = getattr(Base.classes, 'Decisions')
 Judgments = getattr(Base.classes, 'Judgments')
+Press = getattr(Base.classes, 'Press')

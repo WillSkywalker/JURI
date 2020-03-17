@@ -41,7 +41,10 @@
                         <li><b>Admissibility date: </b>{{ d.kpdate.date() }}</li>
                         {% endif %}
                         <li><b>Application number(s): </b>{{ d.appno }}</li>
-                        <li><b>Country code: </b>{{ d.respondent }}</li>
+                        <li>
+                            <b id='country'>Country: </b>
+                            {{ d.respondent }}
+                        </li>
                         {% if j %}
                         <li><b>Label: </b>{{ j.conclusion }}</li>
                         {% if j.res == 0 %}
@@ -129,13 +132,19 @@ blockquote {
     color:#2bb6c9;
     font-size: 30px;
 }
+#country {
+    display: inline-flex;
+}
 </style>
 <script type="text/javascript">
 $(function () {
   $('[data-toggle="popover"]').popover()
 })
 $('.criticalspan')
-    .popover('show')
-    .off('manual');
+    .popover('show');
+
+const parentElement = document.getElementById("country");
+const flag = new CountryFlag(parentElement);
+flag.selectByAlpha3("{{ d.respondent }}");
 </script>
 {% endblock %}
