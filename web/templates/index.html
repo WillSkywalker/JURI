@@ -5,8 +5,31 @@
 <div id="main">
 	<div class="inner">
 		<header>
-			<h1>JURI is predicting judgment results from the European Court of Human Rights with an accuracy of <a href="http://html5up.net" style='color:#f2849e'>86%</a>.</h1>
-			<p>JURI reads press releases from previous years and decisions of the cases judged by the European Court of Human Rights and predicts decisions the Court will make. Every week it learns from its mistakes.</p>
+            <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <h1>JURI is predicting judgment results from the European Court of Human Rights with an accuracy of <a href="{{ url_for('list_model') }}" style='color:#f2849e'>88%</a>.</h1>
+                        <p>JURI reads press releases from previous years and decisions of the cases judged by the European Court of Human Rights and predicts decisions the Court will make. Every week it learns from its mistakes.</p>
+                    </div>
+                    <div class="carousel-item">
+                        <h1>Here are the predictions JURI made for judgment results to be published next week.</h1>
+                        <a href="{{ url_for("report", report_id = reports[0].press_id | replace('/', 'e')) }}" class="button" style="display:flex;justify-content:center;align-items:center;">Read more</a>
+                    </div>
+                    <div class="carousel-item">
+                        <h1>Out of <a style='color:#f2849e'>{{ right + wrong }}</a> cases published last week, JURI has correctly predicted <a style='color:#f2849e'>{{ right }}</a> judgments.</h1>
+                        <a href="{{ url_for("report", report_id = reports[1].press_id | replace('/', 'e')) }}" class="button" style="display:flex;justify-content:center;align-items:center;">Read more</a>
+                    </div>
+                </div>
+                <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </div>
 		</header>
 		<section class="tiles">
 			<article class="style1">
@@ -35,10 +58,10 @@
 				<span class="image">
 					<img src="{{ url_for('static', filename='images/pic03.png') }}" alt="" />
 				</span>
-				<a href="{{ url_for('list_model') }}">
-					<h2>Models</h2>
+				<a href="{{ url_for('list_reports') }}">
+					<h2>Weekly Reports</h2>
 					<div class="content">
-						<p>Compare all available prediction models.</p>
+						<p>Check our prediction reports published every week.</p>
 					</div>
 				</a>
 			</article>
@@ -58,7 +81,13 @@
                         {% else %}
                         <b>Prediction: </b><span style='color: red;'>No violation</span>
                         {% endif %}
-
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <b>Judgment: </b>
+                        {% if judg.res == 0 %}
+                        <span style='color: green;'>Violation</span>
+                        {% else %}
+                        <span style='color: red;'>No violation</span>
+                        {% endif %}
 
                     {% endfor %}
                     </ul>
@@ -67,7 +96,7 @@
 					<h3>Based on admissibility decisions</h3>
 					<ul>
 					{% for pred, judg in rests %}
-                        <li><a href="{{ url_for('application_judg', appno = judg.appno | replace('/', 'e')) }}?modelname={{ mname }}">{{ judg.docname }}</a> ({{pred.kpdate}})
+                        <li><a href="{{ url_for('application_judg', appno = judg.appno | replace('/', 'e')) }}?modelname={{ mname }}">{{ judg.docname }}</a> ({{ pred.kpdate }})
                         	<br>
                         
                         <b>Prediction: </b>

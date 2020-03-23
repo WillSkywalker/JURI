@@ -13,7 +13,7 @@ import json
 import random
 
 from config.config import Config
-from db.database import metadata, CommunicatedCases, Decisions, Judgments, Prediction, Model
+from db.database import metadata, CommunicatedCases, Decisions, Judgments, Prediction, Model, Press, WeeklyReport
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -40,6 +40,8 @@ Decisions.__bases__ = Decisions.__bases__ + (db.Model,)
 Judgments.__bases__ = Judgments.__bases__ + (db.Model,)
 Prediction.__bases__ = Prediction.__bases__ + (db.Model,)
 Model.__bases__ = Model.__bases__ + (db.Model,)
+Press.__bases__ = Press.__bases__ + (db.Model,)
+WeeklyReport.__bases__ = WeeklyReport.__bases__ + (db.Model,)
 
 
 def admissibility_anal_simple(desc):
@@ -67,23 +69,30 @@ def index():
         mname = Model.query.filter_by(pred_type='JUDGMENTS').order_by(-Model.fscore).first().modelname
         cmname = Model.query.filter_by(pred_type='COMM').order_by(-Model.fscore).first().modelname
 
-    preds = Prediction.query.filter_by(pred_type='COMM').\
-        order_by(-Prediction.kpdate).limit(5).all()
+    reports = WeeklyReport.query.order_by(-WeeklyReport.date).limit(2).all()
+    right = 0
+    wrong = 0
+    for g, p in zip(reports[1].results, reports[1].preds):
+        if g is None:
+            continue
+        if g == p.result:
+            right += 1
+        else:
+            wrong += 1
 
-    appnos = [pred.appno for pred in preds]
-    to_be_preds = Decisions.query.filter(Decisions.appno.in_(appnos)).all()
+    preds_comm = Prediction.query.filter_by(pred_type='COMM', modelname=cmname).\
+        filter(Prediction.judgment_id.isnot(None)).order_by(-Prediction.kpdate).limit(5).all()
 
-    rests = Judgments.query.filter(exists().where(Prediction.appno == Judgments.appno)).\
-        order_by(-Judgments.kpdate).limit(5).all()
-    for j in rests:
-        j.res = conclusion_simple(j.conclusion)
-    appnos = [rest.appno for rest in rests]
-    pred_rests = Prediction.query.filter_by(pred_type='JUDGMENTS', modelname=mname).\
-        filter(Prediction.appno.in_(appnos)).all()
+    res_comm = [Judgments.query.filter_by(id=p.judgment_id).first() for p in preds_comm]
 
-    preds = zip(preds, to_be_preds)
-    rests = zip(pred_rests, rests)
-    return render_template('index.html', preds=preds, rests=rests, mname=mname)
+    preds_judg = Prediction.query.filter_by(pred_type='JUDGMENTS', modelname=mname).\
+        filter(Prediction.judgment_id.isnot(None)).order_by(-Prediction.kpdate).limit(5).all()
+    res_judg = [Judgments.query.filter_by(id=p.judgment_id).first() for p in preds_judg]
+
+
+    preds = zip(preds_comm, res_comm)
+    rests = zip(preds_judg, res_judg)
+    return render_template('index.html', preds=preds, rests=rests, mname=mname, right=right, wrong=wrong, reports=reports)
 
 
 # @line_profile
@@ -340,6 +349,41 @@ def application_comm(appno):
     rand1 = random.randrange(sent_num//5, sent_num//2)
     rand2 = random.randrange(sent_num//2, sent_num*4//5)
     return render_template('comm.html', d=comm, j=judg, jp=judg_pred, **locals())
+
+
+@app.route('/juri/reports')
+@app.route('/juri/reports/<int:page>')
+def list_reports(page=1):
+    # order = request.args.get('order')
+    pagination = WeeklyReport.query.order_by(-WeeklyReport.date).paginate(page, per_page=30, error_out=False)
+    if pagination.items:
+        return render_template('list-report.html', pagination=pagination, page=page,
+                               list_name='list_reports', entry_name='report')
+    else:
+        return abort(404)
+
+
+@app.route('/juri/report/<int:report_id>')
+def report(report_id):
+    press = Press.query.filter_by(id=report_id).first()
+    report = WeeklyReport.query.filter_by(press_id=press.id).first()
+    appnos = json.loads(press.appnos)
+    preds = []
+    # comms = []
+    # judgs = []
+    for appno in appnos:
+        # pred = Prediction.query.filter(Prediction.appno.like("%{}%".format(appno))).first()
+        pred = Prediction.query.filter_by(appno=appno, pred_type='COMM').first()
+        if pred:
+            comm = CommunicatedCases.query.filter_by(appno=appno).first()
+            judg = Judgments.query.filter_by(id=pred.judgment_id).first()
+            if judg:
+                judg.res = conclusion_simple(judg.conclusion)
+            preds.append((pred, comm, judg))
+
+    print(preds)
+
+    return render_template('report.html', press=press, report=report, preds=preds)
 
 
 @app.route('/api/case/<appno>')

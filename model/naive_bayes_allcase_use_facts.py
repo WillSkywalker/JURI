@@ -195,7 +195,7 @@ class NBModel_comms(BaseCommunicatedCasesModel):
         # results = Judgments.query.filter(Judgments.appno.in_(appnos)).with_entities(Judgments.conclusion).all()
         results = []
         for a in new_appnos:
-            j = session.query(Judgments).filter_by(appno=a).with_entities(Judgments.conclusion).first()
+            j = session.query(Judgments).filter(Judgments.appno.like("%{}%".format(a))).with_entities(Judgments.conclusion).first()
             if j:
                 results.append(self.conclusion_simple(j.conclusion))
             else:

@@ -1,9 +1,11 @@
 from model.random_guess import RandomModel
 from model.naive_bayes_allcase_use_facts import NBModel_judgments, NBModel_comms
 
+import os
 import logging
 import json
 import datetime
+import joblib
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import exists
@@ -18,6 +20,7 @@ from sklearn.metrics import accuracy_score, f1_score, classification_report, con
 engine = create_engine(Config.SQLALCHEMY_DATABASE_URI, encoding='utf-8', echo=True)
 Session = sessionmaker(bind=engine)
 session = Session()
+DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
 
 def decision_predict(m):
@@ -34,13 +37,14 @@ def decision_predict(m):
 
     precision = m.tp / (m.tp + m.fp)
     recall = m.tp / (m.tp + m.fn)
-    m = Model(modelname=m.name,
-              description='A class-sample model using random guess, for decision',
-              author=m.author,
-              date=m.date,
-              pred_type='DECISIONS',
-              accuracy=(m.tp + m.tn) / (m.tp + m.tn + m.fp + m.fn),
-              fscore=2 * (precision * recall) / (precision + recall))
+    m = Model(
+        modelname=m.name,
+        description='A class-sample model using random guess, for decision',
+        author=m.author,
+        date=m.date,
+        pred_type='DECISIONS',
+        accuracy=(m.tp + m.tn) / (m.tp + m.tn + m.fp + m.fn),
+        fscore=2 * (precision * recall) / (precision + recall))
     session.add(m)
     session.commit()
 
@@ -100,13 +104,15 @@ def predict_communicated(m):
     m.train()
 
     # Make predictions on cases that aren't published yet
-    for comm in session.query(CommunicatedCases).filter(~exists().where(CommunicatedCases.appno == Judgments.appno)):
+    for comm in session.query(CommunicatedCases):
         result, proba, sents, sent_result, sent_proba = m.predict(comm)
         old = session.query(Prediction).filter_by(modelname=m.name, appno=comm.appno, pred_type='COMM').first()
         if not old:
+            jdg = session.query(Judgments).filter(Judgments.appno.like("%{}%".format(comm.appno))).first()
+            judgment_id = jdg.id if jdg else None
             pred = Prediction(result=result, proba=proba, sents=json.dumps(sents), sent_result=json.dumps(sent_result),
                               sent_proba=json.dumps(sent_proba), modelname=m.name, kpdate=comm.kpdate,
-                              appno=comm.appno, pred_type='COMM')
+                              appno=comm.appno, pred_type='COMM', judgment_id=judgment_id)
             session.add(pred)
             session.commit()
 
@@ -124,6 +130,9 @@ def predict_communicated(m):
     fscore = f1_score(predictions, results, average='micro')
     logging.warning(classification_report(predictions, results))
     logging.warning(confusion_matrix(predictions, results))
+    if not os.path.exists(os.path.join(DIRECTORY, 'models/')):
+        os.makedirs(os.path.join(DIRECTORY, 'models/'))
+    joblib.dump(m.clf, os.path.join(DIRECTORY, 'models/', m.name+'.joblib'))
 
     m = Model(modelname=m.name,
               description=m.description,
@@ -134,6 +143,7 @@ def predict_communicated(m):
               fscore=float(fscore))
     session.add(m)
     session.commit()
+
 
 if __name__ == '__main__':
     # jm = NBModel_judgments()

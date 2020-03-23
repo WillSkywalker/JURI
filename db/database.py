@@ -28,6 +28,8 @@ class Prediction(DeclarativeBase):
     modelname = Column(Unicode(64), index=True)
     appno = Column(Text(4294000000))
     pred_type = Column(String(16))
+    weeklyreport_id = Column(Integer, ForeignKey('WeeklyReport.id'))
+    judgment_id = Column(Integer())
 
 
 class Model(DeclarativeBase):
@@ -47,12 +49,13 @@ class WeeklyReport(DeclarativeBase):
     __tablename__ = 'WeeklyReport'
     id = Column(Integer, primary_key=True)
     modelname = Column(Unicode(64))
-    description = Column(Unicode(128))
-    author = Column(Unicode(64))
+    docname = Column(Unicode(64))
     date = Column(Date())
     accuracy = Column(Float())
-    fscore = Column(Float())
     press_id = Column(Integer())
+    appnos = Column(Text(4294000000))
+    results = Column(Text(4294000000))
+    preds = relationship("Prediction", order_by="Prediction.kpdate")
 
 
 engine = create_engine(Config.SQLALCHEMY_DATABASE_URI, echo=True)
