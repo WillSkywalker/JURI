@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block title %}Recent predictions{% endblock %}
+{% block main %}
+<style type="text/css">
+.pagination {
+  display: inline-block;
+
+}
+
+.pagination a {
+  color: black;
+  float: left;
+  padding: 8px 16px;
+  text-decoration: none;
+}
+
+.pagination a.active {
+  background-color: #f2849e;
+  color: white;
+}
+
+.pagination a:hover:not(.active) {background-color: #ddd;}
+</style>
+<!-- Main -->
+<div id="main">
+    <div class="inner">
+        <header>
+            <h1>{{ press.docname }}</h1>
+        </header>
+        <section>
+            <div class="row">
+            <div class="col-12">
+                <h2>Weekly report published on {{ press.kpdate.date() }}</h2>
+                    {% for pred, comm, judg in preds %}
+
+                        <h3><a href="{{ url_for('application_comm', appno = comm.appno | replace('/', 'e')) }}">{{ comm.docname }}</a></h3>
+                        <p>{{ comm.text[:500] }}...</p>
+                        
+                        Application Number:&nbsp;<b>
+
+                            {% if pred.appno|length > 15 %}
+                            {{ pred.appno[:15] }}...
+                            {% else %}
+                            {{ pred.appno }}
+                            {% endif %}
+                        </b>
+                        <br>
+                        {% if pred %}
+                        <b>Probability: </b>{{ pred.proba }}<br>
+                        {% if pred.result %}
+                        <a style='color: red;'><b>Prediction: </b>No violation</a>
+                        {% else %}
+                        <a style='color: green;'><b>Prediction: </b>Violation</a>
+                        {% endif %}
+                        {% else %}
+                        <p>No prediction with this model.</p>
+                        {% endif %}
+
+                        <br>
+
+                        {% if judg %}
+                        {% if judg.res == 0 %}
+                        <a style='color: green;'><b>Result: </b>Violation</a>
+                        {% else %}
+                        <a style='color: red;'><b>Result: </b>No violation</a>
+                        {% endif %}
+                        {% else %}
+                        <p>No published judgement yet.</p>
+                        {% endif %}
+
+
+
+                        <p> </p>
+                        <p>{{ pred.kpdate }}</p>
+                    {% endfor %}
+
+        </div>
+{#         <div class='col-6 col-12-medium'>
+            <h2>Recent judgment predictions</h2>
+                    {% for item, pre in resc %}
+
+                        <h3><a href="{{ url_for('application_judg', appno = item.appno | replace('/', 'e')) }}">{{ item.docname }}</a></h3>
+                        <p>{{ item.text[:500] }}...</p>
+                        
+                        Application Number:&nbsp;<b>
+
+                            {% if item.appno|length > 15 %}
+                            {{ item.appno[:15] }}...
+                            {% else %}
+                            {{ item.appno }}
+                            {% endif %}
+                        </b>
+                        <p></p>
+                        <p>{{ item.kpdate }}</p>
+                    {% endfor %}
+
+        </div> #}
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}
