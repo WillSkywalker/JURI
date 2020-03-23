@@ -17,7 +17,7 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
 from model.extract_facts_judgments import extract_parts_judgments, JudgmentNoTextError
 
-MODEL_NAME = 'Balanced Naive Bayes all cases v3'
+MODEL_NAME = 'Balanced Naive Bayes all cases v2'
 AUTHOR = 'Xu Xiao'
 DESCRIPTION = 'Naive Bayes model using the fact section of Admissibility documents'
 DATE = datetime.datetime.today()
@@ -31,7 +31,7 @@ session = Session()
 class NBModel_judgments(BaseDecisionModel):
     """naive bayes"""
     def __init__(self, name=MODEL_NAME, author=AUTHOR, date=DATE, description=DESCRIPTION):
-        super(NBModel_judgments, self).__init__(name, author, date, description)
+        super(NBModel_judgments, self).__init__(name, author, description, date)
         self.clf = Pipeline([
             ('vect', TfidfVectorizer()),
             ('clf', MultinomialNB()),
@@ -107,7 +107,7 @@ class NBModel_judgments(BaseDecisionModel):
         balanced_results = []
         sample_count = {0: 0, 1: 0}
         for idx, res in enumerate(results):
-            sample_count.setdefault[res] += 1
+            sample_count[res] += 1
             if sample_count[res] < maximum_sample:
                 balanced_decisions.append(new_decisions[idx])
                 balanced_results.append(res)

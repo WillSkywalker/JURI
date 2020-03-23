@@ -68,7 +68,8 @@ def predict(m, pred_type):
     # Evaluation, further report saved at local
     jdgs = session.query(Judgments).filter(exists().where(Decisions.appno == Judgments.appno)).limit(100).all()
     appnos = [j.appno for j in jdgs]
-    ds = session.query(Decisions).filter(Decisions.appno.in_(appnos)).all()
+    #ds = session.query(Decisions).filter(Decisions.appno.in_(appnos)).all()
+    ds = [session.query(Decisions).filter_by(appno=appno).first() for appno in appnos]
     ds = [d.text for d in ds]
     ds = [d.split('\n') for d in ds]
     new_appnos = []
@@ -83,9 +84,9 @@ def predict(m, pred_type):
     results = [session.query(Judgments).filter_by(appno=a).with_entities(Judgments.conclusion).first() for a in new_appnos]
     results = [m.conclusion(res.conclusion) for res in results]
     assert len(testset) == len(results)
-    predictions = m.clf.fit(testset)
-    accuracy = accuracy_score(predictions, results)
-    fscore = f1_score(predictions, results, average='micro')
+    predictions = m.clf.predict(testset)
+    accuracy = float(accuracy_score(predictions, results))
+    fscore = float(f1_score(predictions, results, average='micro'))
     logging.warning(classification_report(predictions, results))
     logging.warning(confusion_matrix(predictions, results))
 
@@ -146,7 +147,7 @@ def predict_communicated(m):
 
 
 if __name__ == '__main__':
-    # jm = NBModel_judgments()
-    # predict(jm, pred_type='JUDGMENTS')
-    cm = NBModel_comms()
-    predict_communicated(cm)
+    jm = NBModel_judgments()
+    predict(jm, pred_type='JUDGMENTS')
+    #cm = NBModel_comms()
+    #predict_communicated(cm)
