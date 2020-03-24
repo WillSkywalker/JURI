@@ -326,8 +326,8 @@ def application_comm(appno):
         max_sent = sents[sent_proba.index(max_prob)] if max_prob else None
         min_prob = max([p for i, p in enumerate(sent_proba) if sent_result[i] == 1], default=None)
         min_sent = sents[sent_proba.index(min_prob)] if min_prob else None
-        max_idxes = [i for i, p in enumerate(sent_proba) if sent_result[i] == 0 and p > 0.65]
-        min_idxes = [i for i, p in enumerate(sent_proba) if sent_result[i] == 1 and p > 0.65]
+        max_idxes = [i for i, p in enumerate(sent_proba) if sent_result[i] == 0 and p > 0.5]
+        min_idxes = [i for i, p in enumerate(sent_proba) if sent_result[i] == 1 and p > 0.5]
         if len(list(set(sent_result))) > 2:
             for i in list(set(sent_result) ^ set([1, 2])):
                 idx = sent_proba.index(max([p if sent_result[i] == i else -1
@@ -342,9 +342,10 @@ def application_comm(appno):
         # min_idx: "#ffcccb"
     }
     for idx in max_idxes:
-        critical_indexes[idx] = "hsl(123, 100%, {}%)".format(100 * math.log(1.65 - sent_proba[idx]))
+        critical_indexes[idx] = "hsl(123, 100%, {}%)".format((1 - sent_proba[idx]) * 2 * 100)
+        print(sent_proba[idx], math.log(9-sent_proba[idx])*100)
     for idx in min_idxes:
-        critical_indexes[idx] = "#hsl(1, 100%, {}%)".format(100 * math.log(1.65 - sent_proba[idx]))
+        critical_indexes[idx] = "hsl(1, 100%, {}%)".format((1 - sent_proba[idx]) * 2 * 100)
     print(max_idxes)
     print(critical_indexes)
     sent_num = len(sents)
