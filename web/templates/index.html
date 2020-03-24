@@ -74,7 +74,7 @@
 					<ul>
 					{% for pred, judg in preds %}
 
-                        <li><a href="{{ url_for('application_judg', appno = judg.appno | replace('/', 'e')) }}?modelname={{ mname }}">{{ judg.docname }}</a> ({{pred.kpdate}})
+                        <li><a href="{{ url_for('application_comm', appno = judg.appno | replace('/', 'e')) }}?modelname={{ cmname }}">{{ judg.docname }}</a> ({{pred.kpdate}})
                         	<br>
                         {% if pred.result == 0 %}
                         <b>Prediction: </b><span style='color: green;'>Violation</span>

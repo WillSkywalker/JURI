@@ -11,6 +11,7 @@ from flask_moment import Moment
 
 import json
 import random
+import math
 
 from config.config import Config
 from db.database import metadata, CommunicatedCases, Decisions, Judgments, Prediction, Model, Press, WeeklyReport
@@ -92,7 +93,8 @@ def index():
 
     preds = zip(preds_comm, res_comm)
     rests = zip(preds_judg, res_judg)
-    return render_template('index.html', preds=preds, rests=rests, mname=mname, right=right, wrong=wrong, reports=reports)
+    return render_template('index.html', preds=preds, rests=rests, mname=mname, cmname=cmname,
+        right=right, wrong=wrong, reports=reports)
 
 
 # @line_profile
@@ -324,8 +326,8 @@ def application_comm(appno):
         max_sent = sents[sent_proba.index(max_prob)] if max_prob else None
         min_prob = max([p for i, p in enumerate(sent_proba) if sent_result[i] == 1], default=None)
         min_sent = sents[sent_proba.index(min_prob)] if min_prob else None
-        max_idxes = [i for i, p in enumerate(sent_proba) if sent_result[i] == 0 and p > 0.96]
-        min_idxes = [i for i, p in enumerate(sent_proba) if sent_result[i] == 1 and p > 0.96]
+        max_idxes = [i for i, p in enumerate(sent_proba) if sent_result[i] == 0 and p > 0.65]
+        min_idxes = [i for i, p in enumerate(sent_proba) if sent_result[i] == 1 and p > 0.65]
         if len(list(set(sent_result))) > 2:
             for i in list(set(sent_result) ^ set([1, 2])):
                 idx = sent_proba.index(max([p if sent_result[i] == i else -1
@@ -340,9 +342,9 @@ def application_comm(appno):
         # min_idx: "#ffcccb"
     }
     for idx in max_idxes:
-        critical_indexes[idx] = "#d7ffd9"
+        critical_indexes[idx] = "hsl(123, 100%, {}%)".format(100 * math.log(1.65 - sent_proba[idx]))
     for idx in min_idxes:
-        critical_indexes[idx] = "#ffcccb"
+        critical_indexes[idx] = "#hsl(1, 100%, {}%)".format(100 * math.log(1.65 - sent_proba[idx]))
     print(max_idxes)
     print(critical_indexes)
     sent_num = len(sents)
