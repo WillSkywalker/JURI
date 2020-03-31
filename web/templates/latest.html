@@ -2,6 +2,9 @@
 {% block title %}Recent predictions{% endblock %}
 {% block main %}
 <style type="text/css">
+#country {
+    display: inline-flex;
+}
 .pagination {
   display: inline-block;
 
@@ -20,52 +23,117 @@
 }
 
 .pagination a:hover:not(.active) {background-color: #ddd;}
+
+.col-6 {
+    padding: 0;
+}
+
+.caseblock {
+    margin: 0;
+    padding: 0 0 0 1.5em;
+
+    color: #eceff1;
+
+}
+
+.wrongblock1 {
+    background-color: #585858;
+    color: #eceff1;
+}
+
+.wrongblock2 {
+    color: #585858;
+    background-color: #eceff1;
+}
+
+.caseblock p {
+    margin: 0
+}
+
+.caseblock1-0 {
+    background-color: #42a5f5;
+}
+
+.caseblock2-0  {
+    background-color: #0077c2;
+}
+
+.caseblock1-1 {
+    background-color: #b91400;
+}
+
+.caseblock2-1 {
+    background-color: #f4511e;
+
+}
+
+.caseblock1-2 {
+    background-color: #26a69a;
+}
+
+.caseblock2-2 {
+    background-color: #00766c;
+}
+
+.caseblock1-3 {
+    background-color: #ba2d65;
+}
+
+.caseblock2-3 {
+    background-color: #f06292;
+}
 </style>
 <!-- Main -->
 <div id="main">
     <div class="inner">
         <header>
-            <h1>Latest</h1>
+            <h1>Recent judgments</h1>
+            <blockquote style="font-style: normal">Here you can compare our predictions to the latest decisions made by the European Court of Human Rights. If you see a mismatch in color pattern, it means we failed to predict the outcome of that case.<br>Among the latest 50 judgments, we successfully predicted {{accuracy}}% of them.</blockquote>
         </header>
         <section>
             <div class="row">
-            <div class="col-6 col-12-medium">
-                <h2>Recent admissibility predictions</h2>
-                    {% for item, pre in pred %}
-
-                        <h3><a href="{{ url_for('application_desc', appno = item.appno | replace('/', 'e')) }}">{{ item.docname }}</a></h3>
-                        <p>{{ item.text[:500] }}...</p>
-                        
-                        Application Number:&nbsp;<b>
+            <div class="col-6">
+                <h2>Recent judgment predictions</h2>
+                    {% for item in pred %}
+                    <div class="caseblock {% if item.wrong %}wrongblock{{2-loop.index0%2}}{% else %}caseblock1-{{loop.index0 % 4}}{% endif %}">
+                        <h3><a href="{{ url_for('application_comm', appno = item.appno | replace('/', 'e')) }}">{{ item.title }}</a></h3>
+                        <p>
+                            Prediction: <b>{% if item.result %}No violation{% else %}Violation{% endif %}</b>
+                        </p>
+                        <b>Application Number:</b>&nbsp;
 
                             {% if item.appno|length > 15 %}
                             {{ item.appno[:15] }}...
                             {% else %}
                             {{ item.appno }}
                             {% endif %}
-                        </b>
                         <p></p>
-                        <p>{{ item.kpdate }}</p>
+                        <p><b>Communicated on:</b> {{ item.kpdate }}</p>
+                    </div>
                     {% endfor %}
 
         </div>
-        <div class='col-6 col-12-medium'>
-            <h2>Recent judgment predictions</h2>
-                    {% for item, pre in resc %}
+        <div class='col-6'>
+            <h2>Recent judgments</h2>
+                    {% for item in resc %}
+                    <div class="caseblock {% if item.wrong %}wrongblock{{loop.index0%2+1}}{% else %}caseblock2-{{loop.index0 % 4}}{% endif %}">
 
-                        <h3><a href="{{ url_for('application_judg', appno = item.appno | replace('/', 'e')) }}">{{ item.docname }}</a></h3>
-                        <p>{{ item.text[:500] }}...</p>
-                        
-                        Application Number:&nbsp;<b>
+                        <h3><a href="{{ url_for('application_comm', appno = item.appno | replace('/', 'e')) }}">{{ item.docname }}</a></h3>
+                        <p>
+                            <b id='country'>Country: </b>
+                            {{ item.respondent }}
+                        </p>
+                        <b>Application Number:&nbsp;</b>
 
                             {% if item.appno|length > 15 %}
                             {{ item.appno[:15] }}...
                             {% else %}
                             {{ item.appno }}
                             {% endif %}
-                        </b>
+                        
                         <p></p>
-                        <p>{{ item.kpdate }}</p>
+                        <p><b>Decision made on:</b> {{ item.kpdate.date() }}</p>
+                    </div>
                     {% endfor %}
 
         </div>

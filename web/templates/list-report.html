@@ -43,7 +43,7 @@
                     <tr>
                         <td><a href="{{ url_for(entry_name, report_id = item.press_id | replace('/', 'e')) }}">{{ item.docname }}</a></td>
                         <td>{{ item.date }}</td>
-                        <td>{{ item.accuracy }}</td>
+                        <td>{% if loop.index0 == 0 %}-{% else %}{{ item.accuracy }}{% endif %}</td>
                     </tr>
                     {% endfor %}
 

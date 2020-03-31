@@ -20,6 +20,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import exists
 
+from sklearn.metrics import accuracy_score
+
 #from flask_debugtoolbar_lineprofilerpanel.profile import line_profile
 
 
@@ -81,17 +83,21 @@ def index():
         else:
             wrong += 1
 
-    preds_comm = Prediction.query.filter_by(pred_type='COMM', modelname=cmname).\
-        filter(Prediction.judgment_id.isnot(None)).order_by(-Prediction.kpdate).limit(5).all()
+    # preds_comm = Prediction.query.filter_by(pred_type='COMM', modelname=cmname).\
+    #     filter(Prediction.judgment_id.isnot(None)).order_by(-Prediction.kpdate).limit(5).all()
     # preds_comm = Prediction.query.join(Judgments, Prediction.judgment_id==Judgments.id).\
     #     filter(Prediction.pred_type == 'COMM').filter(Prediction.judgment_id.isnot(None)).\
     #     order_by(-Judgments.kpdate).limit(5).all()
 
-    res_comm = [Judgments.query.filter_by(id=p.judgment_id).first() for p in preds_comm]
+    # res_comm = [Judgments.query.filter_by(id=p.judgment_id).first() for p in preds_comm]
     # res_comm = Judgments.query.filter(exists().\
     #                                   where(Prediction.judgment_id == Judgments.id)).\
     #                                   order_by(-Judgments.kpdate).limit(5).all()
-    # preds_comm = [Prediction.query.filter_by(judgment_id=j.id).first() for j in res_comm]
+    res_comm = Judgments.query.filter(exists().where(Prediction.appno == Judgments.appno)).\
+                                      order_by(-Judgments.kpdate).limit(5).all()
+
+
+    preds_comm = [Prediction.query.filter_by(appno=j.appno).first() for j in res_comm]
 
 
     preds_judg = Prediction.query.filter_by(pred_type='COMM', modelname=cmname).\
@@ -167,24 +173,33 @@ def list_comm(page=1):
 def latest():
     mname = request.args.get('modelname')
 
-    pred_raw = Decisions.query.order_by(-Decisions.kpdate).limit(10).all()
-    resc_raw = Judgments.query.filter(exists().\
+    # pred_raw = Decisions.query.order_by(-Decisions.kpdate).limit(10).all()
+    resc = Judgments.query.filter(exists().\
                                       where(Prediction.appno == Judgments.appno)).\
-                                      order_by(-Judgments.kpdate).limit(10).all()
+                                      order_by(-Judgments.kpdate).limit(50).all()
 
-    appno_pred = [item.appno for item in pred_raw]
-    appno_resc = [item.appno for item in resc_raw]
+    appno_resc = [item.appno for item in resc]
 
     if mname:
-        pred = Prediction.query.filter(Prediction.appno.in_(appno_pred)).filter_by(pred_type='DECISIONS', modelname=mname).order_by(-Prediction.id).limit(10).all()
-        resc = Prediction.query.filter(Prediction.appno.in_(appno_resc)).filter_by(pred_type='JUDGMENTS', modelname=mname).order_by(-Prediction.id).limit(10).all()
+        pred = [Prediction.query.filter_by(pred_type='COMM', modelname=mname, appno=appno).first() for appno in appno_resc]
     else:
-        pred = Prediction.query.filter(Prediction.appno.in_(appno_pred)).filter_by(pred_type='DECISIONS').order_by(-Prediction.id).limit(10).all()
-        resc = Prediction.query.filter(Prediction.appno.in_(appno_resc)).filter_by(pred_type='JUDGMENTS').order_by(-Prediction.id).limit(10).all()
+        pred = [Prediction.query.filter_by(pred_type='COMM', appno=appno).first() for appno in appno_resc]
 
+    mistake = 0
+    for i, p in enumerate(pred):
+        # p.text = ' '.join(json.loads(p.sents)[:3])
+        if conclusion_simple(resc[i].conclusion) == p.result:
+            p.wrong = False
+            resc[i].wrong = False
+        else:
+            p.wrong = True
+            resc[i].wrong = True
+            mistake += 1
+
+        p.title = resc[i].docname
     if pred or resc:
-        print(list(zip(resc_raw, resc)))
-        return render_template('latest.html', pred=zip(pred_raw, pred), resc=zip(resc_raw, resc))
+        # print(list(zip(resc_raw, resc)))
+        return render_template('latest.html', pred=pred, resc=resc, accuracy='%.1f' % (100*(1-mistake/50)))
     else:
         return abort(404)
 
@@ -366,15 +381,15 @@ def application_comm(appno):
     }
     for idx in max_idxes:
         if judg:
-            critical_indexes[idx] = "hsl(123, 100%, {}%)".format((1 - sent_proba[idx]) * 2 * 100)
+            critical_indexes[idx] = "hsl(123, 100%, {}%)".format((0.6 - math.log(sent_proba[idx]) * 0.5) * 100)
         else:
-            critical_indexes[idx] = "hsl(182, 100%, {}%)".format((1 - sent_proba[idx]) * 2 * 100)
+            critical_indexes[idx] = "hsl(182, 100%, {}%)".format((0.6 - math.log(sent_proba[idx]) * 0.5) * 100)
         # print(sent_proba[idx], math.log(9-sent_proba[idx])*100)
     for idx in min_idxes:
         if judg:
-            critical_indexes[idx] = "hsl(1, 100%, {}%)".format((1 - sent_proba[idx]) * 2 * 100)
+            critical_indexes[idx] = "hsl(1, 100%, {}%)".format((0.6 - math.log(sent_proba[idx]) * 0.5) * 100)
         else:
-            critical_indexes[idx] = "hsl(60, 100%, {}%)".format((1 - sent_proba[idx]) * 2 * 100)
+            critical_indexes[idx] = "hsl(60, 100%, {}%)".format((0.6 - math.log(sent_proba[idx]) * 0.5) * 100)
     print(max_idxes)
     print(critical_indexes)
     sent_num = len(sents)

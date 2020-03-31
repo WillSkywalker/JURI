@@ -9,7 +9,7 @@
             <div class="inner row">
                 <div class="col-6">
             <ul class="actions">
-                <li><a href="{{ url_for('application_desc', appno = d.appno | replace('/', 'e')) }}" class="button">Admissibility</a></li>
+                <li><a href="{{ url_for('application_desc', appno = d.appno | replace('/', 'e')) }}" class="button disabled">Admissibility</a></li>
                 <li><a href="#" class="button primary">Judgment</a></li>
             </ul>
             </div>
@@ -84,6 +84,19 @@
                         {% endif %}
                         </li>
                     </ul>
+                    <br>
+                <div class="scrollingBox">
+                    <h3>Legends</h3>
+                    <div style="display: inline-grid;">
+                        {% if j and jp %}
+                        <div><div class="box" style="background-color: #d7ffd9"></div>&nbsp;In line with the court's judgement</div>
+                        <div><div class="box" style="background-color: #ffcccb"></div>&nbsp;In opposition to the court's judgement</div>
+                        {% else %}
+                        <div><div class="box" style="background-color: #c3fdff"></div>&nbsp;In line with our prediction</div>
+                        <div><div class="box" style="background-color: #ffffcf"></div>&nbsp;In opposition to our prediction</div>
+                        {% endif %}
+                    </div>
+                </div>
                 </div>
                 <div class="col-8 col-12-medium">
                     <h2>Text used for prediction</h2>
@@ -135,6 +148,23 @@ blockquote {
 #country {
     display: inline-flex;
 }
+.sidebarBox {
+    width: 360px; /* Replace with your sidebar width */
+    float: right;
+    position: relative;
+}
+.scrollingBox {
+    width: 360px; /* Replace with the same width as sidebar */
+}
+
+.box {
+  height: 30px;
+  width: 15px;
+  float: left;
+  border: none;
+  padding: 0;
+  margin-bottom: 1em;
+}
 </style>
 <script type="text/javascript">
 $(function () {
@@ -146,5 +176,23 @@ $(function () {
 const parentElement = document.getElementById("country");
 const flag = new CountryFlag(parentElement);
 flag.selectByAlpha3("{{ d.respondent }}");
+
+$(function() {
+        var offsetPixels = $( ".scrollingBox" ).offset().top; // change with your sidebar height
+
+        $(window).scroll(function() {
+            if ($(window).scrollTop() > offsetPixels) {
+                $(".scrollingBox").css({
+                    "position": "fixed",
+                    "top": "15px"
+                });
+            } else {
+                $(".scrollingBox").css({
+                    "position": "relative"
+                    // "top": "0"
+                });
+            }
+        });
+    });
 </script>
 {% endblock %}
