@@ -73,7 +73,7 @@ def index():
     reports = WeeklyReport.query.order_by(-WeeklyReport.date).limit(2).all()
     right = 0
     wrong = 0
-    for g, p in zip(reports[1].results, reports[1].preds):
+    for g, p in zip(json.loads(reports[1].results), reports[1].preds):
         if g is None:
             continue
         if g == p.result:
@@ -86,8 +86,8 @@ def index():
 
     res_comm = [Judgments.query.filter_by(id=p.judgment_id).first() for p in preds_comm]
 
-    preds_judg = Prediction.query.filter_by(pred_type='JUDGMENTS', modelname=mname).\
-        filter(Prediction.judgment_id.isnot(None)).order_by(-Prediction.kpdate).limit(5).all()
+    preds_judg = Prediction.query.filter_by(pred_type='COMM', modelname=cmname).\
+        filter(Prediction.judgment_id == None).order_by(-Prediction.kpdate).limit(5).all()
     res_judg = [Judgments.query.filter_by(id=p.judgment_id).first() for p in preds_judg]
 
 
@@ -312,6 +312,12 @@ def application_comm(appno):
         judg_pred = Prediction.query.filter_by(appno=apno, pred_type='COMM', modelname=mname).first()
     else:
         judg_pred = Prediction.query.filter_by(appno=apno, pred_type='COMM').order_by(-Prediction.id).first()
+
+    if judg and not judg_pred:
+        judg_pred = Prediction.query.filter_by(judgment_id=judg.id, pred_type='COMM').order_by(-Prediction.id).first()
+    if not judg and judg_pred:
+        judg = Judgments.query.filter_by(id=judg_pred.judgment_id).first()
+
 
     model = Model.query.filter_by(modelname=judg_pred.modelname).first() if judg_pred else None
     modelnames = Prediction.query.filter_by(appno=apno, pred_type='COMM').with_entities(Prediction.modelname).all()

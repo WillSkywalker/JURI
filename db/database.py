@@ -29,7 +29,7 @@ class Prediction(DeclarativeBase):
     appno = Column(Text(4294000000))
     pred_type = Column(String(16))
     weeklyreport_id = Column(Integer, ForeignKey('WeeklyReport.id'))
-    judgment_id = Column(Integer())
+    judgment_id = Column(Integer(), index=True)
 
 
 class Model(DeclarativeBase):
@@ -52,7 +52,7 @@ class WeeklyReport(DeclarativeBase):
     docname = Column(Unicode(64))
     date = Column(Date())
     accuracy = Column(Float())
-    press_id = Column(Integer())
+    press_id = Column(Integer(), index=True)
     appnos = Column(Text(4294000000))
     results = Column(Text(4294000000))
     preds = relationship("Prediction", order_by="Prediction.kpdate")

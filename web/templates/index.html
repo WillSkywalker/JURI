@@ -76,17 +76,26 @@
 
                         <li><a href="{{ url_for('application_comm', appno = judg.appno | replace('/', 'e')) }}?modelname={{ cmname }}">{{ judg.docname }}</a> ({{pred.kpdate}})
                         	<br>
+                        {% if pred.result == judg.res %}
                         {% if pred.result == 0 %}
                         <b>Prediction: </b><span style='color: green;'>Violation</span>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <b>Judgment: </b><span style='color: green;'>Violation</span>
+                        {% else %}
+                        <b>Prediction: </b><span style='color: green;'>No violation</span>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <b>Judgment: </b><span style='color: green;'>No violation</span>
+                        {% endif %}
+                        {% else %}
+                        {% if pred.result == 0 %}
+                        <b>Prediction: </b><span style='color: red;'>Violation</span>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <b>Judgment: </b><span style='color: red;'>No violation</span>
                         {% else %}
                         <b>Prediction: </b><span style='color: red;'>No violation</span>
-                        {% endif %}
                         &nbsp;&nbsp;&nbsp;&nbsp;
-                        <b>Judgment: </b>
-                        {% if judg.res == 0 %}
-                        <span style='color: green;'>Violation</span>
-                        {% else %}
-                        <span style='color: red;'>No violation</span>
+                        <b>Judgment: </b><span style='color: red;'>Violation</span>
+                        {% endif %}
                         {% endif %}
 
                     {% endfor %}
@@ -106,12 +115,7 @@
                         <span style='color: red;'>No violation</span>
                         {% endif %}
                         &nbsp;&nbsp;&nbsp;&nbsp;
-                        <b>Judgment: </b>
-                        {% if judg.res == 0 %}
-                        <span style='color: green;'>Violation</span>
-                        {% else %}
-                        <span style='color: red;'>No violation</span>
-                        {% endif %}
+
                         </li>
                     {% endfor %}
                     </ul>

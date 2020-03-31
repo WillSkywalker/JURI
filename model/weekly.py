@@ -7,7 +7,7 @@ import json
 import datetime
 import joblib
 import numpy as np
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, or_
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import exists
 
@@ -42,7 +42,11 @@ def generate_weekly_report(press, modelname):
     predictions = []
     for appno in appnos:
         print("%{}%".format(appno))
-        prediction = session.query(Prediction).filter(Prediction.appno.like("%{}%".format(appno))).filter_by(modelname=modelname, pred_type='COMM').first()
+        prediction = session.query(Prediction).filter(or_(
+            Prediction.appno == appno,
+            Prediction.appno.like("%;{};%".format(appno)),
+            Prediction.appno.like("%;{}".format(appno)),
+            Prediction.appno.like("{};%".format(appno)))).filter_by(modelname=modelname, pred_type='COMM').first()
         if prediction and prediction not in predictions:
             predictions.append(prediction)
     if not predictions:

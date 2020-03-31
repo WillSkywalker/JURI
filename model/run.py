@@ -6,7 +6,7 @@ import logging
 import json
 import datetime
 import joblib
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, or_
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import exists
 
@@ -109,7 +109,10 @@ def predict_communicated(m):
         result, proba, sents, sent_result, sent_proba = m.predict(comm)
         old = session.query(Prediction).filter_by(modelname=m.name, appno=comm.appno, pred_type='COMM').first()
         if not old:
-            jdg = session.query(Judgments).filter(Judgments.appno.like("%{}%".format(comm.appno))).first()
+            jdg = session.query(Judgments).filter(or_(Judgments.appno == comm.appno,
+                                                      Judgments.appno.like("{};%".format(comm.appno)),
+                                                      Judgments.appno.like("%;{}".format(comm.appno)),
+                                                      Judgments.appno.like("%;{};%".format(comm.appno)))).first()
             judgment_id = jdg.id if jdg else None
             pred = Prediction(result=result, proba=proba, sents=json.dumps(sents), sent_result=json.dumps(sent_result),
                               sent_proba=json.dumps(sent_proba), modelname=m.name, kpdate=comm.kpdate,
