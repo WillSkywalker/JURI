@@ -70,11 +70,11 @@
 		<section>
 			<div class="row">
 				<div class="col-6">
-					<h3>Based on Communications</h3>
+					<h3>Recent judgments</h3>
 					<ul>
 					{% for pred, judg in preds %}
 
-                        <li><a href="{{ url_for('application_comm', appno = judg.appno | replace('/', 'e')) }}?modelname={{ cmname }}">{{ judg.docname }}</a> ({{pred.kpdate}})
+                        <li><a href="{{ url_for('application_comm', appno = pred.appno | replace('/', 'e')) }}?modelname={{ cmname }}">{{ judg.docname }}</a> ({{judg.kpdate.date()}})
                         	<br>
                         {% if pred.result == judg.res %}
                         {% if pred.result == 0 %}
@@ -102,17 +102,17 @@
                     </ul>
 				</div>
 				<div class="col-6">
-					<h3>Based on admissibility decisions</h3>
+					<h3>to be announced</h3>
 					<ul>
 					{% for pred, judg in rests %}
-                        <li><a href="{{ url_for('application_judg', appno = judg.appno | replace('/', 'e')) }}?modelname={{ mname }}">{{ judg.docname }}</a> ({{ pred.kpdate }})
+                        <li><a href="{{ url_for('application_comm', appno = pred.appno | replace('/', 'e')) }}?modelname={{ cmname }}">{{ judg.docname }}</a> ({{ pred.kpdate }})
                         	<br>
                         
                         <b>Prediction: </b>
                         {% if pred.result == 0 %}
-                        <span style='color: green;'>Violation</span>
+                        <span>Violation</span>
                         {% else %}
-                        <span style='color: red;'>No violation</span>
+                        <span>No violation</span>
                         {% endif %}
                         &nbsp;&nbsp;&nbsp;&nbsp;
 

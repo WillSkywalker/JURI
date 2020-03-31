@@ -150,7 +150,7 @@ def predict_communicated(m):
 
 
 if __name__ == '__main__':
-    jm = NBModel_judgments()
-    predict(jm, pred_type='JUDGMENTS')
-    #cm = NBModel_comms()
-    #predict_communicated(cm)
+    # jm = NBModel_judgments()
+    # predict(jm, pred_type='JUDGMENTS')
+    cm = NBModel_comms()
+    predict_communicated(cm)

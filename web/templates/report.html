@@ -47,10 +47,11 @@
                         <br>
                         {% if pred %}
                         <b>Probability: </b>{{ pred.proba }}<br>
+                        
                         {% if pred.result %}
-                        <a style='color: red;'><b>Prediction: </b>No violation</a>
+                        <a style='color: {% if not judg %} {% elif pred.result == judg.res %}green{% else %}red{% endif %};'><b>Prediction: </b>No violation</a>
                         {% else %}
-                        <a style='color: green;'><b>Prediction: </b>Violation</a>
+                        <a style='color: {% if not judg %} {% elif pred.result == judg.res %}green{% else %}red{% endif %};'><b>Prediction: </b>Violation</a>
                         {% endif %}
                         {% else %}
                         <p>No prediction with this model.</p>
@@ -60,9 +61,9 @@
 
                         {% if judg %}
                         {% if judg.res == 0 %}
-                        <a style='color: green;'><b>Result: </b>Violation</a>
+                        <a style='color: {% if not judg %} {% elif pred.result == judg.res %}green{% else %}red{% endif %};'><b>Result: </b>Violation</a>
                         {% else %}
-                        <a style='color: red;'><b>Result: </b>No violation</a>
+                        <a style='color: {% if not judg %} {% elif pred.result == judg.res %}green{% else %}red{% endif %};'><b>Result: </b>No violation</a>
                         {% endif %}
                         {% else %}
                         <p>No published judgement yet.</p>

@@ -83,12 +83,20 @@ def index():
 
     preds_comm = Prediction.query.filter_by(pred_type='COMM', modelname=cmname).\
         filter(Prediction.judgment_id.isnot(None)).order_by(-Prediction.kpdate).limit(5).all()
+    # preds_comm = Prediction.query.join(Judgments, Prediction.judgment_id==Judgments.id).\
+    #     filter(Prediction.pred_type == 'COMM').filter(Prediction.judgment_id.isnot(None)).\
+    #     order_by(-Judgments.kpdate).limit(5).all()
 
     res_comm = [Judgments.query.filter_by(id=p.judgment_id).first() for p in preds_comm]
+    # res_comm = Judgments.query.filter(exists().\
+    #                                   where(Prediction.judgment_id == Judgments.id)).\
+    #                                   order_by(-Judgments.kpdate).limit(5).all()
+    # preds_comm = [Prediction.query.filter_by(judgment_id=j.id).first() for j in res_comm]
+
 
     preds_judg = Prediction.query.filter_by(pred_type='COMM', modelname=cmname).\
         filter(Prediction.judgment_id == None).order_by(-Prediction.kpdate).limit(5).all()
-    res_judg = [Judgments.query.filter_by(id=p.judgment_id).first() for p in preds_judg]
+    res_judg = [CommunicatedCases.query.filter_by(appno=p.appno).first() for p in preds_judg]
 
 
     preds = zip(preds_comm, res_comm)
@@ -303,10 +311,8 @@ def application_comm(appno):
     comm = CommunicatedCases.query.filter_by(appno=apno).first()
 
     judg = Judgments.query.filter_by(appno=apno).first()
-    if judg:
-        judg.res = conclusion_simple(judg.conclusion)
-        jsents = json.loads(judg.sents)
-    if not comm and not judg:
+
+    if not comm:
         abort(404)
     if mname:
         judg_pred = Prediction.query.filter_by(appno=apno, pred_type='COMM', modelname=mname).first()
@@ -317,6 +323,10 @@ def application_comm(appno):
         judg_pred = Prediction.query.filter_by(judgment_id=judg.id, pred_type='COMM').order_by(-Prediction.id).first()
     if not judg and judg_pred:
         judg = Judgments.query.filter_by(id=judg_pred.judgment_id).first()
+
+    if judg:
+        judg.res = conclusion_simple(judg.conclusion)
+        jsents = json.loads(judg.sents)
 
 
     model = Model.query.filter_by(modelname=judg_pred.modelname).first() if judg_pred else None
@@ -332,8 +342,15 @@ def application_comm(appno):
         max_sent = sents[sent_proba.index(max_prob)] if max_prob else None
         min_prob = max([p for i, p in enumerate(sent_proba) if sent_result[i] == 1], default=None)
         min_sent = sents[sent_proba.index(min_prob)] if min_prob else None
-        max_idxes = [i for i, p in enumerate(sent_proba) if sent_result[i] == 0 and p > 0.5]
-        min_idxes = [i for i, p in enumerate(sent_proba) if sent_result[i] == 1 and p > 0.5]
+        if judg:
+            max_idxes = [i for i, p in enumerate(sent_proba) if sent_result[i] == judg.res and p > 0.5]
+            min_idxes = [i for i, p in enumerate(sent_proba) if sent_result[i] != judg.res and p > 0.5]
+        elif judg_pred:
+            max_idxes = [i for i, p in enumerate(sent_proba) if sent_result[i] == judg_pred.result and p > 0.5]
+            min_idxes = [i for i, p in enumerate(sent_proba) if sent_result[i] != judg_pred.result and p > 0.5]
+        else:
+            max_idxes = []
+            min_idxes = []
         if len(list(set(sent_result))) > 2:
             for i in list(set(sent_result) ^ set([1, 2])):
                 idx = sent_proba.index(max([p if sent_result[i] == i else -1
@@ -348,10 +365,16 @@ def application_comm(appno):
         # min_idx: "#ffcccb"
     }
     for idx in max_idxes:
-        critical_indexes[idx] = "hsl(123, 100%, {}%)".format((1 - sent_proba[idx]) * 2 * 100)
-        print(sent_proba[idx], math.log(9-sent_proba[idx])*100)
+        if judg:
+            critical_indexes[idx] = "hsl(123, 100%, {}%)".format((1 - sent_proba[idx]) * 2 * 100)
+        else:
+            critical_indexes[idx] = "hsl(182, 100%, {}%)".format((1 - sent_proba[idx]) * 2 * 100)
+        # print(sent_proba[idx], math.log(9-sent_proba[idx])*100)
     for idx in min_idxes:
-        critical_indexes[idx] = "hsl(1, 100%, {}%)".format((1 - sent_proba[idx]) * 2 * 100)
+        if judg:
+            critical_indexes[idx] = "hsl(1, 100%, {}%)".format((1 - sent_proba[idx]) * 2 * 100)
+        else:
+            critical_indexes[idx] = "hsl(60, 100%, {}%)".format((1 - sent_proba[idx]) * 2 * 100)
     print(max_idxes)
     print(critical_indexes)
     sent_num = len(sents)
