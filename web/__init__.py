@@ -96,6 +96,8 @@ def index():
     res_comm = Judgments.query.filter(exists().where(Prediction.appno == Judgments.appno)).\
                                       order_by(-Judgments.kpdate).limit(5).all()
 
+    for r in res_comm:
+        r.res = conclusion_simple(r.conclusion)
 
     preds_comm = [Prediction.query.filter_by(appno=j.appno).first() for j in res_comm]
 
