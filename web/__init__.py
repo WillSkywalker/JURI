@@ -20,8 +20,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import exists
 
-from sklearn.metrics import accuracy_score
-
 #from flask_debugtoolbar_lineprofilerpanel.profile import line_profile
 
 
