@@ -198,7 +198,7 @@ class NBModel_comms(BaseCommunicatedCasesModel):
             j = session.query(Judgments).filter(or_(Judgments.appno == a,
                                                     Judgments.appno.like("{};%".format(a)),
                                                     Judgments.appno.like("%;{}".format(a)),
-                                                    Judgments.appno.like("%;{};%".format(a))).with_entities(Judgments.conclusion).first()
+                                                    Judgments.appno.like("%;{};%".format(a)))).with_entities(Judgments.conclusion).first()
             if j:
                 results.append(self.conclusion_simple(j.conclusion))
             else:
