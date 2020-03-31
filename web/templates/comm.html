@@ -48,10 +48,10 @@
                         {% if j %}
                         <li><b>Label: </b>{{ j.conclusion }}</li>
                         {% if j.res == 0 %}
-                        <li style='color: green;'><b>Result: </b>Violation</li>
+                        <li style='color: {% if jp.result == j.res %}green{% else %}red{% endif %};'><b>Result: </b>Violation</li>
                         <a href="#judgment-text" class="button" style="display:flex;justify-content:center;align-items:center;">SEE FINAL JUDGMENT</a>
                         {% else %}
-                        <li style='color: red;'><b>Result: </b>No violation</li>
+                        <li style='color: {% if jp.result == j.res %}green{% else %}red{% endif %};'><b>Result: </b>No violation</li>
                         <a href="#judgment-text" class="button" style="display:flex;justify-content:center;align-items:center;">SEE FINAL JUDGMENT</a>
                         {% endif %}
                         {% else %}
@@ -64,9 +64,9 @@
                         {% if jp %}
                         <li><b>Probability: </b>{{ jp.proba }}</li>
                         {% if jp.result %}
-                        <li style='color: red;'><b>Result: </b>No violation</li>
+                        <li style='color: {% if jp.result == j.res %}green{% else %}red{% endif %};'><b>Result: </b>No violation</li>
                         {% else %}
-                        <li style='color: green;'><b>Result: </b>Violation</li>
+                        <li style='color: {% if jp.result == j.res %}green{% else %}red{% endif %};'><b>Result: </b>Violation</li>
                         {% endif %}
                         {% else %}
                         <li>No prediction with this model.</li>
