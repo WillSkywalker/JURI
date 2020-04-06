@@ -5,7 +5,7 @@
 <div id="main">
     <div class="inner">
         <header>
-            <h1>I predicted that there{% if jp.result %}'s no{% else %} was a {% endif %} violation of human rights in<i>{{ d.docname }}</i>{% if j and jp %}, which was {% if j.res == jp.result %}correct{% else %}wrong{% endif %}{% endif %}.</h1>
+            <h1>I predicted that there{% if jp.result %}'s no{% else %} was a {% endif %} violation of human rights in<a href="https://hudoc.echr.coe.int/eng#{%22fulltext%22:[{{d.docname}}]}"><i>{{ d.docname }}</i></a>{% if j and jp %}, which was <a>{% if j.res == jp.result %}correct{% else %}wrong{% endif %}</a>{% endif %}.</h1>
             <!-- <div class="inner row">
                 <div class="col-6">
             <ul class="actions">
