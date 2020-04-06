@@ -95,21 +95,21 @@
         <div class='pagination pagination-lg' style="margin-left:auto;margin-right:auto;">
 
             <a class="page-link next page-numbers" href="{% if pagination.has_prev %}{{ url_for(list_name,
-            page = pagination.page - 1) }}{% else %}#{% endif %}">previous</a>
+            page = pagination.page - 1) }}?order={{order}}{% else %}#{% endif %}">previous</a>
 
             {% for p in pagination.iter_pages() %}
             {% if p %}
             {% if p == pagination.page %}
             <a class='page-link active'>{{ p }}</a>
             {% else %}
-            <a class='page-link' href="{{ url_for(list_name, page = p) }}">{{ p }}</a>
+            <a class='page-link' href="{{ url_for(list_name, page = p) }}?order={{order}}">{{ p }}</a>
             {% endif %}
             {% else %}
             <a href="#">&hellip;</a>
             {% endif %}
             {% endfor %}
             <a class="next page-link" href="{% if pagination.has_next %}{{ url_for(list_name,
-            page = pagination.page + 1) }}{% else %}#{% endif %}">next</a>
+            page = pagination.page + 1) }}?order={{order}}{% else %}#{% endif %}">next</a>
 
 
             </div>
