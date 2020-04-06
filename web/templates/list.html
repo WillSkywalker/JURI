@@ -61,29 +61,29 @@
                             {% endif %}
                         </td>
                         <td><a href="{{ url_for(entry_name, appno = item.appno | replace('/', 'e')) }}">{{ comm.docname }}</a></td>
+                        {% if item.jdgdate %}
                         {% if item.result == item.gold %}
                         {% if item.result == 0 %}
                         <td style='color: green;'><b>Violation</b></td>
-                        &nbsp;&nbsp;&nbsp;&nbsp;
                         <td style='color: green;'><b>Violation</b></td>
                         {% else %}
                         <td style='color: green;'><b>No violation</b></td>
-                        &nbsp;&nbsp;&nbsp;&nbsp;
                         <td style='color: green;'><b>No violation</b></td>
                         {% endif %}
                         {% else %}
                         {% if item.result == 0 %}
                         <td style='color: red;'><b>Violation</b></td>
-                        &nbsp;&nbsp;&nbsp;&nbsp;
                         <td style='color: red;'><b>No violation</b></td>
                         {% else %}
                         <td style='color: red;'><b>No violation</b></td>
-                        &nbsp;&nbsp;&nbsp;&nbsp;
                         <td style='color: red;'><b>Violation</b></td>
                         {% endif %}
                         {% endif %}
+                        {% else %}
+                        <td>{% if item.result == 0 %}Violation{% else %}No violation{% endif %}</td>
+                        <td>-</td>                        
                         <td>{{ item.kpdate }}</td>
-                        <td>{{ item.jdgdate }}</td>
+                        <td>{% if item.jdgdate %}{{ item.jdgdate }}{% else %}-{% endif %}</td>
                     </tr>
                     {% endfor %}
 
