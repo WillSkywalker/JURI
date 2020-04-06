@@ -81,7 +81,8 @@
                         {% endif %}
                         {% else %}
                         <td>{% if item.result == 0 %}Violation{% else %}No violation{% endif %}</td>
-                        <td>-</td>                        
+                        <td>-</td> 
+                        {% endif %}                       
                         <td>{{ item.kpdate }}</td>
                         <td>{% if item.jdgdate %}{{ item.jdgdate }}{% else %}-{% endif %}</td>
                     </tr>
