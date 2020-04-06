@@ -97,7 +97,7 @@
                 </div>
                 </div>
                 <div class="col-8 col-12-medium">
-                    <h2>Text used for prediction</h2>
+                    <h2>Communication text used for prediction</h2>
                     <p>
                         {% for sent in sents %}
 
@@ -125,7 +125,7 @@
                             {% autoescape false %}{{ sent | replace('\n', '<br>') }}{% endautoescape %}</span>
                         {% endfor %}
                     {% else %}
-                        <p>The official judgment is not published yet.</p>
+                        <p>The official judgment is not available yet.</p>
                     {% endif %}
                     </div>
                 </div>
