@@ -9,29 +9,29 @@
 
                 <div class="carousel-inner">
                     <div class="carousel-item active">
-                        <h1>JURI is predicting judgment results from the European Court of Human Rights with an accuracy of <a href="{{ url_for('list_model') }}" style='color:#f2849e'>{{acc}}%</a>.</h1>
+                        <h1>I'm  predicting judgment results from the European Court of Human Rights with an accuracy of <a href="{{ url_for('list_model') }}" style='color:#f2849e'>{{acc}}%</a>.</h1>
                         <p>JURI reads press releases from previous years and decisions of the cases judged by the European Court of Human Rights and predicts decisions the Court will make. Every week it learns from its mistakes.</p>
                     </div>
-                    <div class="carousel-item">
+<!--                     <div class="carousel-item">
                         <h1>Here are the predictions JURI made for judgment results to be published next week.</h1>
                         <a href="{{ url_for("report", report_id = reports[0].press_id | replace('/', 'e')) }}" class="button" style="display:flex;justify-content:center;align-items:center;">Read more</a>
-                    </div>
+                    </div> -->
                     <div class="carousel-item">
-                        <h1>Out of <a style='color:#f2849e'>{{ right + wrong }}</a> cases published last week, JURI has correctly predicted <a style='color:#f2849e'>{{ right }}</a> judgments.</h1>
-                        <a href="{{ url_for("report", report_id = reports[1].press_id | replace('/', 'e')) }}" class="button" style="display:flex;justify-content:center;align-items:center;">Read more</a>
+                        <h1>Out of <a style='color:#f2849e'>{{ right + wrong }}</a> cases published last week, I have correctly predicted <a style='color:#f2849e'>{{ right }}</a> judgments.</h1>
+                        <a href="{{ url_for('list_comm') }}" class="button primary">Read more</a>
                     </div>
                 </div>
-                <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+                <!-- <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                     <span class="sr-only">Previous</span>
                 </a>
                 <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
                     <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="sr-only">Next</span>
+                    <span class="sr-only">Next</span> -->
                 </a>
             </div>
 		</header>
-		<section class="tiles">
+		<!-- <section class="tiles">
 			<article class="style1">
 				<span class="image">
 					<img src="{{ url_for('static', filename='images/pic01.jpg') }}" alt="" />
@@ -65,11 +65,13 @@
 					</div>
 				</a>
 			</article>
-		</section>
-		<hr>
+		</section> -->
+        <span class="image main">
+            <img src="{{ url_for('static', filename='images/cm.jpg') }}" alt="">
+        </span>
 		<section>
 			<div class="row">
-				<div class="col-6">
+				<div class="col-12">
 					<h3>Recent judgments</h3>
 					<ul>
 					{% for pred, judg in preds %}
@@ -78,50 +80,72 @@
                         	<br>
                         {% if pred.result == judg.res %}
                         {% if pred.result == 0 %}
-                        <b>Prediction: </b><span style='color: green;'>Violation</span>
+                        Prediction: <span style='color: green;'><b>Violation</b></span>
                         &nbsp;&nbsp;&nbsp;&nbsp;
-                        <b>Judgment: </b><span style='color: green;'>Violation</span>
+                        Judgment: <span style='color: green;'><b>Violation</b></span>
                         {% else %}
-                        <b>Prediction: </b><span style='color: green;'>No violation</span>
+                        Prediction: <span style='color: green;'><b>No violation</b></span>
                         &nbsp;&nbsp;&nbsp;&nbsp;
-                        <b>Judgment: </b><span style='color: green;'>No violation</span>
+                        Judgment: <span style='color: green;'><b>No violation</b></span>
                         {% endif %}
                         {% else %}
                         {% if pred.result == 0 %}
-                        <b>Prediction: </b><span style='color: red;'>Violation</span>
+                        Prediction: <span style='color: red;'><b>Violation</b></span>
                         &nbsp;&nbsp;&nbsp;&nbsp;
-                        <b>Judgment: </b><span style='color: red;'>No violation</span>
+                        Judgment: <span style='color: red;'><b>No violation</b></span>
                         {% else %}
-                        <b>Prediction: </b><span style='color: red;'>No violation</span>
+                        Prediction: <span style='color: red;'><b>No violation</b></span>
                         &nbsp;&nbsp;&nbsp;&nbsp;
-                        <b>Judgment: </b><span style='color: red;'>Violation</span>
+                        Judgment: <span style='color: red;'><b>Violation</b></span>
                         {% endif %}
                         {% endif %}
 
                     {% endfor %}
                     </ul>
+                    <a href="{{ url_for('list_comm') }}" class="button">Read more</a>
 				</div>
-				<div class="col-6">
+				<!-- <div class="col-6">
 					<h3>to be announced</h3>
 					<ul>
 					{% for pred, judg in rests %}
                         <li><a href="{{ url_for('application_comm', appno = pred.appno | replace('/', 'e')) }}?modelname={{ cmname }}">{{ judg.docname }}</a> ({{ pred.kpdate }})
                         	<br>
                         
-                        <b>Prediction: </b>
+                        Prediction: 
                         {% if pred.result == 0 %}
-                        <span>Violation</span>
+                        <span><b>Violation</b></span>
                         {% else %}
-                        <span>No violation</span>
+                        <span><b>No violation</b></span>
                         {% endif %}
                         &nbsp;&nbsp;&nbsp;&nbsp;
 
                         </li>
                     {% endfor %}
                     </ul>
-				</div>
+                    <a href="{{ url_for('report', report_id=1) }}" class="button fit">Read all</a>
+				</div> -->
 			</div>
 		</section>
 	</div>
 </div>
+{% endblock %}
+{% block scripts %}
+<script type="text/javascript">
+function normalizeSlideHeights() {
+    $('.carousel-inner').each(function(){
+      var items = $('.carousel-item', this);
+      // reset the height
+      items.css('min-height', 0);
+      // set the height
+      var maxHeight = Math.max.apply(null, 
+          items.map(function(){
+              return $(this).outerHeight()}).get() );
+      items.css('min-height', maxHeight + 'px');
+    })
+}
+
+$(window).on(
+    'load resize orientationchange', 
+    normalizeSlideHeights);
+</script>
 {% endblock %}

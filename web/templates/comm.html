@@ -6,14 +6,14 @@
     <div class="inner">
         <header>
             <h1>{{ d.docname }}</h1>
-            <div class="inner row">
+            <!-- <div class="inner row">
                 <div class="col-6">
             <ul class="actions">
                 <li><a href="{{ url_for('application_desc', appno = d.appno | replace('/', 'e')) }}" class="button disabled">Admissibility</a></li>
                 <li><a href="#" class="button primary">Judgment</a></li>
             </ul>
             </div>
-                <div class="col-6 ">
+            <div class="col-6 ">
             <ul class="actions" style="float:right;">
                 <li style="display:flex;justify-content:flex-end;align-items:flex-end;">
                     <label for="order">Choose model:</label>
@@ -25,10 +25,9 @@
                     {% endfor %}
                 </select>
                 </li>
-            </div>
-
             </ul>
             </div>
+            </div> -->
         </header>
         <section>
             <div class="row">
@@ -36,10 +35,9 @@
                     <h3>Information</h3>
                     <ul class="alt">
                         {% if j %}
-                        <li><b>Date: </b>{{ j.kpdate.date() }}</li>
-                        {% else %}
-                        <li><b>Admissibility date: </b>{{ d.kpdate.date() }}</li>
+                        <li><b>Judgment date: </b>{{ j.kpdate.date() }}</li>
                         {% endif %}
+                        <li><b>Admissibility date: </b>{{ d.kpdate.date() }}</li>
                         <li><b>Application number(s): </b>{{ d.appno }}</li>
                         <li>
                             <b id='country'>Country: </b>
@@ -103,11 +101,11 @@
                     <p>
                         {% for sent in sents %}
 
-                        {% if loop.index0 == rand1 and max_sent %}
+                        <!-- {% if loop.index0 == rand1 and max_sent %}
                         <blockquote>{{ max_sent }}<h3 style="font-size: 12px; color: grey; font-style: initial; margin: 0">Support for violation</h3></blockquote>
                         {% elif loop.index0 == rand2 and min_sent %}
                         <blockquote>{{ min_sent }}<h3 style="font-size: 12px; color: grey; font-style: initial; margin: 0">Support for non-violation</h3></blockquote>
-                        {% endif %}
+                        {% endif %} -->
 
                         {% if sent_result[loop.index0] == 0 %}
                         <span data-toggle="popover" data-placement="top" title="VIOLATION" data-content="Probability: {{sent_proba[loop.index0]}}" {% if loop.index0 in critical_indexes %} style="background:{{critical_indexes[loop.index0]}}" class="criticalspan" {% endif %} data-trigger="hover">

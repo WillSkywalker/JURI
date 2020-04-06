@@ -19,6 +19,7 @@ class Prediction(DeclarativeBase):
     )
     id = Column(Integer, primary_key=True)
     kpdate = Column(Date())
+    jdgdate = Column(Date())
     gold = Column(Integer())
     result = Column(Integer())
     proba = Column(Float())

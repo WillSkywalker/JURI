@@ -12,6 +12,11 @@
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/main.css') }}" />
         <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/country-flag.css') }}">
+        <style type="text/css">
+        body {background-color: #fdfdfd;}
+        span.title {font-size: 160%}
+        span.symbol img {width: 5em !important; height: auto !important;}
+        </style>
         <noscript><link rel="stylesheet" href="{{ url_for('static', filename='assets/css/noscript.css') }}" /></noscript>
         <script src="{{ url_for('static', filename='assets/js/country-flag.js') }}"></script>
     </head>
@@ -25,7 +30,7 @@
 
                             <!-- Logo -->
                                 <a href="{{ url_for('index')}}" class="logo">
-                                    <span class="symbol"><img src="{{ url_for('static', filename='images/logo.png') }}" alt="" /></span><span class="title">JURI Says</span>
+                                    <span class="symbol"><img src="{{ url_for('static', filename='images/juri.gif') }}" alt="" /></span><span class="title">JURI Says:</span>
                                 </a>
 
                             <!-- Nav -->

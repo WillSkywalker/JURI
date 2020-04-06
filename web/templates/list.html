@@ -28,9 +28,11 @@
             <h1>List of cases</h1>
             <div class="col-12">
                 <select name="order" id="order" onchange="window.location=this.value;">
-                    <option value="{{ url_for(list_name, page=page, ) }}?order=td" {% if order == 'td' %}selected="selected"{% endif %}>Time (Descending)</option>
-                    <option value="{{ url_for(list_name, page=page, ) }}?order=ta" {% if order == 'ta' %}selected="selected"{% endif %}>Time (Ascending)</option>
-                    <option value="{{ url_for(list_name, page=page) }}?order=c" {% if order == 'c' %}selected="selected"{% endif %}>Country</option>
+                    <option value="{{ url_for(list_name, page=page, ) }}?order=td" {% if order == 'td' %}selected="selected"{% endif %}>Communication time (Descending)</option>
+                    <option value="{{ url_for(list_name, page=page, ) }}?order=ta" {% if order == 'ta' %}selected="selected"{% endif %}>Communication time (Ascending)</option>
+                    <option value="{{ url_for(list_name, page=page, ) }}?order=jtd" {% if order == 'jtd' %}selected="selected"{% endif %}>Judgment time (Descending)</option>
+                    <option value="{{ url_for(list_name, page=page, ) }}?order=jta" {% if order == 'jta' %}selected="selected"{% endif %}>Judgment time (Ascending)</option>
+
                 </select>
             </div>
         </header>
@@ -42,7 +44,8 @@
                     <tr>
                         <th>Application Number</th>
                         <th>Title</th>
-                        <th>Date</th>
+                        <th>Communication date</th>
+                        <th>Judgment date</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -56,6 +59,7 @@
                             {% endif %}
                         </td>
                         <td><a href="{{ url_for(entry_name, appno = item.appno | replace('/', 'e')) }}">{{ item.docname }}</a></td>
+                        <td>{{ item.kpdate }}</td>
                         <td>{{ item.kpdate }}</td>
                     </tr>
                     {% endfor %}

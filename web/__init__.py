@@ -158,6 +158,16 @@ def list_comm(page=1):
     if order == 'c':
         pagination = CommunicatedCases.query.filter(exists().where(Prediction.appno == CommunicatedCases.appno)).\
                                      order_by(CommunicatedCases.respondent).paginate(page, per_page=30, error_out=False)
+    elif order == 'jtd':
+        pagination = Prediction.query.join(Judgments, Prediction.judgment_id==Judgments.id).\
+            filter(Prediction.pred_type == 'COMM').\
+            order_by(-Judgments.kpdate).paginate(page, per_page=30, error_out=False)
+        pagination.items = [CommunicatedCases.query.filter_by(appno=p.appno).first() for p in pagination.items]
+    elif order == 'jta':
+        pagination = Prediction.query.join(Judgments, Prediction.judgment_id==Judgments.id).\
+            filter(Prediction.pred_type == 'COMM').\
+            order_by(Judgments.kpdate).paginate(page, per_page=30, error_out=False)
+        pagination.items = [CommunicatedCases.query.filter_by(appno=p.appno).first() for p in pagination.items]
     elif order == 'ta':
         pagination = CommunicatedCases.query.filter(exists().where(Prediction.appno == CommunicatedCases.appno)).\
                                      order_by(CommunicatedCases.kpdate).paginate(page, per_page=30, error_out=False)
