@@ -115,7 +115,8 @@ def predict_communicated(m):
                                                       Judgments.appno.like("%;{};%".format(comm.appno)))).first()
             judgment_id = jdg.id if jdg else None
             jdgdate = jdg.kpdate if jdg else None
-            pred = Prediction(result=result, proba=proba, sents=json.dumps(sents), sent_result=json.dumps(sent_result),
+            gold = m.conclusion(jdg.conclusion) if jdg else None
+            pred = Prediction(gold=gold, result=result, proba=proba, sents=json.dumps(sents), sent_result=json.dumps(sent_result),
                               sent_proba=json.dumps(sent_proba), modelname=m.name, kpdate=comm.kpdate, jdgdate=jdgdate,
                               appno=comm.appno, pred_type='COMM', judgment_id=judgment_id)
             session.add(pred)

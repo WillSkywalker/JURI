@@ -155,25 +155,27 @@ def list_judg(page=1):
 @app.route('/juri/list/comm/<int:page>')
 def list_comm(page=1):
     order = request.args.get('order')
-    if order == 'c':
-        pagination = CommunicatedCases.query.filter(exists().where(Prediction.appno == CommunicatedCases.appno)).\
-                                     order_by(CommunicatedCases.respondent).paginate(page, per_page=30, error_out=False)
-    elif order == 'jtd':
+    # if order == 'c':
+    #     pagination = CommunicatedCases.query.filter(exists().where(Prediction.appno == CommunicatedCases.appno)).\
+    #                                  order_by(CommunicatedCases.respondent).paginate(page, per_page=30, error_out=False)
+    if order == 'jtd':
         pagination = Prediction.query.join(Judgments, Prediction.judgment_id==Judgments.id).\
             filter(Prediction.pred_type == 'COMM').\
-            order_by(-Judgments.kpdate).paginate(page, per_page=30, error_out=False)
+            order_by(-Prediction.jdgdate).paginate(page, per_page=30, error_out=False)
         pagination.items = [CommunicatedCases.query.filter_by(appno=p.appno).first() for p in pagination.items]
     elif order == 'jta':
-        pagination = Prediction.query.join(Judgments, Prediction.judgment_id==Judgments.id).\
+        pagination = Prediction.query.\
             filter(Prediction.pred_type == 'COMM').\
-            order_by(Judgments.kpdate).paginate(page, per_page=30, error_out=False)
-        pagination.items = [CommunicatedCases.query.filter_by(appno=p.appno).first() for p in pagination.items]
+            order_by(Prediction.jdgdate).paginate(page, per_page=30, error_out=False)
+        pagination.items = zip(pagination.items, [CommunicatedCases.query.filter_by(appno=p.appno).first() for p in pagination.items])
     elif order == 'ta':
-        pagination = CommunicatedCases.query.filter(exists().where(Prediction.appno == CommunicatedCases.appno)).\
-                                     order_by(CommunicatedCases.kpdate).paginate(page, per_page=30, error_out=False)
+        pagination = Prediction.query.filter(Prediction.pred_type == 'COMM').\
+            order_by(Prediction.kpdate).paginate(page, per_page=30, error_out=False)
     else:
-        pagination = CommunicatedCases.query.filter(exists().where(Prediction.appno == CommunicatedCases.appno)).\
-                                     order_by(-CommunicatedCases.kpdate).paginate(page, per_page=30, error_out=False)
+        pagination = Prediction.query.filter(Prediction.pred_type == 'COMM').\
+            order_by(-Prediction.kpdate).paginate(page, per_page=30, error_out=False)
+
+    pagination.items = zip(pagination.items, [CommunicatedCases.query.filter_by(appno=p.appno).first() for p in pagination.items])
     if pagination.items:
         return render_template('list.html', pagination=pagination, page=page, order=order,
                                list_name='list_comm', entry_name='application_comm')

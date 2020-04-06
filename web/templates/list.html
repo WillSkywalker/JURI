@@ -44,12 +44,14 @@
                     <tr>
                         <th>Application Number</th>
                         <th>Title</th>
+                        <th>Prediction</th>
+                        <th>Decision</th>
                         <th>Communication date</th>
                         <th>Judgment date</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for item in pagination.items %}
+                    {% for item, comm in pagination.items %}
                     <tr>
                         <td>
                             {% if item.appno|length > 15 %}
@@ -58,9 +60,30 @@
                             {{ item.appno }}
                             {% endif %}
                         </td>
-                        <td><a href="{{ url_for(entry_name, appno = item.appno | replace('/', 'e')) }}">{{ item.docname }}</a></td>
+                        <td><a href="{{ url_for(entry_name, appno = item.appno | replace('/', 'e')) }}">{{ comm.docname }}</a></td>
+                        {% if item.result == item.gold %}
+                        {% if item.result == 0 %}
+                        <td style='color: green;'><b>Violation</b></td>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <td style='color: green;'><b>Violation</b></td>
+                        {% else %}
+                        <td style='color: green;'><b>No violation</b></td>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <td style='color: green;'><b>No violation</b></td>
+                        {% endif %}
+                        {% else %}
+                        {% if item.result == 0 %}
+                        <td style='color: red;'><b>Violation</b></td>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <td style='color: red;'><b>No violation</b></td>
+                        {% else %}
+                        <td style='color: red;'><b>No violation</b></td>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <td style='color: red;'><b>Violation</b></td>
+                        {% endif %}
+                        {% endif %}
                         <td>{{ item.kpdate }}</td>
-                        <td>{{ item.kpdate }}</td>
+                        <td>{{ item.jdgdate }}</td>
                     </tr>
                     {% endfor %}
 
