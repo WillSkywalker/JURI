@@ -8,8 +8,13 @@
             <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
 
                 <div class="carousel-inner">
+                      <ol class="carousel-indicators">
+                        <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+                        <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+                      </ol>
+ 
                     <div class="carousel-item active">
-                        <h1>I'm  predicting judgment results from the European Court of Human Rights with an accuracy of <a href="{{ url_for('list_model') }}" style='color:#f2849e'>{{acc}}%</a>.</h1>
+                        <h1>I'm  predicting judgment results from the European Court of Human Rights with an accuracy of <a href="{{ url_for('list_comm') }}" style='color:#f2849e'>{{acc}}%</a>.</h1>
                         <p>JURI reads press releases from previous years and decisions of the cases judged by the European Court of Human Rights and predicts decisions the Court will make. Every week it learns from its mistakes.</p>
                     </div>
 <!--                     <div class="carousel-item">
@@ -17,8 +22,8 @@
                         <a href="{{ url_for("report", report_id = reports[0].press_id | replace('/', 'e')) }}" class="button" style="display:flex;justify-content:center;align-items:center;">Read more</a>
                     </div> -->
                     <div class="carousel-item">
-                        <h1>Out of <a style='color:#f2849e'>{{ right + wrong }}</a> cases published last week, I have correctly predicted <a style='color:#f2849e'>{{ right }}</a> judgments.</h1>
-                        <a href="{{ url_for('list_comm') }}" class="button primary">Read more</a>
+                        <h1>Out of <a href="{{ url_for('list_comm') }}" style='color:#f2849e'>{{ right + wrong }}</a> cases published last week, I have correctly predicted <a href="{{ url_for('list_comm') }}" style='color:#f2849e'>{{ right }}</a> judgments.</h1>
+                        <!-- <a href="{{ url_for('list_comm') }}" class="button primary">Read more</a> -->
                     </div>
                 </div>
                 <!-- <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
@@ -28,7 +33,7 @@
                 <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
                     <span class="carousel-control-next-icon" aria-hidden="true"></span>
                     <span class="sr-only">Next</span> -->
-                </a>
+                <!-- </a> -->
             </div>
 		</header>
 		<!-- <section class="tiles">

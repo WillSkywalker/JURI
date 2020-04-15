@@ -123,6 +123,7 @@ def update_datetime(s):
 
 
 def update_database(lang='ENG'):
+    lang_postfix = '' if lang == 'ENG' else '_' + lang
     engine = create_engine(Config.SQLALCHEMY_DATABASE_URI, encoding='utf-8', echo=True)
     collections = pandas.read_csv(os.path.join(DIRECTORY, '%s_%s.csv' % ('COMMUNICATEDCASES', lang)))
     decisions = pandas.read_csv(os.path.join(DIRECTORY, '%s_%s.csv' % ('DECISIONS', lang)))
@@ -134,41 +135,42 @@ def update_database(lang='ENG'):
                   'sents': mysql.LONGTEXT(unicode=True),
                   'extractedappno': mysql.LONGTEXT}
 
-    collection_text = download_documents('COMMUNICATEDCASES', lang='ENG')
+    collection_text = download_documents('COMMUNICATEDCASES', lang=lang)
+    print(len(collections), len(collection_text))
     collections['kpdate'] = list(map(update_datetime, collections['kpdate']))
     collections['text'] = collection_text
     collections['sents'] = list(map(lambda x: json.dumps(sent_tokenize(x)), collection_text))
-    collections.to_sql('CommunicatedCases', engine, if_exists='replace', dtype=dtype_dict)
+    collections.to_sql('CommunicatedCases'+lang_postfix, engine, if_exists='replace', dtype=dtype_dict)
     del collections
     del collection_text
 
     with engine.connect() as con:
-        con.execute('alter table CommunicatedCases add column `id` int(10) unsigned PRIMARY KEY AUTO_INCREMENT;')
-        con.execute('ALTER TABLE CommunicatedCases ADD INDEX idx_text(appno(15));')
+        con.execute('alter table CommunicatedCases%s add column `id` int(10) unsigned PRIMARY KEY AUTO_INCREMENT;' % lang_postfix)
+        con.execute('ALTER TABLE CommunicatedCases%s ADD INDEX idx_text(appno(15));' % lang_postfix)
 
 
-    decisions_text = download_documents('DECISIONS', lang='ENG')
+    decisions_text = download_documents('DECISIONS', lang=lang)
     decisions['kpdate'] = list(map(update_datetime, decisions['kpdate']))
     decisions['text'] = decisions_text
     decisions['sents'] = list(map(lambda x: json.dumps(sent_tokenize(x)), decisions_text))
-    decisions.to_sql('Decisions', engine, if_exists='replace', dtype=dtype_dict)
+    decisions.to_sql('Decisions'+lang_postfix, engine, if_exists='replace', dtype=dtype_dict)
     del decisions
     del decisions_text
 
     with engine.connect() as con:
-        con.execute('alter table Decisions add column `id` int(10) unsigned PRIMARY KEY AUTO_INCREMENT;')
-        con.execute('ALTER TABLE Decisions ADD INDEX idx_text(appno(15));')
+        con.execute('alter table Decisions%s add column `id` int(10) unsigned PRIMARY KEY AUTO_INCREMENT;' % lang_postfix)
+        con.execute('ALTER TABLE Decisions%s ADD INDEX idx_text(appno(15));' % lang_postfix)
 
-    judgements_text = download_documents('JUDGMENTS', lang='ENG')
+    judgements_text = download_documents('JUDGMENTS', lang=lang)
     judgements['kpdate'] = list(map(update_datetime, judgements['kpdate']))
     judgements['text'] = judgements_text
     judgements['sents'] = list(map(lambda x: json.dumps(sent_tokenize(x)), judgements_text))
     print(len(judgements['text']))
-    judgements.to_sql('Judgments', engine, if_exists='replace', dtype=dtype_dict)
+    judgements.to_sql('Judgments'+lang_postfix, engine, if_exists='replace', dtype=dtype_dict)
 
     with engine.connect() as con:
-        con.execute('alter table Judgments add column `id` int(10) unsigned PRIMARY KEY AUTO_INCREMENT;')
-        con.execute('ALTER TABLE Judgments ADD INDEX idx_text(appno(15));')
+        con.execute('alter table Judgments%s add column `id` int(10) unsigned PRIMARY KEY AUTO_INCREMENT;' % lang_postfix)
+        con.execute('ALTER TABLE Judgments%s ADD INDEX idx_text(appno(15));' % lang_postfix)
 
 
 def main():
@@ -186,7 +188,7 @@ def main():
 
     if args['download']:
         # download_documents(args['collection'], args['language'])
-        update_database(lang='ENG')
+        update_database(lang=args['language'])
 
 
 if __name__ == '__main__':

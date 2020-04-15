@@ -169,9 +169,14 @@ def list_comm(page=1):
     elif order == 'ta':
         pagination = Prediction.query.filter(Prediction.pred_type == 'COMM').\
             order_by(Prediction.kpdate).paginate(page, per_page=30, error_out=False)
-    else:
+    elif order == 'td':
         pagination = Prediction.query.filter(Prediction.pred_type == 'COMM').\
             order_by(-Prediction.kpdate).paginate(page, per_page=30, error_out=False)
+    else:
+        pagination = Prediction.query.join(Judgments, Prediction.judgment_id==Judgments.id).\
+            filter(Prediction.pred_type == 'COMM').\
+            order_by(-Prediction.jdgdate).paginate(page, per_page=30, error_out=False)
+
 
     pagination.items = zip(pagination.items, [CommunicatedCases.query.filter_by(appno=p.appno).first() for p in pagination.items])
     if pagination.items:
