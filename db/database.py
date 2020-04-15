@@ -69,7 +69,3 @@ CommunicatedCases = getattr(Base.classes, 'CommunicatedCases')
 Decisions = getattr(Base.classes, 'Decisions')
 Judgments = getattr(Base.classes, 'Judgments')
 Press = getattr(Base.classes, 'Press')
-
-CommunicatedCases_FRE = getattr(Base.classes, 'CommunicatedCases_FRE')
-Decisions_FRE = getattr(Base.classes, 'Decisions_FRE')
-Judgments_FRE = getattr(Base.classes, 'Judgments_FRE')
