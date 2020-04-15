@@ -98,7 +98,7 @@
                 </div>
                 <div class="col-8 col-12-medium">
                     <h2>Communication text used for prediction</h2>
-                    <p>
+                    <p class='predtext'>
                         {% for sent in sents %}
 
                         <!-- {% if loop.index0 == rand1 and max_sent %}
@@ -136,7 +136,7 @@
 {% endblock %}
 {% block scripts %}
 <style type="text/css">
-span:hover {
+.predtext span:hover {
 box-shadow: 0 0 11px rgba(33,33,33,.2);
 }
 blockquote {
