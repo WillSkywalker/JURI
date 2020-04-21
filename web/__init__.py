@@ -162,10 +162,10 @@ def list_comm(page=1):
     time_filter = {
         'all': True,
         'aj': Prediction.judgment_id != None,
-        'ly': Prediction.jdgdate > datetime.date.today() + datetime.timedelta(days=365),
-        'l3m': Prediction.jdgdate > datetime.date.today() + datetime.timedelta(days=92),
-        'lm': Prediction.jdgdate > datetime.date.today() + datetime.timedelta(days=31),
-        'lw': Prediction.jdgdate > datetime.date.today() + datetime.timedelta(days=7)
+        'ly': Prediction.jdgdate > datetime.date.today() - datetime.timedelta(days=365),
+        'l3m': Prediction.jdgdate > datetime.date.today() - datetime.timedelta(days=92),
+        'lm': Prediction.jdgdate > datetime.date.today() - datetime.timedelta(days=31),
+        'lw': Prediction.jdgdate > datetime.date.today() - datetime.timedelta(days=7)
     }
     # if order == 'c':
     #     pagination = CommunicatedCases.query.filter(exists().where(Prediction.appno == CommunicatedCases.appno)).\
