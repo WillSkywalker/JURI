@@ -37,12 +37,13 @@
                         {% if j %}
                         <li><b>Judgment date: </b>{{ j.kpdate.date() }}</li>
                         {% endif %}
-                        <li><b>Admissibility date: </b>{{ d.kpdate.date() }}</li>
+                        <li><b>Communication date: </b>{{ d.kpdate.date() }}</li>
                         <li><b>Application number(s): </b>{{ d.appno }}</li>
                         <li>
                             <b id='country'>Country: &nbsp;</b>
                             {{ d.respondent }}
                         </li>
+                        <li><b>Relevant ECHR article(s): </b>{{ d.article }}</li>
                         {% if j %}
                         <li><b>Conclusion: </b>{{ j.conclusion }}</li>
                         {% if j.res == 0 %}

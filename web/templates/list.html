@@ -26,12 +26,22 @@
     <div class="inner">
         <header>
             <h1>Here is a list of communicated cases from ECtHR. You may choose to sort by date of communication or final judgment.</h1>
-            <div class="col-12">
+            <div class="col-6">
                 <select name="order" id="order" onchange="window.location=this.value;">
-                    <option value="{{ url_for(list_name, page=page, ) }}?order=jtd" {% if order == 'jtd' %}selected="selected"{% endif %}>Judgment date (Descending)</option>
-                    <option value="{{ url_for(list_name, page=page, ) }}?order=jta" {% if order == 'jta' %}selected="selected"{% endif %}>Judgment date (Ascending)</option>
-                    <option value="{{ url_for(list_name, page=page, ) }}?order=td" {% if order == 'td' %}selected="selected"{% endif %}>Communication date (Descending)</option>
-                    <option value="{{ url_for(list_name, page=page, ) }}?order=ta" {% if order == 'ta' %}selected="selected"{% endif %}>Communication date (Ascending)</option>
+                    <option value="{{ url_for(list_name, page=page, time=time, order='jtd') }}" {% if order == 'jtd' %}selected="selected"{% endif %}>Judgment date (Descending)</option>
+                    <option value="{{ url_for(list_name, page=page, time=time, order='jta') }}" {% if order == 'jta' %}selected="selected"{% endif %}>Judgment date (Ascending)</option>
+                    <option value="{{ url_for(list_name, page=page, time=time, order='td') }}" {% if order == 'td' %}selected="selected"{% endif %}>Communication date (Descending)</option>
+                    <option value="{{ url_for(list_name, page=page, time=time, order='ta') }}" {% if order == 'ta' %}selected="selected"{% endif %}>Communication date (Ascending)</option>
+                </select>
+            </div>
+            <div class="col-6">
+                <select name="time" id="time" onchange="window.location=this.value;">
+                    <option value="{{ url_for(list_name, page=page, time='all', order=order) }}" {% if time == 'all' %}selected="selected"{% endif %}>All communicated cases</option>
+                    <option value="{{ url_for(list_name, page=page, time='aj', order=order) }}" {% if time == 'aj' %}selected="selected"{% endif %}>All judged cases</option>
+                    <option value="{{ url_for(list_name, page=page, time='ly', order=order) }}" {% if time == 'ly' %}selected="selected"{% endif %}>Cases judged last year</option>
+                    <option value="{{ url_for(list_name, page=page, time='l3m', order=order) }}" {% if time == 'l3m' %}selected="selected"{% endif %}>Cases judged last three months</option>
+                    <option value="{{ url_for(list_name, page=page, time='lm', order=order) }}" {% if time == 'lm' %}selected="selected"{% endif %}>Cases judged last month</option>
+                    <option value="{{ url_for(list_name, page=page, time='lw', order=order) }}" {% if time == 'lw' %}selected="selected"{% endif %}>Cases judged last week</option>
                 </select>
             </div>
         </header>

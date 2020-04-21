@@ -12,6 +12,7 @@ from flask_moment import Moment
 import json
 import random
 import math
+import datetime
 
 from config.config import Config
 from db.database import metadata, CommunicatedCases, Decisions, Judgments, Prediction, Model, Press, WeeklyReport
@@ -155,32 +156,43 @@ def list_judg(page=1):
 @app.route('/juri/list/comm/<int:page>')
 def list_comm(page=1):
     order = request.args.get('order')
+    time = request.args.get('time')
+    if not time:
+        time = 'all'
+    time_filter = {
+        'all': True,
+        'aj': Prediction.judgment_id != None,
+        'ly': Prediction.jdgdate > datetime.date.today() + datetime.timedelta(days=365),
+        'l3m': Prediction.jdgdate > datetime.date.today() + datetime.timedelta(days=92),
+        'lm': Prediction.jdgdate > datetime.date.today() + datetime.timedelta(days=31),
+        'lw': Prediction.jdgdate > datetime.date.today() + datetime.timedelta(days=7)
+    }
     # if order == 'c':
     #     pagination = CommunicatedCases.query.filter(exists().where(Prediction.appno == CommunicatedCases.appno)).\
     #                                  order_by(CommunicatedCases.respondent).paginate(page, per_page=30, error_out=False)
     if order == 'jtd':
         pagination = Prediction.query.join(Judgments, Prediction.judgment_id==Judgments.id).\
-            filter(Prediction.pred_type == 'COMM').\
+            filter(Prediction.pred_type == 'COMM').filter(time_filter[time]).\
             order_by(-Prediction.jdgdate).paginate(page, per_page=30, error_out=False)
     elif order == 'jta':
         pagination = Prediction.query.\
-            filter(Prediction.pred_type == 'COMM').\
+            filter(Prediction.pred_type == 'COMM').filter(time_filter[time]).\
             order_by(Prediction.jdgdate).paginate(page, per_page=30, error_out=False)
     elif order == 'ta':
-        pagination = Prediction.query.filter(Prediction.pred_type == 'COMM').\
+        pagination = Prediction.query.filter(Prediction.pred_type == 'COMM').filter(time_filter[time]).\
             order_by(Prediction.kpdate).paginate(page, per_page=30, error_out=False)
     elif order == 'td':
-        pagination = Prediction.query.filter(Prediction.pred_type == 'COMM').\
+        pagination = Prediction.query.filter(Prediction.pred_type == 'COMM').filter(time_filter[time]).\
             order_by(-Prediction.kpdate).paginate(page, per_page=30, error_out=False)
     else:
         pagination = Prediction.query.join(Judgments, Prediction.judgment_id==Judgments.id).\
-            filter(Prediction.pred_type == 'COMM').\
+            filter(Prediction.pred_type == 'COMM').filter(time_filter[time]).\
             order_by(-Prediction.jdgdate).paginate(page, per_page=30, error_out=False)
 
 
     pagination.items = zip(pagination.items, [CommunicatedCases.query.filter_by(appno=p.appno).first() for p in pagination.items])
     if pagination.items:
-        return render_template('list.html', pagination=pagination, page=page, order=order,
+        return render_template('list.html', pagination=pagination, page=page, order=order, time=time,
                                list_name='list_comm', entry_name='application_comm')
     else:
         return abort(404)
