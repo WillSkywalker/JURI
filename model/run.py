@@ -108,7 +108,7 @@ def predict_communicated(m, load_model=False):
         m.train()
 
     # Make predictions on cases that aren't published yet
-    for comm in session.query(CommunicatedCases)[:100]:
+    for comm in session.query(CommunicatedCases):
     # for comm in session.query(CommunicatedCases):
         result, proba, sents, sent_result, sent_proba = m.predict(comm)
         old = session.query(Prediction).filter_by(modelname=m.name, appno=comm.appno, pred_type='COMM').first()
@@ -160,5 +160,5 @@ if __name__ == '__main__':
     # jm = NBModel_judgments()
     # predict(jm, pred_type='JUDGMENTS')
     cm = NBModel_comms()
-    # predict_communicated(cm)
-    predict_communicated(cm, load_model=True)
+    predict_communicated(cm)
+    # predict_communicated(cm, load_model=True)

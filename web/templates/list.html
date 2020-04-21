@@ -25,7 +25,9 @@
 <div id="main">
     <div class="inner">
         <header>
-            <h1>Here is a list of communicated cases from ECtHR. You may choose to sort by date of communication or final judgment.</h1>
+            <h1>Here is a list of communicated cases from ECtHR. I predicted XX% correctly for all cases *judged last week.</h1>
+            <p>You may choose to sort by date of communication or final judgment, filter by judgment time or relevant ECHR article.</p>
+            <div class="row">
             <div class="col-6">
                 <select name="order" id="order" onchange="window.location=this.value;">
                     <option value="{{ url_for(list_name, page=page, time=time, order='jtd') }}" {% if order == 'jtd' %}selected="selected"{% endif %}>Judgment date (Descending)</option>
@@ -43,6 +45,7 @@
                     <option value="{{ url_for(list_name, page=page, time='lm', order=order) }}" {% if time == 'lm' %}selected="selected"{% endif %}>Cases judged last month</option>
                     <option value="{{ url_for(list_name, page=page, time='lw', order=order) }}" {% if time == 'lw' %}selected="selected"{% endif %}>Cases judged last week</option>
                 </select>
+            </div>
             </div>
         </header>
         <section>

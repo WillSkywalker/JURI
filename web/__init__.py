@@ -167,6 +167,7 @@ def list_comm(page=1):
         'lm': Prediction.jdgdate > datetime.date.today() - datetime.timedelta(days=31),
         'lw': Prediction.jdgdate > datetime.date.today() - datetime.timedelta(days=7)
     }
+    acc = None
     # if order == 'c':
     #     pagination = CommunicatedCases.query.filter(exists().where(Prediction.appno == CommunicatedCases.appno)).\
     #                                  order_by(CommunicatedCases.respondent).paginate(page, per_page=30, error_out=False)
