@@ -135,6 +135,16 @@
 </div>
 {% endblock %}
 {% block scripts %}
+<style type="text/css">
+.carousel-indicators li {
+    background-color: rgb(128, 128, 128, 0.5);
+    border-bottom: none;
+}
+.carousel-indicators li .active{
+    opacity: 1;
+
+}
+</style>
 <script type="text/javascript">
 function normalizeSlideHeights() {
     $('.carousel-inner').each(function(){

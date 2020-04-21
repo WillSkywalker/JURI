@@ -101,11 +101,15 @@ def predict(m, pred_type):
     session.commit()
 
 
-def predict_communicated(m):
-    m.train()
+def predict_communicated(m, load_model=False):
+    if load_model:
+        m.clf = joblib.load(os.path.join(DIRECTORY, 'models/', m.name+'.joblib'))
+    else:
+        m.train()
 
     # Make predictions on cases that aren't published yet
-    for comm in session.query(CommunicatedCases):
+    for comm in session.query(CommunicatedCases)[:100]:
+    # for comm in session.query(CommunicatedCases):
         result, proba, sents, sent_result, sent_proba = m.predict(comm)
         old = session.query(Prediction).filter_by(modelname=m.name, appno=comm.appno, pred_type='COMM').first()
         if not old:
@@ -138,7 +142,8 @@ def predict_communicated(m):
     logging.warning(confusion_matrix(predictions, results))
     if not os.path.exists(os.path.join(DIRECTORY, 'models/')):
         os.makedirs(os.path.join(DIRECTORY, 'models/'))
-    joblib.dump(m.clf, os.path.join(DIRECTORY, 'models/', m.name+'.joblib'))
+    if not load_model:
+        joblib.dump(m.clf, os.path.join(DIRECTORY, 'models/', m.name+'.joblib'))
 
     m = Model(modelname=m.name,
               description=m.description,
@@ -155,4 +160,5 @@ if __name__ == '__main__':
     # jm = NBModel_judgments()
     # predict(jm, pred_type='JUDGMENTS')
     cm = NBModel_comms()
-    predict_communicated(cm)
+    # predict_communicated(cm)
+    predict_communicated(cm, load_model=True)

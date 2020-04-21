@@ -17,7 +17,7 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
 from model.extract_facts_judgments import extract_parts_judgments, JudgmentNoTextError
 
-MODEL_NAME = 'Balanced Naive Bayes all cases v2'
+MODEL_NAME = 'Balanced Naive Bayes all cases v3'
 AUTHOR = 'Xu Xiao'
 DESCRIPTION = 'Naive Bayes model using the fact section of Admissibility documents'
 DATE = datetime.datetime.today()
