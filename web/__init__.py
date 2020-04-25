@@ -64,7 +64,7 @@ def conclusion_simple(desc):
         return 1
 
 
-@app.route('/juri/')
+@app.route('/')
 def index():
     mname = request.args.get('modelname')
     if not mname:
@@ -115,8 +115,8 @@ def index():
 
 
 # @line_profile
-@app.route('/juri/list')
-@app.route('/juri/list/<int:page>')
+@app.route('/list')
+@app.route('/list/<int:page>')
 def list_desc(page=1):
     order = request.args.get('order')
     if order == 'c':
@@ -132,8 +132,8 @@ def list_desc(page=1):
         return abort(404)
 
 # @line_profile
-@app.route('/juri/list/judg')
-@app.route('/juri/list/judg/<int:page>')
+@app.route('/list/judg')
+@app.route('/list/judg/<int:page>')
 def list_judg(page=1):
     order = request.args.get('order')
     if order == 'c':
@@ -152,8 +152,8 @@ def list_judg(page=1):
         return abort(404)
 
 
-@app.route('/juri/list/comm')
-@app.route('/juri/list/comm/<int:page>')
+@app.route('/list/comm')
+@app.route('/list/comm/<int:page>')
 def list_comm(page=1):
     order = request.args.get('order')
     time = request.args.get('time')
@@ -199,7 +199,7 @@ def list_comm(page=1):
         return abort(404)
 
 
-@app.route('/juri/latest')
+@app.route('/latest')
 def latest():
     mname = request.args.get('modelname')
 
@@ -234,8 +234,8 @@ def latest():
         return abort(404)
 
 
-@app.route('/juri/list_model')
-@app.route('/juri/list_model/<int:page>')
+@app.route('/list_model')
+@app.route('/list_model/<int:page>')
 def list_model(page=1):
     order = request.args.get('order')
     if order == 'acc':
@@ -253,7 +253,7 @@ def list_model(page=1):
 
 
 # @line_profile
-@app.route('/juri/app/desc/<appno>')
+@app.route('/app/desc/<appno>')
 def application_desc(appno):
     apno = appno.replace('e', '/')
     mname = request.args.get('modelname')
@@ -293,7 +293,7 @@ def application_desc(appno):
                            critical_indexes=critical_indexes)
 
 
-@app.route('/juri/app/judg/<appno>')
+@app.route('/app/judg/<appno>')
 def application_judg(appno):
     apno = appno.replace('e', '/')
     mname = request.args.get('modelname')
@@ -349,7 +349,7 @@ def application_judg(appno):
     return render_template('judgment.html', d=desc, j=judg, jp=judg_pred, **locals())
 
 
-@app.route('/juri/app/comm/<appno>')
+@app.route('/app/comm/<appno>')
 def application_comm(appno):
     apno = appno.replace('e', '/')
     mname = request.args.get('modelname')
@@ -428,8 +428,8 @@ def application_comm(appno):
     return render_template('comm.html', d=comm, j=judg, jp=judg_pred, **locals())
 
 
-@app.route('/juri/reports')
-@app.route('/juri/reports/<int:page>')
+@app.route('/reports')
+@app.route('/reports/<int:page>')
 def list_reports(page=1):
     # order = request.args.get('order')
     pagination = WeeklyReport.query.order_by(-WeeklyReport.date).paginate(page, per_page=30, error_out=False)
@@ -440,7 +440,7 @@ def list_reports(page=1):
         return abort(404)
 
 
-@app.route('/juri/report/<int:report_id>')
+@app.route('/report/<int:report_id>')
 def report(report_id):
     press = Press.query.filter_by(id=report_id).first()
     report = WeeklyReport.query.filter_by(press_id=press.id).first()
