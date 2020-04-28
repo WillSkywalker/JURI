@@ -19,7 +19,7 @@
                     </div>
 <!--                     <div class="carousel-item">
                         <h1>Here are the predictions JURI made for judgment results to be published next week.</h1>
-                        <a href="{{ url_for("report", report_id = reports[0].press_id | replace('/', 'e')) }}" class="button" style="display:flex;justify-content:center;align-items:center;">Read more</a>
+                        <a href="#" class="button" style="display:flex;justify-content:center;align-items:center;">Read more</a>
                     </div> -->
                     <div class="carousel-item">
                         <h1>Out of <a href="{{ url_for('list_comm') }}" style='color:#f2849e'>{{ right + wrong }}</a> cases published last week, I have correctly predicted <a href="{{ url_for('list_comm') }}" style='color:#f2849e'>{{ right }}</a> judgments.</h1>
@@ -73,6 +73,7 @@
 		</section> -->
         <span class="image main">
             <img src="{{ url_for('static', filename='images/cm.jpg') }}" alt="">
+            <em style="font-size: small">Cropped version of the original photo by Adrian Grycuk (license: <a href="https://creativecommons.org/licenses/by-sa/3.0/pl/deed.en" target='_blank'>CC BY-SA 3.0 PL</a>).</em>
         </span>
 		<section>
 			<div class="row">

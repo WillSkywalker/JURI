@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine, MetaData, Table, Column, ForeignKey, Integer
 from sqlalchemy import String, Unicode, Text, UnicodeText, Boolean, Float, Date, Index
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.inspection import inspect
 from sqlalchemy.ext.automap import automap_base
@@ -10,6 +10,11 @@ from config.config import Config
 metadata = MetaData()
 
 DeclarativeBase = declarative_base(metadata=metadata)
+
+
+articlecases = Table('articlecases', DeclarativeBase.metadata,
+                     Column('prediction_id', Integer, ForeignKey('Prediction.id')),
+                     Column('article_id', Integer, ForeignKey('ECHRArticle.id')))
 
 
 class Prediction(DeclarativeBase):
@@ -31,6 +36,7 @@ class Prediction(DeclarativeBase):
     pred_type = Column(String(16))
     weeklyreport_id = Column(Integer, ForeignKey('WeeklyReport.id'))
     judgment_id = Column(Integer(), index=True)
+    articles = relationship('ECHRArticle', secondary=articlecases, backref=backref('predictions', lazy='dynamic'), lazy='dynamic', passive_deletes=True)
 
 
 class Model(DeclarativeBase):
@@ -57,6 +63,14 @@ class WeeklyReport(DeclarativeBase):
     appnos = Column(Text(4294000000))
     results = Column(Text(4294000000))
     preds = relationship("Prediction", order_by="Prediction.kpdate")
+
+
+class ECHRArticle(DeclarativeBase):
+    __tablename__ = 'ECHRArticle'
+    id = Column(Integer, primary_key=True)
+    number = Column(String(16), index=True)
+    name = Column(String(64))
+    description = Column(Unicode(128))
 
 
 engine = create_engine(Config.SQLALCHEMY_DATABASE_URI, echo=True)

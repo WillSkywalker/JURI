@@ -2,6 +2,7 @@ from model.random_guess import RandomModel
 from model.naive_bayes_allcase_use_facts import NBModel_judgments, NBModel_comms
 
 import os
+import re
 import logging
 import json
 import datetime
@@ -11,7 +12,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import exists
 
 from config.config import Config
-from db.database import CommunicatedCases, Decisions, Judgments, Prediction, Model
+from db.database import CommunicatedCases, Decisions, Judgments, Prediction, Model, ECHRArticle
 from model.base import BaseDecisionModel
 from model.extract_facts_judgments import extract_parts_judgments, JudgmentNoTextError
 
@@ -25,13 +26,28 @@ DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
 def decision_predict(m):
     m.train()
-    for decision in session.query(Decisions):
+    for decision in session.query(Decisions)[:100]:
+        arts = [art for art in decision.article.split(';') if art.isnumeric() or re.fullmatch(r'P[0-9]*-[0-9]*$', art)]
+
+        articles = []
+        for art in arts:
+            article = ECHRArticle.query.filter_by(number=art).first()
+            if not article:
+                if art.startswith('P'):
+                    artname = 'Protocal %s Article %s' % art.split('-')[:2]
+                else:
+                    artname = 'Article %s' % art
+                new_article = ECHRArticle(number=art, name=artname)
+                session.add(new_article)
+            articles.append(article)
+
         result, proba, sents, sent_result, sent_proba = m.predict(decision)
         old = session.query(Prediction).filter_by(modelname=m.name, appno=decision.appno, pred_type='DECISIONS').first()
         if not old:
             pred = Prediction(result=result, proba=proba, sents=sents, sent_result=json.dumps(sent_result),
                               sent_proba=json.dumps(sent_proba), modelname=m.name,
-                              appno=decision.appno, pred_type='DECISIONS', gold=m.conclusion(decision.conclusion))
+                              appno=decision.appno, pred_type='DECISIONS', gold=m.conclusion(decision.conclusion),
+                              articles=articles)
             session.add(pred)
             session.commit()
 
@@ -108,9 +124,14 @@ def predict_communicated(m, load_model=False):
         m.train()
 
     # Make predictions on cases that aren't published yet
-    for comm in session.query(CommunicatedCases):
     # for comm in session.query(CommunicatedCases):
+    for comm in session.query(CommunicatedCases)[:100]:
         result, proba, sents, sent_result, sent_proba = m.predict(comm)
+        if comm.article:
+            arts = [art for art in comm.article.split(';') if art.isnumeric() or re.fullmatch(r'P[0-9]*-[0-9]*$', art)]
+        else:
+            arts = []
+
         old = session.query(Prediction).filter_by(modelname=m.name, appno=comm.appno, pred_type='COMM').first()
         if not old:
             jdg = session.query(Judgments).filter(or_(Judgments.appno == comm.appno,
@@ -123,6 +144,19 @@ def predict_communicated(m, load_model=False):
             pred = Prediction(gold=gold, result=result, proba=proba, sents=json.dumps(sents), sent_result=json.dumps(sent_result),
                               sent_proba=json.dumps(sent_proba), modelname=m.name, kpdate=comm.kpdate, jdgdate=jdgdate,
                               appno=comm.appno, pred_type='COMM', judgment_id=judgment_id)
+
+            for art in arts:
+                article = session.query(ECHRArticle).filter_by(number=art).first()
+                if not article:
+                    if art.startswith('P'):
+                        print(art)
+                        artname = 'Protocal %s Article %s' % (art.split('-')[0], art.split('-')[1])
+                    else:
+                        artname = 'Article %s' % art
+                    article = ECHRArticle(number=art, name=artname)
+                    session.add(article)
+                pred.articles.append(article)
+
             session.add(pred)
             session.commit()
 
@@ -160,5 +194,5 @@ if __name__ == '__main__':
     # jm = NBModel_judgments()
     # predict(jm, pred_type='JUDGMENTS')
     cm = NBModel_comms()
-    predict_communicated(cm)
-    # predict_communicated(cm, load_model=True)
+    # predict_communicated(cm)
+    predict_communicated(cm, load_model=True)

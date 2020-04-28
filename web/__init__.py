@@ -15,7 +15,7 @@ import math
 import datetime
 
 from config.config import Config
-from db.database import metadata, CommunicatedCases, Decisions, Judgments, Prediction, Model, Press, WeeklyReport
+from db.database import metadata, CommunicatedCases, Decisions, Judgments, Prediction, Model, Press, WeeklyReport, ECHRArticle
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -44,6 +44,7 @@ Prediction.__bases__ = Prediction.__bases__ + (db.Model,)
 Model.__bases__ = Model.__bases__ + (db.Model,)
 Press.__bases__ = Press.__bases__ + (db.Model,)
 WeeklyReport.__bases__ = WeeklyReport.__bases__ + (db.Model,)
+ECHRArticle.__bases__ = ECHRArticle.__bases__ + (db.Model,)
 
 
 def admissibility_anal_simple(desc):
@@ -73,10 +74,14 @@ def index():
 
     acc = int(Model.query.filter_by(pred_type='COMM').order_by(-Model.fscore).first().accuracy * 100)
 
-    reports = WeeklyReport.query.order_by(-WeeklyReport.date).limit(2).all()
+    reports = WeeklyReport.query.filter(WeeklyReport.preds.any()).first()
+    if not reports:
+        reports = WeeklyReport.query.first()
+    # print(reports.results)
+    # print(reports.preds)
     right = 0
     wrong = 0
-    for g, p in zip(json.loads(reports[1].results), reports[1].preds):
+    for g, p in zip(json.loads(reports.results), reports.preds):
         if g is None:
             continue
         if g == p.result:
@@ -157,6 +162,7 @@ def list_judg(page=1):
 def list_comm(page=1):
     order = request.args.get('order')
     time = request.args.get('time')
+    art = request.args.get('art')
     if not time:
         time = 'all'
     time_filter = {
@@ -167,34 +173,39 @@ def list_comm(page=1):
         'lm': Prediction.jdgdate > datetime.date.today() - datetime.timedelta(days=31),
         'lw': Prediction.jdgdate > datetime.date.today() - datetime.timedelta(days=7)
     }
-    acc = None
+    if art:
+        art_filter = ECHRArticle.query.filter_by(number=art).first().predictions
+    else:
+        art_filter = Prediction.query
     # if order == 'c':
     #     pagination = CommunicatedCases.query.filter(exists().where(Prediction.appno == CommunicatedCases.appno)).\
     #                                  order_by(CommunicatedCases.respondent).paginate(page, per_page=30, error_out=False)
     if order == 'jtd':
-        pagination = Prediction.query.join(Judgments, Prediction.judgment_id==Judgments.id).\
+        pagination = art_filter.join(Judgments, Prediction.judgment_id==Judgments.id).\
             filter(Prediction.pred_type == 'COMM').filter(time_filter[time]).\
             order_by(-Prediction.jdgdate).paginate(page, per_page=30, error_out=False)
     elif order == 'jta':
-        pagination = Prediction.query.\
+        pagination = art_filter.\
             filter(Prediction.pred_type == 'COMM').filter(time_filter[time]).\
             order_by(Prediction.jdgdate).paginate(page, per_page=30, error_out=False)
     elif order == 'ta':
-        pagination = Prediction.query.filter(Prediction.pred_type == 'COMM').filter(time_filter[time]).\
+        pagination = art_filter.filter(Prediction.pred_type == 'COMM').filter(time_filter[time]).\
             order_by(Prediction.kpdate).paginate(page, per_page=30, error_out=False)
     elif order == 'td':
-        pagination = Prediction.query.filter(Prediction.pred_type == 'COMM').filter(time_filter[time]).\
+        pagination = art_filter.filter(Prediction.pred_type == 'COMM').filter(time_filter[time]).\
             order_by(-Prediction.kpdate).paginate(page, per_page=30, error_out=False)
     else:
-        pagination = Prediction.query.join(Judgments, Prediction.judgment_id==Judgments.id).\
+        pagination = art_filter.join(Judgments, Prediction.judgment_id==Judgments.id).\
             filter(Prediction.pred_type == 'COMM').filter(time_filter[time]).\
             order_by(-Prediction.jdgdate).paginate(page, per_page=30, error_out=False)
+
+    articles = ECHRArticle.query.order_by(ECHRArticle.name).all()
 
 
     pagination.items = zip(pagination.items, [CommunicatedCases.query.filter_by(appno=p.appno).first() for p in pagination.items])
     if pagination.items:
-        return render_template('list.html', pagination=pagination, page=page, order=order, time=time,
-                               list_name='list_comm', entry_name='application_comm')
+        return render_template('list.html', pagination=pagination, page=page, order=order, time=time, art=art,
+                               list_name='list_comm', entry_name='application_comm', articles=articles)
     else:
         return abort(404)
 
