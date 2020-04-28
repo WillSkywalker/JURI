@@ -108,7 +108,7 @@ def index():
     preds_comm = [Prediction.query.filter_by(appno=j.appno).first() for j in res_comm]
 
 
-    preds_judg = Prediction.query.filter_by(pred_type='COMM', modelname=cmname).\
+    preds_judg = Prediction.query.filter_by(pred_type='COMM').\
         filter(Prediction.judgment_id == None).order_by(-Prediction.kpdate).limit(5).all()
     res_judg = [CommunicatedCases.query.filter_by(appno=p.appno).first() for p in preds_judg]
 
