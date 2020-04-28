@@ -67,10 +67,10 @@ def conclusion_simple(desc):
 
 @app.route('/')
 def index():
-    mname = request.args.get('modelname')
-    if not mname:
-        mname = Model.query.filter_by(pred_type='JUDGMENTS').order_by(-Model.fscore).first().modelname
-        cmname = Model.query.filter_by(pred_type='COMM').order_by(-Model.fscore).first().modelname
+    # mname = request.args.get('modelname')
+    # if not mname:
+    #     mname = Model.query.filter_by(pred_type='JUDGMENTS').order_by(-Model.fscore).first().modelname
+    #     cmname = Model.query.filter_by(pred_type='COMM').order_by(-Model.fscore).first().modelname
 
     acc = int(Model.query.filter_by(pred_type='COMM').order_by(-Model.fscore).first().accuracy * 100)
 
@@ -115,8 +115,8 @@ def index():
 
     preds = zip(preds_comm, res_comm)
     rests = zip(preds_judg, res_judg)
-    return render_template('index.html', preds=preds, rests=rests, mname=mname, cmname=cmname,
-        right=right, wrong=wrong, reports=reports, acc=acc)
+    return render_template('index.html', preds=preds, rests=rests,  # mname=mname, cmname=cmname,
+                           right=right, wrong=wrong, reports=reports, acc=acc)
 
 
 # @line_profile

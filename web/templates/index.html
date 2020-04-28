@@ -82,7 +82,7 @@
 					<ul>
 					{% for pred, judg in preds %}
 
-                        <li><a href="{{ url_for('application_comm', appno = pred.appno | replace('/', 'e')) }}?modelname={{ cmname }}">{{ judg.docname }}</a> ({{judg.kpdate.date()}})
+                        <li><a href="{{ url_for('application_comm', appno = pred.appno | replace('/', 'e')) }}">{{ judg.docname }}</a> ({{judg.kpdate.date()}})
                         	<br>
                         {% if pred.result == judg.res %}
                         {% if pred.result == 0 %}
@@ -114,7 +114,7 @@
 					<h3>to be announced</h3>
 					<ul>
 					{% for pred, judg in rests %}
-                        <li><a href="{{ url_for('application_comm', appno = pred.appno | replace('/', 'e')) }}?modelname={{ cmname }}">{{ judg.docname }}</a> ({{ pred.kpdate }})
+                        <li><a href="{{ url_for('application_comm', appno = pred.appno | replace('/', 'e')) }}">{{ judg.docname }}</a> ({{ pred.kpdate }})
                         	<br>
                         
                         Prediction: 
