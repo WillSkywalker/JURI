@@ -32,21 +32,21 @@ def update():
     hudoc.get_document_list('DECISIONS', 'ENG')
     hudoc.get_document_list('JUDGMENTS', 'ENG')
     hudoc.update_database(lang='ENG')
-    logging.log('HUDOC updated.')
+    logging.warning('HUDOC updated.')
 
     # download weekly press releases
     press.get_document_list()
     press.update_database()
-    logging.log('Press releases updated.')
+    logging.warning('Press releases updated.')
 
     # train models
     cm = run.NBModel_comms(name='NaiveBayes_'+str(datetime.date.today()))
     run.predict_communicated(cm)
-    logging.log('Model trained.')
+    logging.warning('Model trained.')
 
     # weekly reports
     weekly.weekly_report('NaiveBayes_'+str(datetime.date.today()))
-    logging.log('Weekly reports generated.')
+    logging.warning('Weekly reports generated.')
 
 if __name__ == '__main__':
     manager.run()
