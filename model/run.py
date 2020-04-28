@@ -125,7 +125,7 @@ def predict_communicated(m, load_model=False):
 
     # Make predictions on cases that aren't published yet
     # for comm in session.query(CommunicatedCases):
-    for comm in session.query(CommunicatedCases)[:100]:
+    for comm in session.query(CommunicatedCases):
         result, proba, sents, sent_result, sent_proba = m.predict(comm)
         if comm.article:
             arts = [art for art in comm.article.split(';') if art.isnumeric() or re.fullmatch(r'P[0-9]*-[0-9]*$', art)]
