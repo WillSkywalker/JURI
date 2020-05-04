@@ -122,7 +122,7 @@ def predict(m, pred_type):
 
 def predict_communicated(date, load_model=False):
     m = NBModel_comms()
-    if load_model:
+    if load_model and os.path.exists(os.path.join(DIRECTORY, 'models/', m.name+str(date)+'.joblib')):
         m.clf = joblib.load(os.path.join(DIRECTORY, 'models/', m.name+str(date)+'.joblib'))
     else:
         m.train(date)
@@ -232,7 +232,7 @@ def predict_communicated(date, load_model=False):
     logging.warning(confusion_matrix(predictions, results))
     if not os.path.exists(os.path.join(DIRECTORY, 'models/')):
         os.makedirs(os.path.join(DIRECTORY, 'models/'))
-    if not load_model:
+    if not os.path.exists(os.path.join(DIRECTORY, 'models/', m.name+str(date)+'.joblib')):
         joblib.dump(m.clf, os.path.join(DIRECTORY, 'models/', m.name+str(date)+'.joblib'))
 
     model.accuracy = float(accuracy)
@@ -247,7 +247,6 @@ def predict_communicated(date, load_model=False):
                 arts = [art for art in comm.article.split(';') if art.isnumeric() or re.fullmatch(r'P[0-9]*-[0-9]*$', art)]
             else:
                 arts = []
-
 
             result, proba, sents, sent_result, sent_proba = m.predict(comm)
             old = session.query(Prediction).filter_by(modelname=m.name, appno=comm.appno, pred_type='COMM').first()
@@ -285,7 +284,7 @@ def main():
     today = datetime.date.today()
     end = datetime.date(today.year, today.month, 1)
     with Pool(32) as p:
-        for i in p.imap(predict_communicated, rrule(MONTHLY, dtstart=datetime.date(2017, 1, 1), until=end), chunksize=32):
+        for i in p.imap(predict_communicated, rrule(MONTHLY, dtstart=datetime.date(2017, 1, 1), until=end)):
             print(i)
 
 
