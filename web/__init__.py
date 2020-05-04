@@ -9,6 +9,7 @@ from flask_cors import CORS, cross_origin
 from flask_sqlalchemy import SQLAlchemy
 from flask_moment import Moment
 
+import re
 import json
 import random
 import math
@@ -360,8 +361,15 @@ def application_judg(appno):
     return render_template('judgment.html', d=desc, j=judg, jp=judg_pred, **locals())
 
 
+@app.template_filter('remove_newlines')
+def replace_multi_newlines(text):
+    return re.sub(r'\n\s+\n', '\n\n', text)
+
+
 @app.route('/app/comm/<appno>')
 def application_comm(appno):
+
+
     apno = appno.replace('e', '/')
     mname = request.args.get('modelname')
     comm = CommunicatedCases.query.filter_by(appno=apno).first()
@@ -480,9 +488,6 @@ def word(appno):
     appno = appno[:-2] + '/' + appno[-2:]
     apno = appno.replace('e', '/')
     return str(session.query(Decisions).filter(Decisions.appno == appno).first().text)
-
-
-
 
 
 

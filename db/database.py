@@ -31,7 +31,8 @@ class Prediction(DeclarativeBase):
     sents = Column(Text(4294000000))
     sent_result = Column(Text(4294000000))
     sent_proba = Column(Text(4294000000))
-    modelname = Column(Unicode(64), index=True)
+    modelname = Column(Unicode(64))
+    model_id = Column(Integer(), ForeignKey('Model.id'))
     appno = Column(Text(4294000000))
     pred_type = Column(String(16))
     weeklyreport_id = Column(Integer, ForeignKey('WeeklyReport.id'))
@@ -50,6 +51,7 @@ class Model(DeclarativeBase):
     accuracy = Column(Float())
     fscore = Column(Float())
     article = Column(String(64))
+    predictions = relationship('Prediction', backref='model', passive_deletes=True)
 
 
 class WeeklyReport(DeclarativeBase):

@@ -15,9 +15,11 @@ from collections import Counter
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
+from sklearn.svm import LinearSVC
+
 from model.extract_facts_judgments import extract_parts_judgments, JudgmentNoTextError
 
-MODEL_NAME = 'Balanced Naive Bayes all cases v3'
+MODEL_NAME = 'NBv3'
 AUTHOR = 'Xu Xiao'
 DESCRIPTION = 'Naive Bayes model using the fact section of Admissibility documents'
 DATE = datetime.datetime.today()
@@ -34,7 +36,7 @@ class NBModel_judgments(BaseDecisionModel):
         super(NBModel_judgments, self).__init__(name, author, description, date)
         self.clf = Pipeline([
             ('vect', TfidfVectorizer()),
-            ('clf', MultinomialNB()),
+            ('clf', LinearSVC()),
         ])
 
     @staticmethod
@@ -173,18 +175,20 @@ class NBModel_comms(BaseCommunicatedCasesModel):
     def extract_input(decision_texts):
         pass
 
-    def train(self):
+    def train(self, date):
 
         # comms = session.query(CommunicatedCases).all()
-        comms = session.query(CommunicatedCases).filter(exists().where(Judgments.appno == CommunicatedCases.appno)).all()
-        new_appnos = []
-        new_comms = []
+        dt = datetime.datetime.combine(date, datetime.datetime.min.time())
+        # judgs = session.query(Judgments).filter(Judgments.kpdate < dt).all()
+        comms = session.query(CommunicatedCases).filter(CommunicatedCases.kpdate < dt).filter(exists().where(Judgments.appno == CommunicatedCases.appno)).all()
+        appnos = []
+        comm_texts = []
         for d in comms:
             try:
                 print('OOOOO:', d.appno)
                 # text = d.text.split('\n')
-                new_comms.append(d.text)
-                new_appnos.append(d.appno)
+                comm_texts.append(d.text)
+                appnos.append(d.appno)
             except JudgmentNoTextError:
                 logging.warning(d.appno)
 
@@ -194,18 +198,22 @@ class NBModel_comms(BaseCommunicatedCasesModel):
         # all conclusions (strings)
         # results = Judgments.query.filter(Judgments.appno.in_(appnos)).with_entities(Judgments.conclusion).all()
         results = []
-        for a in new_appnos:
+        new_comms = []
+        for i, a in enumerate(appnos):
             j = session.query(Judgments).filter(or_(Judgments.appno == a,
                                                     Judgments.appno.like("{};%".format(a)),
                                                     Judgments.appno.like("%;{}".format(a)),
-                                                    Judgments.appno.like("%;{};%".format(a)))).with_entities(Judgments.conclusion).first()
+                                                    Judgments.appno.like("%;{};%".format(a)))).first()
+            if j.kpdate > dt:
+                continue
             if j:
                 results.append(self.conclusion_simple(j.conclusion))
             else:
                 results.append(1)
+            new_comms.append(comm_texts[i])
 
         violation_num = Counter(results)[0] - Counter(results)[1]
-        for comm in random.sample(session.query(CommunicatedCases).filter(~exists().where(Judgments.appno == CommunicatedCases.appno)).all(), violation_num):
+        for comm in random.sample(session.query(CommunicatedCases).filter(CommunicatedCases.kpdate < dt).filter(~exists().where(Judgments.appno == CommunicatedCases.appno)).all(), violation_num):
             # if i >= violation_num:
             #     break
             new_comms.append(comm.text)

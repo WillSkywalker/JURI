@@ -43,9 +43,9 @@
                             <b id='country'>Country: &nbsp;</b>
                             {{ d.respondent }}
                         </li>
-                        <li><b>Relevant ECHR article(s): </b>{{ d.article }}</li>
+                        <li><b>Relevant ECHR article(s): </b>{{ d.article | replace(";", ", ")  }}</li>
                         {% if j %}
-                        <li><b>Conclusion: </b>{{ j.conclusion }}</li>
+                        <li><b>Conclusion: </b><br/>{% autoescape false %}{{ j.conclusion | replace(";", "<br/>")}}{% endautoescape %}</li>
                         {% if j.res == 0 %}
                         <li style='color: {% if jp.result == j.res %}green{% else %}red{% endif %};'><b>Result: </b>Violation</li>
                         <a href="#judgment-text" class="button" style="display:flex;justify-content:center;align-items:center;">SEE FINAL JUDGMENT</a>
@@ -96,7 +96,9 @@
                         {% endif %}
                         Deeper color stands for higher probability.
                     </div>
+
                 </div>
+                <a id="back-to-top" href="#" class="btn btn-light btn-lg back-to-top" role="button"><i class="fas fa-chevron-up"></i></a>
                 </div>
                 <div class="col-8 col-12-medium">
                     <div style="display: flex;">
@@ -108,6 +110,7 @@
                         <div><div class="box" style="background-color: #ffffcf"></div>:&nbsp;In opposition to our prediction</div>
                         {% endif %}
                     </div>
+
                     <h2>Communication text used for prediction</h2>
                     <p class='predtext'>
                         {% for sent in sents %}
@@ -132,8 +135,9 @@
                     <h2>Judgment</h2>
                     {% if j %}
                         {% for sent in jsents %}
+
                         <span>
-                            {% autoescape false %}{{ sent | replace('\n', '<br>') }}{% endautoescape %}</span>
+                            {% autoescape false %}{{ sent | remove_newlines | replace('\n', '<br/>') }}{% endautoescape %}</span>
                         {% endfor %}
                     {% else %}
                         <p>The official judgment is not available yet.</p>
@@ -174,6 +178,13 @@ blockquote {
   padding: 0;
   margin-bottom: 1em;
 }
+
+.back-to-top {
+    position: fixed;
+    bottom: 25px;
+    left: 25px;
+    display: none;
+}
 </style>
 <script type="text/javascript">
 $(function () {
@@ -193,9 +204,7 @@ $(function() {
 
         $(window).scroll(function() {
             if ($(window).scrollTop() + 10 >= footerBot) {
-                $(".scrollingBox").css({
-                    "display": "none",
-                });
+                $(".scrollingBox").fadeOut();
             } else if ($(window).scrollTop() > offsetPixels) {
                 $(".scrollingBox").css({
                     "display": "block",
@@ -212,5 +221,27 @@ $(function() {
             
         });
     });
+
+
+$(document).ready(function(){
+    var footerBot = $( "#footer" ).offset().top; // change with your sidebar height
+
+    $(window).scroll(function () {
+            if ($(this).scrollTop() > 1200 && $(window).scrollTop() + $(window).height() < footerBot) {
+                $('#back-to-top').fadeIn();
+            } else {
+                $('#back-to-top').fadeOut();
+            }
+        });
+        // scroll body to 0px on click
+        $('#back-to-top').click(function () {
+            $('body,html').animate({
+                scrollTop: 0
+            }, 400);
+            return false;
+        });
+});
+
+
 </script>
 {% endblock %}

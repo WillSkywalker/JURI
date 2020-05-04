@@ -10,6 +10,9 @@ import joblib
 from sqlalchemy import create_engine, or_
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import exists
+from dateutil.rrule import rrule, MONTHLY
+from dateutil.relativedelta import relativedelta
+from multiprocessing import Pool
 
 from config.config import Config
 from db.database import CommunicatedCases, Decisions, Judgments, Prediction, Model, ECHRArticle
@@ -117,15 +120,23 @@ def predict(m, pred_type):
     session.commit()
 
 
-def predict_communicated(m, load_model=False):
+def predict_communicated(date, load_model=False):
+    m = NBModel_comms()
     if load_model:
-        m.clf = joblib.load(os.path.join(DIRECTORY, 'models/', m.name+'.joblib'))
+        m.clf = joblib.load(os.path.join(DIRECTORY, 'models/', m.name+str(date)+'.joblib'))
     else:
-        m.train()
-
+        m.train(date)
+    end_date = date + relativedelta(months=+1)
+    dt = datetime.datetime.combine(date, datetime.datetime.min.time())
+    edt = datetime.datetime.combine(end_date, datetime.datetime.min.time())
     # Make predictions on cases that aren't published yet
     # for comm in session.query(CommunicatedCases):
-    for comm in session.query(CommunicatedCases):
+    model = Model(modelname=m.name,
+                  description=m.description,
+                  author=m.author,
+                  date=date,
+                  pred_type='COMM')
+    for comm in session.query(CommunicatedCases).filter(CommunicatedCases.kpdate < edt):
         result, proba, sents, sent_result, sent_proba = m.predict(comm)
         if comm.article:
             arts = [art for art in comm.article.split(';') if art.isnumeric() or re.fullmatch(r'P[0-9]*-[0-9]*$', art)]
@@ -134,7 +145,8 @@ def predict_communicated(m, load_model=False):
 
         old = session.query(Prediction).filter_by(modelname=m.name, appno=comm.appno, pred_type='COMM').first()
         if not old:
-            jdg = session.query(Judgments).filter(or_(Judgments.appno == comm.appno,
+            jdg = session.query(Judgments).filter(Judgments.kpdate > dt).filter(Judgments.kpdate < edt)\
+                                          .filter(or_(Judgments.appno == comm.appno,
                                                       Judgments.appno.like("{};%".format(comm.appno)),
                                                       Judgments.appno.like("%;{}".format(comm.appno)),
                                                       Judgments.appno.like("%;{};%".format(comm.appno)))).first()
@@ -142,7 +154,7 @@ def predict_communicated(m, load_model=False):
             jdgdate = jdg.kpdate if jdg else None
             gold = m.conclusion(jdg.conclusion) if jdg else None
             pred = Prediction(gold=gold, result=result, proba=proba, sents=json.dumps(sents), sent_result=json.dumps(sent_result),
-                              sent_proba=json.dumps(sent_proba), modelname=m.name, kpdate=comm.kpdate, jdgdate=jdgdate,
+                              sent_proba=json.dumps(sent_proba), kpdate=comm.kpdate, jdgdate=jdgdate,
                               appno=comm.appno, pred_type='COMM', judgment_id=judgment_id)
 
             for art in arts:
@@ -150,7 +162,7 @@ def predict_communicated(m, load_model=False):
                 if not article:
                     if art.startswith('P'):
                         print(art)
-                        artname = 'Protocal %s Article %s' % (art.split('-')[0], art.split('-')[1])
+                        artname = 'Protocol %s Article %s' % (art.split('-')[0][1:], art.split('-')[1])
                     else:
                         artname = 'Article %s' % art
                     article = ECHRArticle(number=art, name=artname)
@@ -158,6 +170,7 @@ def predict_communicated(m, load_model=False):
                 pred.articles.append(article)
 
             session.add(pred)
+            model.predictions.append(pred)
             session.commit()
 
     # Evaluation, further report saved at local
@@ -177,22 +190,26 @@ def predict_communicated(m, load_model=False):
     if not os.path.exists(os.path.join(DIRECTORY, 'models/')):
         os.makedirs(os.path.join(DIRECTORY, 'models/'))
     if not load_model:
-        joblib.dump(m.clf, os.path.join(DIRECTORY, 'models/', m.name+'.joblib'))
+        joblib.dump(m.clf, os.path.join(DIRECTORY, 'models/', m.name+str(date)+'.joblib'))
 
-    m = Model(modelname=m.name,
-              description=m.description,
-              author=m.author,
-              date=m.date,
-              pred_type='COMM',
-              accuracy=float(accuracy),
-              fscore=float(fscore))
-    session.add(m)
+    model.accuracy = float(accuracy)
+    model.fscore = float(fscore)
+    session.add(model)
     session.commit()
+
+
+def main():
+    today = datetime.date.today()
+    end = datetime.date(today.year, today.month, 1)
+    with Pool(32) as p:
+        for i in p.imap(predict_communicated, rrule(MONTHLY, dtstart=datetime.date(2017, 1, 1), until=end), chunksize=32):
+            print(i)
 
 
 if __name__ == '__main__':
     # jm = NBModel_judgments()
     # predict(jm, pred_type='JUDGMENTS')
-    cm = NBModel_comms()
+    # cm = NBModel_comms()
     # predict_communicated(cm)
-    predict_communicated(cm, load_model=True)
+    main()
+
