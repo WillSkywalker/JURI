@@ -318,6 +318,6 @@ if __name__ == '__main__':
     # predict(jm, pred_type='JUDGMENTS')
     # cm = NBModel_comms()
     # predict_communicated(datetime.date(2018, 2, 1))
-    # main()
-    evaluate()
+    main()
+    # evaluate()
 
