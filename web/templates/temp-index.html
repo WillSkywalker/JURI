@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block title %}Homepage{% endblock %}
+{% block main %}
+<!-- Main -->
+<div id="main">
+    <div class="inner">
+        <header>
+            <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+
+                <div class="carousel-inner">
+                      <ol class="carousel-indicators">
+                        <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+                        <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+                      </ol>
+ 
+                    <div class="carousel-item active">
+                        <h1>I'm  predicting judgment results from the European Court of Human Rights </a>.</h1>
+                        <p>JURI reads press releases from previous years and decisions of the cases judged by the European Court of Human Rights and predicts decisions the Court will make. Every week it learns from its mistakes.</p>
+                    </div>
+<!--                     <div class="carousel-item">
+                        <h1>Here are the predictions JURI made for judgment results to be published next week.</h1>
+                        <a href="#" class="button" style="display:flex;justify-content:center;align-items:center;">Read more</a>
+                    </div> -->
+                    <div class="carousel-item">
+                        <h1>This website is upgrading and temporarily not available. Please stay tuned, we'll be back soon!</h1>
+                        <!-- <a href="{{ url_for('list_comm') }}" class="button primary">Read more</a> -->
+                    </div>
+                </div>
+                <!-- <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span> -->
+                <!-- </a> -->
+            </div>
+        </header>
+        <!-- <section class="tiles">
+            <article class="style1">
+                <span class="image">
+                    <img src="{{ url_for('static', filename='images/pic01.jpg') }}" alt="" />
+                </span>
+                <a href="{{ url_for('list_comm') }}">
+                    <h2>Communications</h2>
+                    <div class="content">
+                        <p>Predictions based on communications made by ECtHR Court.</p>
+                    </div>
+                </a>
+            </article>
+            <article class="style2">
+                <span class="image">
+                    <img src="{{ url_for('static', filename='images/pic02.jpg') }}" alt="" />
+                </span>
+                <a href="{{ url_for('latest') }}">
+                    <h2>Recent Judgments</h2>
+                    <div class="content">
+                        <p>Recent published judgments by ECtHR and comparison to our predictions.</p>
+                    </div>
+                </a>
+            </article>
+            <article class="style3">
+                <span class="image">
+                    <img src="{{ url_for('static', filename='images/pic03.png') }}" alt="" />
+                </span>
+                <a href="{{ url_for('list_reports') }}">
+                    <h2>Weekly Reports</h2>
+                    <div class="content">
+                        <p>Check our prediction reports published every week.</p>
+                    </div>
+                </a>
+            </article>
+        </section> -->
+        <span class="image main">
+            <img src="{{ url_for('static', filename='images/cm.jpg') }}" alt="">
+            <em style="font-size: small">Cropped version of the original photo by Adrian Grycuk (license: <a href="https://creativecommons.org/licenses/by-sa/3.0/pl/deed.en" target='_blank'>CC BY-SA 3.0 PL</a>).</em>
+        </span>
+        
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<style type="text/css">
+.carousel-indicators li {
+    background-color: rgb(128, 128, 128, 0.5);
+    border-bottom: none;
+}
+.carousel-indicators li .active{
+    opacity: 1;
+
+}
+</style>
+<script type="text/javascript">
+function normalizeSlideHeights() {
+    $('.carousel-inner').each(function(){
+      var items = $('.carousel-item', this);
+      // reset the height
+      items.css('min-height', 0);
+      // set the height
+      var maxHeight = Math.max.apply(null, 
+          items.map(function(){
+              return $(this).outerHeight()}).get() );
+      items.css('min-height', maxHeight + 'px');
+    })
+}
+
+$(window).on(
+    'load resize orientationchange', 
+    normalizeSlideHeights);
+</script>
+{% endblock %}
