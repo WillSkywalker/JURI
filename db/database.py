@@ -75,6 +75,15 @@ class ECHRArticle(DeclarativeBase):
     description = Column(Unicode(128))
 
 
+class Evaluation(DeclarativeBase):
+    __tablename__ = 'Evaluation'
+    id = Column(Integer, primary_key=True)
+    overall = Column(Float())
+    last_year = Column(Float())
+    last_half_year = Column(Float())
+
+
+
 engine = create_engine(Config.SQLALCHEMY_DATABASE_URI, echo=True)
 metadata.reflect(engine)
 Base = automap_base(metadata=metadata)

@@ -15,7 +15,7 @@ from dateutil.relativedelta import relativedelta
 from multiprocessing import Pool
 
 from config.config import Config
-from db.database import CommunicatedCases, Decisions, Judgments, Prediction, Model, ECHRArticle
+from db.database import CommunicatedCases, Decisions, Judgments, Prediction, Model, ECHRArticle, Evaluation
 from model.base import BaseDecisionModel
 from model.extract_facts_judgments import extract_parts_judgments, JudgmentNoTextError
 
@@ -280,18 +280,44 @@ def predict_communicated(date, load_model=False):
                 session.commit()
 
 
+def evaluate():
+    today = datetime.date.today()
+    end = datetime.date(today.year, today.month, 1)
+    last_half_year = end + relativedelta(months=-6)
+    lhy = True
+    last_year = end + relativedelta(months=-12)
+    ly = True
+    correct = 0
+    length = 0
+    for pred in session.query(Prediction).filter(Prediction.gold != None).order_by(-Prediction.jdgdate):
+        if pred.jdgdate < last_half_year and lhy:
+            lhy = False
+            acc_lhy = correct / float(length) if length != 0 else 0
+        if pred.jdgdate < last_year and ly:
+            ly = False
+            acc_ly = correct / float(length) if length != 0 else 0
+        length += 1
+        if pred.gold == pred.result:
+            correct += 1
+    overall = correct / float(length)
+    e = Evaluation(overall=overall, last_year=acc_ly, last_half_year=acc_lhy)
+    session.add(e)
+    session.commit()
+
+
 def main():
     today = datetime.date.today()
     end = datetime.date(today.year, today.month, 1)
     with Pool(32) as p:
         for i in p.imap(predict_communicated, rrule(MONTHLY, dtstart=datetime.date(2017, 1, 1), until=end)):
             print(i)
-
+    evaluate()
 
 if __name__ == '__main__':
     # jm = NBModel_judgments()
     # predict(jm, pred_type='JUDGMENTS')
     # cm = NBModel_comms()
-    predict_communicated(datetime.date(2018, 2, 1))
+    # predict_communicated(datetime.date(2018, 2, 1))
     # main()
+    evaluate()
 
