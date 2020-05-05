@@ -68,37 +68,37 @@ def conclusion_simple(desc):
         return 1
 
 
-# @app.route('/')
-# def index():
-#     return render_template('temp-index.html')
-
-
 @app.route('/')
 def index():
-    accs = [i[0] for i in Model.query.filter_by(pred_type='COMM').order_by(Model.date).with_entities(Model.accuracy).all()]
-    fscs = [i[0] for i in Model.query.filter_by(pred_type='COMM').order_by(Model.date).with_entities(Model.fscore).all()]
-    dtes = ['%d.%d' % (i[0].year, i[0].month) for i in Model.query.filter_by(pred_type='COMM').order_by(Model.date).with_entities(Model.date).all()]
-
-    evaluation = Evaluation.query.order_by(-Evaluation.id).first()
-
-    res_comm = Judgments.query.filter(exists().where(Prediction.appno == Judgments.appno)).\
-                                      order_by(-Judgments.kpdate).limit(5).all()
-
-    for r in res_comm:
-        r.res = conclusion_simple(r.conclusion)
-
-    preds_comm = [Prediction.query.filter_by(appno=j.appno).first() for j in res_comm]
+    return render_template('temp-index.html')
 
 
-    preds_judg = Prediction.query.filter_by(pred_type='COMM').\
-        filter(Prediction.judgment_id == None).order_by(-Prediction.kpdate).limit(5).all()
-    # res_judg = [CommunicatedCases.query.filter_by(appno=p.appno).first() for p in preds_judg]
+# @app.route('/')
+# def index():
+#     accs = [i[0] for i in Model.query.filter_by(pred_type='COMM').order_by(Model.date).with_entities(Model.accuracy).all()]
+#     fscs = [i[0] for i in Model.query.filter_by(pred_type='COMM').order_by(Model.date).with_entities(Model.fscore).all()]
+#     dtes = ['%d.%d' % (i[0].year, i[0].month) for i in Model.query.filter_by(pred_type='COMM').order_by(Model.date).with_entities(Model.date).all()]
+
+#     evaluation = Evaluation.query.order_by(-Evaluation.id).first()
+
+#     res_comm = Judgments.query.filter(exists().where(Prediction.appno == Judgments.appno)).\
+#                                       order_by(-Judgments.kpdate).limit(5).all()
+
+#     for r in res_comm:
+#         r.res = conclusion_simple(r.conclusion)
+
+#     preds_comm = [Prediction.query.filter_by(appno=j.appno).first() for j in res_comm]
 
 
-    preds = zip(preds_comm, res_comm)
-    # rests = zip(preds_judg, res_judg)
-    return render_template('index.html', preds=preds,  # rests=rests, mname=mname, cmname=cmname,
-                           accs=accs, fscs=fscs, dtes=dtes, evaluation=evaluation)
+#     preds_judg = Prediction.query.filter_by(pred_type='COMM').\
+#         filter(Prediction.judgment_id == None).order_by(-Prediction.kpdate).limit(5).all()
+#     # res_judg = [CommunicatedCases.query.filter_by(appno=p.appno).first() for p in preds_judg]
+
+
+#     preds = zip(preds_comm, res_comm)
+#     # rests = zip(preds_judg, res_judg)
+#     return render_template('index.html', preds=preds,  # rests=rests, mname=mname, cmname=cmname,
+#                            accs=accs, fscs=fscs, dtes=dtes, evaluation=evaluation)
 
 
 # @line_profile
@@ -420,8 +420,6 @@ def application_comm(appno):
             critical_indexes[idx] = "hsl(1, 100%, {}%)".format((0.6 - math.log(sent_proba[idx]) * 0.5) * 100)
         else:
             critical_indexes[idx] = "hsl(60, 100%, {}%)".format((0.6 - math.log(sent_proba[idx]) * 0.5) * 100)
-    print(max_idxes)
-    print(critical_indexes)
     sent_num = len(sents)
     rand1 = random.randrange(sent_num//5, sent_num//2)
     rand2 = random.randrange(sent_num//2, sent_num*4//5)
