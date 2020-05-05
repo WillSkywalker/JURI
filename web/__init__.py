@@ -79,7 +79,7 @@ def index():
     fscs = [i[0] for i in Model.query.filter_by(pred_type='COMM').order_by(Model.date).with_entities(Model.fscore).all()]
     dtes = ['%d.%d' % (i[0].year, i[0].month) for i in Model.query.filter_by(pred_type='COMM').order_by(Model.date).with_entities(Model.date).all()]
 
-    evaluation = Evaluation.query.first()
+    evaluation = Evaluation.query.order_by(-Evaluation.id).first()
 
     res_comm = Judgments.query.filter(exists().where(Prediction.appno == Judgments.appno)).\
                                       order_by(-Judgments.kpdate).limit(5).all()
