@@ -94,7 +94,7 @@
                         <div><div class="box" style="background-color: #c3fdff"></div>&nbsp;In line with our prediction</div>
                         <div><div class="box" style="background-color: #ffffcf"></div>&nbsp;In opposition to our prediction</div>
                         {% endif %}
-                        Deeper color stands for higher probability.
+                        Darker color: higher probability
                     </div>
 
                 </div>
@@ -184,6 +184,14 @@ blockquote {
     bottom: 25px;
     left: 25px;
     display: none;
+}
+
+@media screen and (max-width: 768px) {
+  .scrollingBox {
+    visibility: hidden;
+    display: none;
+    /* your any other css styles */
+  }
 }
 </style>
 <script type="text/javascript">
