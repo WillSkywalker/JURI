@@ -236,7 +236,7 @@ def predict_communicated(date, load_model=False):
         session.commit()
 
     today = datetime.date.today()
-    if date == datetime.date(today.year, today.month, 1):
+    if date >= datetime.date(today.year, today.month, 1) - relativedelta(month=1):
         for comm in session.query(CommunicatedCases).filter(~exists().where(Prediction.appno == CommunicatedCases.appno)):
             if comm.article:
                 arts = [art for art in comm.article.split(';') if art.isnumeric() or re.fullmatch(r'P[0-9]*-[0-9]*$', art)]
