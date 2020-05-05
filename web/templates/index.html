@@ -15,12 +15,12 @@
                       </ol>
  
                     <div class="carousel-item active">
-                        <h1>I'm predicting judgment results from the European Court of Human Rights with an accuracy of <a href="{{ url_for('list_comm') }}" style='color:#f2849e'>{{"%.1f" | accs[-2]*100}}%</a>.</h1>
+                        <h1>I'm predicting judgment results from the European Court of Human Rights with an accuracy of <a href="{{ url_for('list_comm') }}" style='color:#f2849e'>{{"%.1f" | format(accs[-2]*100)}}%</a>.</h1>
                         <p>JURI reads press releases from previous years and decisions of the cases judged by the European Court of Human Rights and predicts decisions the Court will make. Every week it learns from its mistakes.</p>
                     </div>
                     <div class="carousel-item">
                         <h1>Over the last half year we've correctly predicted {{ "%.1f" | format(evaluation.last_half_year*100) }}% of judgments.</h1>
-                        <p>The accuracy for the last year is {{"%.1f" | evaluation.last_year*100}}%, and {{"%.1f" | evaluation.overall*100}}% over all cases.</p>
+                        <p>The accuracy for the last year is {{"%.1f" | format(evaluation.last_year*100)}}%, and {{"%.1f" | format(evaluation.overall*100)}}% over all cases.</p>
                     </div>
                     <div class="carousel-item">
                         <h1>The prediction model is updated on a monthly basis.</h1>
