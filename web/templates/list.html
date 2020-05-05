@@ -109,7 +109,7 @@
                         <td>{% if item.jdgdate %}{{ item.jdgdate }}{% else %}-{% endif %}</td>
                     </tr>
                     {% endfor %}
-                    {% if pagination.total %}
+                    {% if not pagination.total %}
                     <tr><td colspan="6">There are no cases associated with the above filters.</td></tr>
                     {% endif %}
 
