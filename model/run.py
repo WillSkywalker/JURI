@@ -304,7 +304,7 @@ def evaluate():
 
 def main():
     today = datetime.date.today()
-    end = datetime.date(today.year, today.month, 1)
+    end = datetime.date(today.year, today.month, 1) - relativedelta(months=1)
     with Pool(32) as p:
         for i in p.imap(predict_communicated, rrule(MONTHLY, dtstart=datetime.date(2017, 1, 1), until=end)):
             print(i)
