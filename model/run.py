@@ -138,7 +138,7 @@ def predict_communicated(date, load_model=False):
                   pred_type='COMM')
 
     for jdg in session.query(Judgments).filter(Judgments.kpdate > dt).filter(Judgments.kpdate < edt):
-        comm = session.query(CommunicatedCases).filter(CommunicatedCases.appno.in_(jdg.appno.split(';'))).first()
+        comm = session.query(CommunicatedCases).filter(CommunicatedCases.appno.in_(jdg.appno.split(';')+[jdg.appno])).first()
         if not comm:
             continue
 

@@ -200,10 +200,7 @@ class NBModel_comms(BaseCommunicatedCasesModel):
         results = []
         new_comms = []
         for i, a in enumerate(appnos):
-            j = session.query(Judgments).filter(or_(Judgments.appno == a,
-                                                    Judgments.appno.like("{};%".format(a)),
-                                                    Judgments.appno.like("%;{}".format(a)),
-                                                    Judgments.appno.like("%;{};%".format(a)))).first()
+            j = session.query(Judgments).filter_by(appno=a).first()
             if j.kpdate > dt:
                 continue
             if j:
