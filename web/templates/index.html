@@ -23,7 +23,7 @@
                         <p>The accuracy for the last year is {{evaluation.last_year*100}}%, and {{evaluation.overall*100}}% over all cases.</p>
                     </div>
                     <div class="carousel-item">
-                        <h1>The prediction model is updated on a weekly basis.</h1>
+                        <h1>The prediction model is updated on a monthly basis.</h1>
                         <div class="chart-container" style="position: relative; height:200px; width:100vw">
                         <canvas id="chart" height="200"></canvas>
                     </div>
@@ -164,19 +164,19 @@ var chart = new Chart(ctx, {
 
     // The data for our dataset
     data: {
-        labels: {% autoescape false %}{{dtes}}{% endautoescape %},
+        labels: {% autoescape false %}{{dtes[-30:]}}{% endautoescape %},
         datasets: [{
             label: 'accuracy',
             fill: false,
             backgroundColor: 'rgb(255, 99, 132)',
             borderColor: 'rgb(255, 99, 132)',
-            data: {{accs}}
+            data: {{accs[-30:]}}
         }, {
             label: 'f-score',
             fill: false,
             backgroundColor: 'rgb(75, 192, 192)',
             borderColor: 'rgb(75, 192, 192)',
-            data: {{fscs}}
+            data: {{fscs[-30:]}}
         }]
     },
 
