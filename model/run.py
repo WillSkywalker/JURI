@@ -188,7 +188,6 @@ def predict_communicated(date, load_model=False):
     #     else:
     #         arts = []
 
-
     #     result, proba, sents, sent_result, sent_proba = m.predict(comm)
     #     old = session.query(Prediction).filter_by(modelname=m.name, appno=comm.appno, pred_type='COMM').first()
     #     if not old:
@@ -221,20 +220,20 @@ def predict_communicated(date, load_model=False):
     #         session.commit()
 
     # Evaluation, further report saved at local
+    if golds:
+        accuracy = accuracy_score(golds, results)
+        fscore = f1_score(golds, results, average='micro')
+        logging.warning(classification_report(golds, results))
+        logging.warning(confusion_matrix(golds, results))
+        if not os.path.exists(os.path.join(DIRECTORY, 'models/')):
+            os.makedirs(os.path.join(DIRECTORY, 'models/'))
+        if not os.path.exists(os.path.join(DIRECTORY, 'models/', m.name+str(date)+'.joblib')):
+            joblib.dump(m.clf, os.path.join(DIRECTORY, 'models/', m.name+str(date)+'.joblib'))
 
-    accuracy = accuracy_score(golds, results)
-    fscore = f1_score(golds, results, average='micro')
-    logging.warning(classification_report(golds, results))
-    logging.warning(confusion_matrix(golds, results))
-    if not os.path.exists(os.path.join(DIRECTORY, 'models/')):
-        os.makedirs(os.path.join(DIRECTORY, 'models/'))
-    if not os.path.exists(os.path.join(DIRECTORY, 'models/', m.name+str(date)+'.joblib')):
-        joblib.dump(m.clf, os.path.join(DIRECTORY, 'models/', m.name+str(date)+'.joblib'))
-
-    model.accuracy = float(accuracy)
-    model.fscore = float(fscore)
-    session.add(model)
-    session.commit()
+        model.accuracy = float(accuracy)
+        model.fscore = float(fscore)
+        session.add(model)
+        session.commit()
 
     today = datetime.date.today()
     if date == datetime.date(today.year, today.month, 1):

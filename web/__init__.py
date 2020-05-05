@@ -14,6 +14,7 @@ import json
 import random
 import math
 import datetime
+from dateutil.relativedelta import relativedelta
 
 from config.config import Config
 from db.database import metadata, CommunicatedCases, Decisions, Judgments, Prediction, Model, Press, WeeklyReport, ECHRArticle, Evaluation
@@ -149,9 +150,9 @@ def list_comm(page=1):
     time_filter = {
         'all': True,
         'aj': Prediction.judgment_id != None,
-        'ly': Prediction.jdgdate > datetime.date.today() - datetime.timedelta(days=365),
-        'l3m': Prediction.jdgdate > datetime.date.today() - datetime.timedelta(days=92),
-        'lm': Prediction.jdgdate > datetime.date.today() - datetime.timedelta(days=31),
+        'ly': Prediction.jdgdate > datetime.date.today() - relativedelta(years=1),
+        'l3m': Prediction.jdgdate > datetime.date.today() - relativedelta(months=3),
+        'lm': Prediction.jdgdate > datetime.date.today() - relativedelta(months=1),
         'lw': Prediction.jdgdate > datetime.date.today() - datetime.timedelta(days=7)
     }
     if art:
