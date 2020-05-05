@@ -131,6 +131,9 @@ def predict_communicated(date, load_model=False):
     edt = datetime.datetime.combine(end_date, datetime.datetime.min.time())
     # Make predictions on cases that aren't published yet
     # for comm in session.query(CommunicatedCases):
+    model = session.query(Model).filter_by(modelname=m.name, date=date, pred_type='COMM').first()
+    if model:
+        return
     model = Model(modelname=m.name,
                   description=m.description,
                   author=m.author,
