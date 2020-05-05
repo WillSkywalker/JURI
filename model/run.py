@@ -137,6 +137,8 @@ def predict_communicated(date, load_model=False):
                   date=date,
                   pred_type='COMM')
 
+    results = []
+    golds = []
     for jdg in session.query(Judgments).filter(Judgments.kpdate > dt).filter(Judgments.kpdate < edt):
         comm = session.query(CommunicatedCases).filter(CommunicatedCases.appno.in_(jdg.appno.split(';')+[jdg.appno])).first()
         if not comm:
@@ -174,6 +176,8 @@ def predict_communicated(date, load_model=False):
                     session.add(article)
                 pred.articles.append(article)
 
+            results.append(result)
+            golds.append(gold)
             session.add(pred)
             model.predictions.append(pred)
             session.commit()
@@ -217,19 +221,11 @@ def predict_communicated(date, load_model=False):
     #         session.commit()
 
     # Evaluation, further report saved at local
-    jdgs = session.query(Judgments).filter(exists().where(CommunicatedCases.appno == Judgments.appno)).limit(100).all()
-    appnos = [j.appno for j in jdgs]
-    ds = [session.query(CommunicatedCases).filter_by(appno=appno).first() for appno in appnos]
-    ds = [d.text for d in ds]
 
-    results = [session.query(Judgments).filter_by(appno=a).with_entities(Judgments.conclusion).first() for a in appnos]
-    results = [m.conclusion(res.conclusion) for res in results]
-    assert len(ds) == len(results)
-    predictions = m.clf.predict(ds)
-    accuracy = accuracy_score(predictions, results)
-    fscore = f1_score(predictions, results, average='micro')
-    logging.warning(classification_report(predictions, results))
-    logging.warning(confusion_matrix(predictions, results))
+    accuracy = accuracy_score(golds, results)
+    fscore = f1_score(golds, results, average='micro')
+    logging.warning(classification_report(golds, results))
+    logging.warning(confusion_matrix(golds, results))
     if not os.path.exists(os.path.join(DIRECTORY, 'models/')):
         os.makedirs(os.path.join(DIRECTORY, 'models/'))
     if not os.path.exists(os.path.join(DIRECTORY, 'models/', m.name+str(date)+'.joblib')):
