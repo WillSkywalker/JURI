@@ -11,18 +11,22 @@
                       <ol class="carousel-indicators">
                         <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
                         <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+                        <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
                       </ol>
  
                     <div class="carousel-item active">
-                        <h1>I'm  predicting judgment results from the European Court of Human Rights with an accuracy of <a href="{{ url_for('list_comm') }}" style='color:#f2849e'>{{acc}}%</a>.</h1>
+                        <h1>I'm predicting judgment results from the European Court of Human Rights with an accuracy of <a href="{{ url_for('list_comm') }}" style='color:#f2849e'>{{accs[-2]*100}}%</a>.</h1>
                         <p>JURI reads press releases from previous years and decisions of the cases judged by the European Court of Human Rights and predicts decisions the Court will make. Every week it learns from its mistakes.</p>
                     </div>
-<!--                     <div class="carousel-item">
-                        <h1>Here are the predictions JURI made for judgment results to be published next week.</h1>
-                        <a href="#" class="button" style="display:flex;justify-content:center;align-items:center;">Read more</a>
-                    </div> -->
                     <div class="carousel-item">
-                        <h1>Out of <a href="{{ url_for('list_comm') }}" style='color:#f2849e'>{{ right + wrong }}</a> cases published last week, I have correctly predicted <a href="{{ url_for('list_comm') }}" style='color:#f2849e'>{{ right }}</a> judgments.</h1>
+                        <h1>Over the last half year we've correctly predicted {{evaluation.last_half_year*100}}% of judgments.</h1>
+                        <p>The accuracy for the last year is {{evaluation.last_year*100}}%, and {{evaluation.overall*100}}% over all cases.</p>
+                    </div>
+                    <div class="carousel-item">
+                        <h1>The prediction model is updated on a weekly basis.</h1>
+                        <div class="chart-container" style="position: relative; height:200px; width:100vw">
+                        <canvas id="chart" height="200"></canvas>
+                    </div>
                         <!-- <a href="{{ url_for('list_comm') }}" class="button primary">Read more</a> -->
                     </div>
                 </div>
@@ -113,20 +117,7 @@
 				<!-- <div class="col-6">
 					<h3>to be announced</h3>
 					<ul>
-					{% for pred, judg in rests %}
-                        <li><a href="{{ url_for('application_comm', appno = pred.appno | replace('/', 'e')) }}">{{ judg.docname }}</a> ({{ pred.kpdate }})
-                        	<br>
-                        
-                        Prediction: 
-                        {% if pred.result == 0 %}
-                        <span><b>Violation</b></span>
-                        {% else %}
-                        <span><b>No violation</b></span>
-                        {% endif %}
-                        &nbsp;&nbsp;&nbsp;&nbsp;
 
-                        </li>
-                    {% endfor %}
                     </ul>
                     <a href="{{ url_for('report', report_id=1) }}" class="button fit">Read all</a>
 				</div> -->
@@ -136,6 +127,8 @@
 </div>
 {% endblock %}
 {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+
 <style type="text/css">
 .carousel-indicators li {
     background-color: rgb(128, 128, 128, 0.5);
@@ -163,5 +156,35 @@ function normalizeSlideHeights() {
 $(window).on(
     'load resize orientationchange', 
     normalizeSlideHeights);
+
+var ctx = document.getElementById('chart').getContext('2d');
+var chart = new Chart(ctx, {
+    // The type of chart we want to create
+    type: 'line',
+
+    // The data for our dataset
+    data: {
+        labels: {% autoescape false %}{{dtes}}{% endautoescape %},
+        datasets: [{
+            label: 'accuracy',
+            fill: false,
+            backgroundColor: 'rgb(255, 99, 132)',
+            borderColor: 'rgb(255, 99, 132)',
+            data: {{accs}}
+        }, {
+            label: 'f-score',
+            fill: false,
+            backgroundColor: 'rgb(75, 192, 192)',
+            borderColor: 'rgb(75, 192, 192)',
+            data: {{fscs}}
+        }]
+    },
+
+    // Configuration options go here
+    options: {
+        maintainAspectRatio: false
+    }
+});
+
 </script>
 {% endblock %}

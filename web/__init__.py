@@ -16,7 +16,7 @@ import math
 import datetime
 
 from config.config import Config
-from db.database import metadata, CommunicatedCases, Decisions, Judgments, Prediction, Model, Press, WeeklyReport, ECHRArticle
+from db.database import metadata, CommunicatedCases, Decisions, Judgments, Prediction, Model, Press, WeeklyReport, ECHRArticle, Evaluation
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -46,6 +46,7 @@ Model.__bases__ = Model.__bases__ + (db.Model,)
 Press.__bases__ = Press.__bases__ + (db.Model,)
 WeeklyReport.__bases__ = WeeklyReport.__bases__ + (db.Model,)
 ECHRArticle.__bases__ = ECHRArticle.__bases__ + (db.Model,)
+Evaluation.__bases__ = Evaluation.__bases__ + (db.Model,)
 
 
 def admissibility_anal_simple(desc):
@@ -73,20 +74,11 @@ def conclusion_simple(desc):
 
 @app.route('/')
 def index():
-    acc = int(Model.query.filter_by(pred_type='COMM').order_by(-Model.fscore).first().accuracy * 100)
+    accs = [i[0] for i in Model.query.filter_by(pred_type='COMM').order_by(Model.date).with_entities(Model.accuracy).all()]
+    fscs = [i[0] for i in Model.query.filter_by(pred_type='COMM').order_by(Model.date).with_entities(Model.fscore).all()]
+    dtes = ['%d.%d' % (i[0].year, i[0].month) for i in Model.query.filter_by(pred_type='COMM').order_by(Model.date).with_entities(Model.date).all()]
 
-    reports = WeeklyReport.query.filter(WeeklyReport.preds.any()).first()
-    if not reports:
-        reports = WeeklyReport.query.first()
-    right = 0
-    wrong = 0
-    for g, p in zip(json.loads(reports.results), reports.preds):
-        if g is None:
-            continue
-        if g == p.result:
-            right += 1
-        else:
-            wrong += 1
+    evaluation = Evaluation.query.first()
 
     res_comm = Judgments.query.filter(exists().where(Prediction.appno == Judgments.appno)).\
                                       order_by(-Judgments.kpdate).limit(5).all()
@@ -99,13 +91,13 @@ def index():
 
     preds_judg = Prediction.query.filter_by(pred_type='COMM').\
         filter(Prediction.judgment_id == None).order_by(-Prediction.kpdate).limit(5).all()
-    res_judg = [CommunicatedCases.query.filter_by(appno=p.appno).first() for p in preds_judg]
+    # res_judg = [CommunicatedCases.query.filter_by(appno=p.appno).first() for p in preds_judg]
 
 
     preds = zip(preds_comm, res_comm)
-    rests = zip(preds_judg, res_judg)
-    return render_template('index.html', preds=preds, rests=rests,  # mname=mname, cmname=cmname,
-                           right=right, wrong=wrong, reports=reports, acc=acc)
+    # rests = zip(preds_judg, res_judg)
+    return render_template('index.html', preds=preds,  # rests=rests, mname=mname, cmname=cmname,
+                           accs=accs, fscs=fscs, dtes=dtes, evaluation=evaluation)
 
 
 # @line_profile
