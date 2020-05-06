@@ -85,7 +85,7 @@
 				</div>
                 <div class="col-md-6 col-12-medium">
                     <h3>Performance by month</h3>
-                    <div class="chart-container" style="position: relative; height:400px; width:100%">
+                    <div class="chart-container" style="position: relative; height:320px; width:100%">
                         <canvas id="chart" height="200"></canvas>
                     </div>
 				</div>
@@ -132,13 +132,13 @@ var chart = new Chart(ctx, {
 
     // The data for our dataset
     data: {
-        labels: {% autoescape false %}{{dtes[-30:]}}{% endautoescape %},
+        labels: {% autoescape false %}{{dtes[-24:]}}{% endautoescape %},
         datasets: [{
             label: 'accuracy',
             fill: false,
             backgroundColor: 'rgb(255, 99, 132)',
             borderColor: 'rgb(255, 99, 132)',
-            data: {{accs[-30:]}}
+            data: {{accs[-24:]}}
         }]
     },
 
