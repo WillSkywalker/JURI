@@ -15,17 +15,20 @@
                       </ol>
  
                     <div class="carousel-item active">
-                        <h1>I'm predicting last month judgments of the European Court of Human Rights with an accuracy of <a href="{{ url_for('list_comm') }}" style='color:#f2849e'>{{"%.1f" | format(accs[-2]*100)}}%</a>.</h1>
-                        <p>JURI reads press releases from previous years and decisions of the cases judged by the European Court of Human Rights and predicts decisions the Court will make. Every week it learns from its mistakes.</p>
+                        <h1>I'm predicting last month judgments of the European Court of Human Rights with an accuracy of <a href="{{ url_for('list_comm', time='lm') }}" style='color:#f2849e'>{{"%.1f" | format(accs[-1]*100)}}%</a>.</h1>
+                        <p>JURI reads published documents from previous years and decisions of the cases judged by the European Court of Human Rights and predicts decisions the Court will make. Every month it learns from its mistakes.</p>
                     </div>
                     <div class="carousel-item">
-                        <h1>Over the last half year we've correctly predicted {{ "%.1f" | format(evaluation.last_half_year*100) }}% of judgments.</h1>
-                        <p>The accuracy for the last year is {{"%.1f" | format(evaluation.last_year*100)}}%, and {{"%.1f" | format(evaluation.overall*100)}}% over all cases.</p>
+                        <h1>I'm predicting last half year judgments of the European Court of Human Rights with an accuracy of <a href="{{ url_for('list_comm', time='l3m') }}" style='color:#f2849e'>{{"%.1f" | format(evaluation.last_half_year*100)}}%</a>.</h1>
+                        <p>JURI reads published documents from previous years and decisions of the cases judged by the European Court of Human Rights and predicts decisions the Court will make. Every month it learns from its mistakes.</p>
                     </div>
                     <div class="carousel-item">
-                        <h1>The prediction model is updated on a monthly basis.</h1>
-                        <div class="chart-container" style="position: relative; height:200px; width:100%">
-                        <canvas id="chart" height="200"></canvas>
+                        <h1>I'm predicting last year judgments of the European Court of Human Rights with an accuracy of <a href="{{ url_for('list_comm', time='ly') }}" style='color:#f2849e'>{{"%.1f" | format(evaluation.last_year*100)}}%</a>.</h1>
+                        <p>JURI reads published documents from previous years and decisions of the cases judged by the European Court of Human Rights and predicts decisions the Court will make. Every month it learns from its mistakes.</p>
+                    </div>
+                    <div class="carousel-item">
+                        <h1>I'm predicting judgments of the European Court of Human Rights with an overall accuracy of <a href="{{ url_for('list_comm') }}" style='color:#f2849e'>{{"%.1f" | format(evaluation.overall*100)}}%</a>.</h1>
+                        <p>JURI reads published documents from previous years and decisions of the cases judged by the European Court of Human Rights and predicts decisions the Court will make. Every month it learns from its mistakes.</p>
                     </div>
                         <!-- <a href="{{ url_for('list_comm') }}" class="button primary">Read more</a> -->
                     </div>
@@ -81,7 +84,7 @@
         </span>
 		<section>
 			<div class="row">
-				<div class="col-12">
+				<div class="col-md-6 col-12-medium">
 					<h3>Recent judgments</h3>
 					<ul>
 					{% for pred, judg in preds %}
@@ -114,13 +117,12 @@
                     </ul>
                     <a href="{{ url_for('list_comm') }}" class="button">Read more</a>
 				</div>
-				<!-- <div class="col-6">
-					<h3>to be announced</h3>
-					<ul>
-
-                    </ul>
-                    <a href="{{ url_for('report', report_id=1) }}" class="button fit">Read all</a>
-				</div> -->
+                <div class="col-md-6 col-12-medium">
+                    <h3>Performance by month</h3>
+                    <div class="chart-container" style="position: relative; height:400px; width:100%">
+                        <canvas id="chart" height="200"></canvas>
+                    </div>
+				</div>
 			</div>
 		</section>
 	</div>
@@ -171,12 +173,6 @@ var chart = new Chart(ctx, {
             backgroundColor: 'rgb(255, 99, 132)',
             borderColor: 'rgb(255, 99, 132)',
             data: {{accs[-30:]}}
-        }, {
-            label: 'f-score',
-            fill: false,
-            backgroundColor: 'rgb(75, 192, 192)',
-            borderColor: 'rgb(75, 192, 192)',
-            data: {{fscs[-30:]}}
         }]
     },
 

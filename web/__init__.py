@@ -145,15 +145,18 @@ def list_comm(page=1):
     order = request.args.get('order')
     time = request.args.get('time')
     art = request.args.get('art')
+
+    today = datetime.date.today()
+    begin_time = datetime.date(today.year, today.month, 1)
     if not time:
         time = 'all'
     time_filter = {
         'all': True,
         'aj': Prediction.judgment_id != None,
-        'ly': Prediction.jdgdate > datetime.date.today() - relativedelta(years=1),
-        'l3m': Prediction.jdgdate > datetime.date.today() - relativedelta(months=3),
-        'lm': Prediction.jdgdate > datetime.date.today() - relativedelta(months=1),
-        'lw': Prediction.jdgdate > datetime.date.today() - datetime.timedelta(days=7)
+        'ly': Prediction.jdgdate > begin_time - relativedelta(years=1),
+        'l3m': Prediction.jdgdate > begin_time - relativedelta(months=3),
+        'lm': Prediction.jdgdate > begin_time - relativedelta(months=1),
+        'lw': Prediction.jdgdate > begin_time - datetime.timedelta(days=7)
     }
     if art:
         art_filter = ECHRArticle.query.filter_by(number=art).first().predictions
