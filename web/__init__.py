@@ -15,6 +15,7 @@ import random
 import math
 import datetime
 from dateutil.relativedelta import relativedelta
+import unicodedata as ud
 
 from config.config import Config
 from db.database import metadata, CommunicatedCases, Decisions, Judgments, Prediction, Model, Press, WeeklyReport, ECHRArticle, Evaluation
@@ -377,10 +378,9 @@ def application_comm(appno):
         judg.res = conclusion_simple(judg.conclusion)
         jsents = json.loads(judg.sents)
 
-
     model = Model.query.filter_by(modelname=judg_pred.modelname).first() if judg_pred else None
     modelnames = Prediction.query.filter_by(appno=apno, pred_type='COMM').with_entities(Prediction.modelname).all()
-    sents = json.loads(judg_pred.sents)
+    sents = (ud.normalize('NFC', sent) for sent in json.loads(judg_pred.sents))
     sent_result = json.loads(judg_pred.sent_result)
     sent_proba = json.loads(judg_pred.sent_proba)
     # sent_result = None
