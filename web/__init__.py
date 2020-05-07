@@ -96,9 +96,10 @@ def index():
 
 
     preds = zip(preds_comm, res_comm)
+    accs_int = [100 * acc for acc in accs]
     # rests = zip(preds_judg, res_judg)
     return render_template('index.html', preds=preds,  # rests=rests, mname=mname, cmname=cmname,
-                           accs=accs, fscs=fscs, dtes=dtes, evaluation=evaluation)
+                           accs=accs, fscs=fscs, dtes=dtes, evaluation=evaluation, accs_int=accs_int)
 
 
 # @line_profile

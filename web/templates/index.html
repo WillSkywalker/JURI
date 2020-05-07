@@ -16,19 +16,19 @@
                       </ol>
  
                     <div class="carousel-item active">
-                        <h1>I'm predicting judgments of the European Court of Human Rights with an accuracy of <a href="{{ url_for('list_comm', time='lm') }}" style='color:#f2849e'>{{"%.1f" | format(accs[-1]*100)}}%</a> over the last month.</h1>
+                        <h1>I'm predicting judgments of the European Court of Human Rights with an accuracy of <a href="{{ url_for('list_comm', time='lm') }}" style='color:#f2849e'>{{"%.1f" | format(accs[-1]*100)}}%</a> over the <i>last month</i>.</h1>
                         <p>JURI reads published documents from previous years and decisions of the cases judged by the European Court of Human Rights and predicts decisions the Court will make. Every month it learns from its mistakes.</p>
                     </div>
                     <div class="carousel-item">
-                        <h1>I'm predicting judgments of the European Court of Human Rights with an accuracy of <a href="{{ url_for('list_comm', time='l3m') }}" style='color:#f2849e'>{{"%.1f" | format(evaluation.last_half_year*100)}}%</a> over the last three months.</h1>
+                        <h1>I'm predicting judgments of the European Court of Human Rights with an accuracy of <a href="{{ url_for('list_comm', time='l3m') }}" style='color:#f2849e'>{{"%.1f" | format(evaluation.last_half_year*100)}}%</a> over the <i>last three months</i>.</h1>
                         <p>JURI reads published documents from previous years and decisions of the cases judged by the European Court of Human Rights and predicts decisions the Court will make. Every month it learns from its mistakes.</p>
                     </div>
                     <div class="carousel-item">
-                        <h1>I'm predicting last year judgments of the European Court of Human Rights with an accuracy of <a href="{{ url_for('list_comm', time='ly') }}" style='color:#f2849e'>{{"%.1f" | format(evaluation.last_year*100)}}%</a> over the last year.</h1>
+                        <h1>I'm predicting judgments of the European Court of Human Rights with an accuracy of <a href="{{ url_for('list_comm', time='ly') }}" style='color:#f2849e'>{{"%.1f" | format(evaluation.last_year*100)}}%</a> over the <i>last year</i>.</h1>
                         <p>JURI reads published documents from previous years and decisions of the cases judged by the European Court of Human Rights and predicts decisions the Court will make. Every month it learns from its mistakes.</p>
                     </div>
                     <div class="carousel-item">
-                        <h1>I'm predicting judgments of the European Court of Human Rights with an overall accuracy of <a href="{{ url_for('list_comm') }}" style='color:#f2849e'>{{"%.1f" | format(evaluation.overall*100)}}%</a>.</h1>
+                        <h1>I'm predicting judgments of the European Court of Human Rights with an <i>overall</i> accuracy of <a href="{{ url_for('list_comm') }}" style='color:#f2849e'>{{"%.1f" | format(evaluation.overall*100)}}%</a>.</h1>
                         <p>JURI reads published documents from previous years and decisions of the cases judged by the European Court of Human Rights and predicts decisions the Court will make. Every month it learns from its mistakes.</p>
                     </div>
                         <!-- <a href="{{ url_for('list_comm') }}" class="button primary">Read more</a> -->
@@ -106,6 +106,9 @@
     opacity: 1;
 
 }
+.carousel-item h1 {
+    font-size: 2.5em;
+}
 </style>
 <script type="text/javascript">
 function normalizeSlideHeights() {
@@ -134,11 +137,11 @@ var chart = new Chart(ctx, {
     data: {
         labels: {% autoescape false %}{{dtes[-24:]}}{% endautoescape %},
         datasets: [{
-            label: 'accuracy',
+            label: 'accuracy (%)',
             fill: false,
             backgroundColor: 'rgb(255, 99, 132)',
             borderColor: 'rgb(255, 99, 132)',
-            data: {{accs[-24:]}}
+            data: {{accs_int[-24:]}}
         }]
     },
 
