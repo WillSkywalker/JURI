@@ -380,7 +380,7 @@ def application_comm(appno):
 
     model = Model.query.filter_by(modelname=judg_pred.modelname).first() if judg_pred else None
     modelnames = Prediction.query.filter_by(appno=apno, pred_type='COMM').with_entities(Prediction.modelname).all()
-    sents = (ud.normalize('NFC', sent) for sent in json.loads(judg_pred.sents))
+    sents = tuple(ud.normalize('NFC', sent) for sent in json.loads(judg_pred.sents))
     sent_result = json.loads(judg_pred.sent_result)
     sent_proba = json.loads(judg_pred.sent_proba)
     # sent_result = None
