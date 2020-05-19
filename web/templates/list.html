@@ -26,7 +26,7 @@
     <div class="inner">
         <header>
             <h1>Here is a list of communicated cases from ECtHR. </h1>
-            <p>You may choose to sort by date of communication or final judgment, filter by judgment time or relevant ECHR article.</p>
+            <p>You may choose to sort by date of communication or final judgment, filter by judgment time or relevant ECHR article. The accuracy with current filters is <span id="accuracy">...</span></p>
             <div class="row">
             <div class="col-4">
                 <select name="order" id="order" onchange="window.location=this.value;">
@@ -146,4 +146,39 @@
         </section>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+   
+function initAcc(){
+    $.ajax({
+        type:'GET',
+        dataType: "json",
+        url:"{{ url_for('list_comm_info', page=page, time='all', order=order, art=art) }}",
+        success:function(res){
+            if(res.code == "0"){
+                console.log(res);
+                var info = res.data;
+
+                $("#accuracy").text("value", parseFloat(info.accuracy * 100).toFixed(2)+"%");
+
+            }else{
+                alert("Server error");
+            }
+        },
+        error:function(){
+            alert("Error obtaining accuracy");
+        }
+    });
+}
+    
+    
+//注意，要放在 执行函数下方
+$(window).load( function(){
+    initAcc()
+} );
+
+
+</script>
 {% endblock %}
