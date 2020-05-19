@@ -155,7 +155,7 @@ function initAcc(){
     $.ajax({
         type:'GET',
         dataType: "json",
-        url:"{{ url_for('list_comm_info', page=page, time='all', order=order, art=art) }}",
+        url:"{% autoescape false %} {{ url_for('list_comm_info', page=page, time='all', order=order, art=art) }} {% endautoescape %}",
         success:function(res){
             var info = res.data;
 
