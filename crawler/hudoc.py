@@ -88,7 +88,7 @@ def get_text(response, **kwargs):
             text = '\n'.join(spans)
         else:
             text = ''
-        return unicodedata.normalize("NFKD", text).encode('utf-8').decode('utf-8-sig').strip()
+        return unicodedata.normalize("NFKC", text).encode('utf-8').decode('utf-8-sig').strip()
     else:
         print('No response')
         print(response.__dict__)

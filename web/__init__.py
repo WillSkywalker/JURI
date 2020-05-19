@@ -188,13 +188,63 @@ def list_comm(page=1):
 
     articles = ECHRArticle.query.order_by(ECHRArticle.name).all()
 
-
     pagination.items = zip(pagination.items, [CommunicatedCases.query.filter_by(appno=p.appno).first() for p in pagination.items])
     if pagination.items:
         return render_template('list.html', pagination=pagination, page=page, order=order, time=time, art=art,
                                list_name='list_comm', entry_name='application_comm', articles=articles)
     else:
         return abort(404)
+
+@app.route('/list/comm/info')
+@app.route('/list/comm/info/<int:page>')
+def list_comm_info(page=1):
+    order = request.args.get('order')
+    time = request.args.get('time')
+    art = request.args.get('art')
+
+    today = datetime.date.today()
+    begin_time = datetime.date(today.year, today.month, 1)
+    if not time:
+        time = 'all'
+    time_filter = {
+        'all': True,
+        'aj': Prediction.judgment_id != None,
+        'ly': Prediction.jdgdate > begin_time - relativedelta(years=1),
+        'l3m': Prediction.jdgdate > begin_time - relativedelta(months=3),
+        'lm': Prediction.jdgdate > begin_time - relativedelta(months=1),
+        'lw': Prediction.jdgdate > begin_time - datetime.timedelta(days=7)
+    }
+    if art:
+        art_filter = ECHRArticle.query.filter_by(number=art).first().predictions
+    else:
+        art_filter = Prediction.query
+    # if order == 'c':
+    #     pagination = CommunicatedCases.query.filter(exists().where(Prediction.appno == CommunicatedCases.appno)).\
+    #                                  order_by(CommunicatedCases.respondent).paginate(page, per_page=30, error_out=False)
+    if order == 'jtd':
+        pagination = art_filter.join(Judgments, Prediction.judgment_id==Judgments.id).\
+            filter(Prediction.pred_type == 'COMM').filter(time_filter[time]).\
+            order_by(-Prediction.jdgdate)
+    elif order == 'jta':
+        pagination = art_filter.\
+            filter(Prediction.pred_type == 'COMM').filter(time_filter[time]).\
+            order_by(Prediction.jdgdate)
+    elif order == 'ta':
+        pagination = art_filter.filter(Prediction.pred_type == 'COMM').filter(time_filter[time]).\
+            order_by(Prediction.kpdate)
+    elif order == 'td':
+        pagination = art_filter.filter(Prediction.pred_type == 'COMM').filter(time_filter[time]).\
+            order_by(-Prediction.kpdate)
+    else:
+        pagination = art_filter.join(Judgments, Prediction.judgment_id==Judgments.id).\
+            filter(Prediction.pred_type == 'COMM').filter(time_filter[time]).\
+            order_by(-Prediction.jdgdate)
+
+    total = pagination.filter(Prediction.judgment_id != None).count()
+    correct = pagination.filter(Prediction.judgment_id != None).filter(Prediction.gold == Prediction.result).count()
+    accuracy = correct / total
+
+    return jsonify(accuracy=accuracy)
 
 
 @app.route('/latest')
