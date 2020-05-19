@@ -157,18 +157,13 @@ function initAcc(){
         dataType: "json",
         url:"{{ url_for('list_comm_info', page=page, time='all', order=order, art=art) }}",
         success:function(res){
-            if(res.code == "0"){
-                console.log(res);
-                var info = res.data;
+            var info = res.data;
 
-                $("#accuracy").text("value", parseFloat(info.accuracy * 100).toFixed(2)+"%");
+            $("#accuracy").text("value", parseFloat(info.accuracy * 100).toFixed(2)+"%");
 
-            }else{
-                alert("Server error");
-            }
         },
         error:function(){
-            alert("Error obtaining accuracy");
+            console.log("Error obtaining accuracy");
         }
     });
 }
