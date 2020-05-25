@@ -252,7 +252,7 @@ def list_comm_info(page=1):
     else:
         accuracy = 0
 
-    return jsonify(accuracy=accuracy)
+    return jsonify(correct=correct, total=total, accuracy=accuracy)
 
 
 @app.route('/latest')

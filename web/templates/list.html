@@ -26,7 +26,7 @@
     <div class="inner">
         <header>
             <h1>Here is a list of communicated cases from ECtHR. </h1>
-            <p>You may choose to sort by date of communication or final judgment, filter by judgment time or relevant ECHR article. The accuracy for the current selection is <span id="accuracy">..</span>.</p>
+            <p>You may choose to sort by date of communication or final judgment, filter by judgment time or relevant ECHR article. {% if pagination.total %}The accuracy for the current selection is <span id="accuracy">..</span>.{% endif %}</p>
             <div class="row">
             <div class="col-4">
                 <select name="order" id="order" onchange="window.location=this.value;">
@@ -43,13 +43,13 @@
                     <option value="{{ url_for(list_name, page=1, time='ly', order=order, art=art) }}" {% if time == 'ly' %}selected="selected"{% endif %}>Cases judged last year</option>
                     <option value="{{ url_for(list_name, page=1, time='l3m', order=order, art=art) }}" {% if time == 'l3m' %}selected="selected"{% endif %}>Cases judged last three months</option>
                     <option value="{{ url_for(list_name, page=1, time='lm', order=order, art=art) }}" {% if time == 'lm' %}selected="selected"{% endif %}>Cases judged last month</option>
-                    <option value="{{ url_for(list_name, page=1, time='tm', order=order, art=art) }}" {% if time == 'lm' %}selected="selected"{% endif %}>Cases judged this month</option>
-                    <option value="{{ url_for(list_name, page=1, time='lw', order=order, art=art) }}" {% if time == 'lw' %}selected="selected"{% endif %}>Cases judged last week</option>
+                    <option value="{{ url_for(list_name, page=1, time='tm', order=order, art=art) }}" {% if time == 'tm' %}selected="selected"{% endif %}>Cases judged this month</option>
+                    <!-- <option value="{{ url_for(list_name, page=1, time='lw', order=order, art=art) }}" {% if time == 'lw' %}selected="selected"{% endif %}>Cases judged last week</option> -->
                 </select>
             </div>
             <div class="col-4">
                 <select name="time" id="time" onchange="window.location=this.value;">
-                    <option value="{{ url_for(list_name, page=page, time='all', order=order) }}" {% if not art %}selected="selected"{% endif %}>All articles</option>
+                    <option value="{{ url_for(list_name, page=page, time=time, order=order) }}" {% if not art %}selected="selected"{% endif %}>All articles</option>
                     {% for a in articles %}
                     <option value="{{ url_for(list_name, page=1, time=time, order=order, art=a.number) }}" {% if art == a.number %}selected="selected"{% endif %}>{{a.name}}</option>
                     {% endfor %}
@@ -123,7 +123,7 @@
         <div class='pagination pagination-lg' style="margin-left:auto;margin-right:auto;">
             {% if pagination.has_prev %}
             <a class="page-link next page-numbers" href="{% if pagination.has_prev %}{{ url_for(list_name,
-            page = pagination.page - 1, time=time, order=ordere, art=art) }}?order={{order}}{% else %}#{% endif %}">previous</a>
+            page = pagination.page - 1, time=time, order=order, art=art) }}?order={{order}}{% else %}#{% endif %}">previous</a>
             {% endif %}
 
             {% for p in pagination.iter_pages() %}
@@ -131,7 +131,7 @@
             {% if p == pagination.page %}
             <a class='page-link active'>{{ p }}</a>
             {% else %}
-            <a class='page-link' href="{{ url_for(list_name, page = p, time=time, order=ordere, art=art) }}">{{ p }}</a>
+            <a class='page-link' href="{{ url_for(list_name, page = p, time=time, order=order, art=art) }}">{{ p }}</a>
             {% endif %}
             {% else %}
             <a href="#">&hellip;</a>
@@ -139,7 +139,7 @@
             {% endfor %}
             {% if pagination.has_next %}
             <a class="next page-link" href="{% if pagination.has_next %}{{ url_for(list_name,
-            page = pagination.page + 1, time=time, order=ordere, art=art) }}{% else %}#{% endif %}">next</a>
+            page = pagination.page + 1, time=time, order=order, art=art) }}{% else %}#{% endif %}">next</a>
             {% endif %}
 
 
@@ -159,8 +159,14 @@ function initAcc(){
         url:"{% autoescape false %} {{ url_for('list_comm_info', page=page, time=time, order=order, art=art) }} {% endautoescape %}",
         success:function(res){
             var info = res.accuracy;
-
-            $("#accuracy").text(parseFloat(info * 100).toFixed(2)+"%");
+            var correct = res.correct;
+            var total = res.total;
+            if (info == 1) {
+                $("#accuracy").text(parseFloat(info * 100).toFixed(0)+"%"+" ("+correct.toString()+"/"+total.toString()+")");
+            } else {
+                $("#accuracy").text(parseFloat(info * 100).toFixed(2)+"%"+" ("+correct.toString()+"/"+total.toString()+")");
+            };
+            
 
         },
         error:function(){
