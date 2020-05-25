@@ -84,19 +84,17 @@ def index():
 
     evaluation = Evaluation.query.order_by(-Evaluation.id).first()
 
-    res_comm = Judgments.query.filter(exists().where(Prediction.appno == Judgments.appno)).\
-                                      order_by(-Judgments.kpdate).limit(5).all()
+    preds_comm = Prediction.query.order_by(-Prediction.jdgdate).limit(5).all()
+    res_comm = [Judgments.query.filter_by(id=p.judgment_id).first() for p in preds_comm]
 
     for r in res_comm:
         r.res = conclusion_simple(r.conclusion)
 
-    preds_comm = [Prediction.query.filter_by(appno=j.appno).first() for j in res_comm]
+    # preds_comm = [Prediction.query.filter_by(appno=j.appno).first() for j in res_comm]
 
-
-    preds_judg = Prediction.query.filter_by(pred_type='COMM').\
-        filter(Prediction.judgment_id == None).order_by(-Prediction.kpdate).limit(5).all()
+    # preds_judg = Prediction.query.filter_by(pred_type='COMM').\
+    #     filter(Prediction.judgment_id == None).order_by(-Prediction.kpdate).limit(5).all()
     # res_judg = [CommunicatedCases.query.filter_by(appno=p.appno).first() for p in preds_judg]
-
 
     preds = zip(preds_comm, res_comm)
     accs_int = [100 * acc for acc in accs]

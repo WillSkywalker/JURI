@@ -3,7 +3,7 @@ import datetime
 
 from web import manager, app
 from crawler import hudoc, press
-from model import run, weekly
+from model import run, weekly, main
 
 #`import flask_debugtoolbar
 
@@ -40,8 +40,8 @@ def update():
     logging.warning('Press releases updated.')
 
     # train models
-    cm = run.NBModel_comms(name='NaiveBayes_'+str(datetime.date.today()))
-    run.predict_communicated(cm)
+    # cm = run.NBModel_comms(name='NaiveBayes_'+str(datetime.date.today()))
+    main()
     logging.warning('Model trained.')
 
     # weekly reports
