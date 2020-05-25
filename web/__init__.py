@@ -24,6 +24,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import exists
 
+from natsort import natsort_keygen
+
 #from flask_debugtoolbar_lineprofilerpanel.profile import line_profile
 
 
@@ -189,7 +191,8 @@ def list_comm(page=1):
             filter(Prediction.pred_type == 'COMM').filter(time_filter[time]).\
             order_by(-Prediction.jdgdate).paginate(page, per_page=30, error_out=False)
 
-    articles = ECHRArticle.query.order_by(ECHRArticle.name).all()
+    articles = ECHRArticle.query.all()
+    articles.sort(key=natsort_keygen(lambda x: x.number))
 
     pagination.items = zip(pagination.items, [CommunicatedCases.query.filter_by(appno=p.appno).first() for p in pagination.items])
     if pagination.items:
