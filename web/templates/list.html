@@ -43,6 +43,7 @@
                     <option value="{{ url_for(list_name, page=1, time='ly', order=order, art=art) }}" {% if time == 'ly' %}selected="selected"{% endif %}>Cases judged last year</option>
                     <option value="{{ url_for(list_name, page=1, time='l3m', order=order, art=art) }}" {% if time == 'l3m' %}selected="selected"{% endif %}>Cases judged last three months</option>
                     <option value="{{ url_for(list_name, page=1, time='lm', order=order, art=art) }}" {% if time == 'lm' %}selected="selected"{% endif %}>Cases judged last month</option>
+                    <option value="{{ url_for(list_name, page=1, time='tm', order=order, art=art) }}" {% if time == 'lm' %}selected="selected"{% endif %}>Cases judged this month</option>
                     <option value="{{ url_for(list_name, page=1, time='lw', order=order, art=art) }}" {% if time == 'lw' %}selected="selected"{% endif %}>Cases judged last week</option>
                 </select>
             </div>

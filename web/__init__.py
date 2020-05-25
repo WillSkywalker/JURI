@@ -160,6 +160,7 @@ def list_comm(page=1):
         'ly': Prediction.jdgdate > begin_time - relativedelta(years=1),
         'l3m': Prediction.jdgdate > begin_time - relativedelta(months=3),
         'lm': Prediction.jdgdate > begin_time - relativedelta(months=1),
+        'tm': Prediction.jdgdate > begin_time,
         'lw': Prediction.jdgdate > begin_time - datetime.timedelta(days=7)
     }
     if art:
