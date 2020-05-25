@@ -162,11 +162,11 @@ function initAcc(){
             var correct = res.correct;
             var total = res.total;
             if (info == 1) {
-                $("#accuracy").text(parseFloat(info * 100).toFixed(0)+"%");
-                $("#percentage").text(" ("+correct.toString()+"/"+total.toString()+")");
+                $("#accuracy").text(parseFloat(info * 100).toFixed(0));
+                $("#percentage").text("% ("+correct.toString()+"/"+total.toString()+")");
             } else {
-                $("#accuracy").text(parseFloat(info * 100).toFixed(2)+"%");
-                $("#percentage").text(" ("+correct.toString()+"/"+total.toString()+")");
+                $("#accuracy").text(parseFloat(info * 100).toFixed(1));
+                $("#percentage").text("% ("+correct.toString()+"/"+total.toString()+")");
             };
             
 
