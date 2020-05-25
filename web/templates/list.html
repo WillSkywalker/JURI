@@ -65,6 +65,7 @@
             <table>
                 <thead>
                     <tr>
+                        <th>Index</th>
                         <th>Application Number</th>
                         <th>Title</th>
                         <th>Prediction</th>
@@ -76,6 +77,7 @@
                 <tbody>
                     {% for item, comm in pagination.items %}
                     <tr>
+                        <td>{{(pagination.page - 1) * 30 + loop.index0 + 1}}</td>
                         <td>
                             {% if item.appno|length > 15 %}
                             {{ item.appno[:15] }}...
