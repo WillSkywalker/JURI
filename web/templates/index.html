@@ -16,7 +16,7 @@
                       </ol>
  
                     <div class="carousel-item active">
-                        <h1>I'm predicting judgments of the European Court of Human Rights with an accuracy of <a href="{{ url_for('list_comm', time='lm') }}" style='color:#f2849e'>{% if accs[-1] == 1 %}100{% else %}{{"%.1f" | format(accs[-1]*100)}}{% endif %}%</a> over <i>{{monthname}}</i>.</h1>
+                        <h1>I'm predicting judgments of the European Court of Human Rights with an accuracy of <a href="{{ url_for('list_comm', time='lm') }}" style='color:#f2849e'>{% if accs[-1] == 1 %}100{% else %}{{"%.1f" | format(accs[-2]*100)}}{% endif %}%</a> over <i>{{monthname}}</i>.</h1>
                         <p>JURI reads published documents from previous years and decisions of the cases judged by the European Court of Human Rights and predicts decisions the Court will make. Every month it learns from its mistakes.</p>
                     </div>
                     <div class="carousel-item">
@@ -144,13 +144,13 @@ var chart = new Chart(ctx, {
 
     // The data for our dataset
     data: {
-        labels: {% autoescape false %}{{dtes[-24:]}}{% endautoescape %},
+        labels: {% autoescape false %}{{dtes[-23:-1]}}{% endautoescape %},
         datasets: [{
             label: 'accuracy (%)',
             fill: false,
             backgroundColor: 'rgb(255, 99, 132)',
             borderColor: 'rgb(255, 99, 132)',
-            data: {{accs_int[-24:]}}
+            data: {{accs_int[-23:-1]}}
         }]
     },
 
