@@ -80,7 +80,8 @@ def conclusion_simple(desc):
 def index():
     accs = [i[0] for i in Model.query.filter_by(pred_type='COMM').order_by(Model.date).with_entities(Model.accuracy).all()]
     fscs = [i[0] for i in Model.query.filter_by(pred_type='COMM').order_by(Model.date).with_entities(Model.fscore).all()]
-    dtes = ['%d.%d' % (i[0].year, i[0].month) for i in Model.query.filter_by(pred_type='COMM').order_by(Model.date).with_entities(Model.date).all()]
+    dates = [i[0] for i in Model.query.filter_by(pred_type='COMM').order_by(Model.date).with_entities(Model.date).all()]
+    dtes = ['%d.%d' % (i.year, i.month) for i in dates]
 
     evaluation = Evaluation.query.order_by(-Evaluation.id).first()
 
@@ -98,7 +99,7 @@ def index():
 
     preds = zip(preds_comm, res_comm)
     accs_int = [100 * acc for acc in accs]
-    monthname = res_comm[0].kpdate.strftime("%B")
+    monthname = dates[-1].strftime("%B")
     # rests = zip(preds_judg, res_judg)
     return render_template('index.html', preds=preds,  # rests=rests, mname=mname, cmname=cmname,
                            accs=accs, fscs=fscs, dtes=dtes, evaluation=evaluation, accs_int=accs_int,
