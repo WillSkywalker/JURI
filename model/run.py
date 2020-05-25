@@ -298,7 +298,7 @@ def evaluate():
     ly = True
     correct = 0
     length = 0
-    for pred in session.query(Prediction).filter(Prediction.gold != None).order_by(-Prediction.jdgdate):
+    for pred in session.query(Prediction).filter(Prediction.gold != None).filter(Prediction.jdgdate < end).order_by(-Prediction.jdgdate):
         if pred.jdgdate < last_half_year and lhy:
             lhy = False
             acc_lhy = correct / float(length) if length != 0 else 0
