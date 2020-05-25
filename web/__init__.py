@@ -23,6 +23,7 @@ from db.database import metadata, CommunicatedCases, Decisions, Judgments, Predi
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import exists
+from sqlalchemy import and_, or_
 
 from natsort import natsort_keygen
 
@@ -160,7 +161,7 @@ def list_comm(page=1):
         'aj': Prediction.judgment_id != None,
         'ly': Prediction.jdgdate > begin_time - relativedelta(years=1),
         'l3m': Prediction.jdgdate > begin_time - relativedelta(months=3),
-        'lm': Prediction.jdgdate > begin_time - relativedelta(months=1),
+        'lm': and_(Prediction.jdgdate > begin_time - relativedelta(months=1), Prediction.jdgdate < begin_time),
         'tm': Prediction.jdgdate > begin_time,
         'lw': Prediction.jdgdate > begin_time - datetime.timedelta(days=7)
     }
@@ -216,7 +217,8 @@ def list_comm_info(page=1):
         'aj': Prediction.judgment_id != None,
         'ly': Prediction.jdgdate > begin_time - relativedelta(years=1),
         'l3m': Prediction.jdgdate > begin_time - relativedelta(months=3),
-        'lm': Prediction.jdgdate > begin_time - relativedelta(months=1),
+        'lm': and_(Prediction.jdgdate > begin_time - relativedelta(months=1), Prediction.jdgdate < begin_time),
+        'tm': Prediction.jdgdate > begin_time,
         'lw': Prediction.jdgdate > begin_time - datetime.timedelta(days=7)
     }
     if art:
