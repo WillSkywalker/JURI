@@ -311,7 +311,7 @@ def evaluate():
 
     correct = 0
     length = 0
-    for pred in session.query(Prediction).filter(Prediction.gold != None).filter(Prediction.jdgdate < end).order_by(-Prediction.jdgdate):
+    for pred in session.query(Prediction).filter(Prediction.gold != None).order_by(-Prediction.jdgdate):
         length += 1
         if pred.gold == pred.result:
             correct += 1
