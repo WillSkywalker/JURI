@@ -245,7 +245,10 @@ def list_comm_info(page=1):
 
     total = pagination.filter(Prediction.judgment_id != None).count()
     correct = pagination.filter(Prediction.judgment_id != None).filter(Prediction.gold == Prediction.result).count()
-    accuracy = correct / total
+    if total:
+        accuracy = correct / total
+    else:
+        accuracy = 0
 
     return jsonify(accuracy=accuracy)
 
