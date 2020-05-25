@@ -26,7 +26,7 @@
     <div class="inner">
         <header>
             <h1>Here is a list of communicated cases from ECtHR. </h1>
-            <p>You may choose to sort by date of communication or final judgment, filter by judgment time or relevant ECHR article. {% if pagination.total %}The accuracy for the current selection is <span id="accuracy">..</span>.{% endif %}</p>
+            <p>You may choose to sort by date of communication or final judgment, filter by judgment time or relevant ECHR article. {% if pagination.total %}The accuracy for the current selection is <b id="accuracy"></b><span id="percentage">..</span>.{% endif %}</p>
             <div class="row">
             <div class="col-4">
                 <select name="order" id="order" onchange="window.location=this.value;">
@@ -162,9 +162,11 @@ function initAcc(){
             var correct = res.correct;
             var total = res.total;
             if (info == 1) {
-                $("#accuracy").text(parseFloat(info * 100).toFixed(0)+"%"+" ("+correct.toString()+"/"+total.toString()+")");
+                $("#accuracy").text(parseFloat(info * 100).toFixed(0)+"%");
+                $("#percentage").text(" ("+correct.toString()+"/"+total.toString()+")");
             } else {
-                $("#accuracy").text(parseFloat(info * 100).toFixed(2)+"%"+" ("+correct.toString()+"/"+total.toString()+")");
+                $("#accuracy").text(parseFloat(info * 100).toFixed(2)+"%");
+                $("#percentage").text(" ("+correct.toString()+"/"+total.toString()+")");
             };
             
 
