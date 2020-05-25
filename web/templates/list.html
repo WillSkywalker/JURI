@@ -38,7 +38,7 @@
             </div>
             <div class="col-4">
                 <select name="time" id="time" onchange="window.location=this.value;">
-                    <option value="{{ url_for(list_name, page=page, time='all', order=order, art=art) }}" {% if time == 'all' %}selected="selected"{% endif %}>All communicated cases</option>
+                    <!-- <option value="{{ url_for(list_name, page=page, time='all', order=order, art=art) }}" {% if time == 'all' %}selected="selected"{% endif %}>All communicated cases</option> -->
                     <option value="{{ url_for(list_name, page=1, time='aj', order=order, art=art) }}" {% if time == 'aj' %}selected="selected"{% endif %}>All judged cases</option>
                     <option value="{{ url_for(list_name, page=1, time='ly', order=order, art=art) }}" {% if time == 'ly' %}selected="selected"{% endif %}>Cases judged last year</option>
                     <option value="{{ url_for(list_name, page=1, time='l3m', order=order, art=art) }}" {% if time == 'l3m' %}selected="selected"{% endif %}>Cases judged last three months</option>
