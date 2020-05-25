@@ -3,7 +3,7 @@ import datetime
 
 from web import manager, app
 from crawler import hudoc, press
-from model import run, weekly, main
+from model import run, weekly
 
 #`import flask_debugtoolbar
 
@@ -41,7 +41,7 @@ def update():
 
     # train models
     # cm = run.NBModel_comms(name='NaiveBayes_'+str(datetime.date.today()))
-    main()
+    run.main()
     logging.warning('Model trained.')
 
     # weekly reports
