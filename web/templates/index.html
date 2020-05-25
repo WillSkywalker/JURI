@@ -52,7 +52,7 @@
 			<div class="row">
 				<div class="col-md-6 col-12-medium">
 					<h3>Recent judgments</h3>
-					<ul>
+					<ul id="case-list">
 					{% for pred, judg in preds %}
 
                         <li><a href="{{ url_for('application_comm', appno = pred.appno | replace('/', 'e')) }}">{{ judg.docname }}</a> ({{judg.kpdate.date()}})
@@ -112,7 +112,7 @@
 </style>
 <script type="text/javascript">
 function normalizeSlideHeights() {
-    $('.carousel-inner').each(function(){
+    $('.chart-container').each(function(){
       var items = $('.carousel-item', this);
       // reset the height
       items.css('min-height', 0);
@@ -124,9 +124,18 @@ function normalizeSlideHeights() {
     })
 }
 
+function normalizeGraphHeight() {
+    var caselist_height = $('#case-list').outerHeight() + 50;
+    var graph = $('.chart-container')
+    graph.css('height', caselist_height);
+}
+
 $(window).on(
     'load resize orientationchange', 
     normalizeSlideHeights);
+$(window).on(
+    'load resize orientationchange', 
+    normalizeGraphHeight);
 
 var ctx = document.getElementById('chart').getContext('2d');
 var chart = new Chart(ctx, {
@@ -147,7 +156,19 @@ var chart = new Chart(ctx, {
 
     // Configuration options go here
     options: {
-        maintainAspectRatio: false
+        maintainAspectRatio: false,
+        scales: {
+            yAxes: [{
+                display: true,
+                ticks: {
+                    suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
+                    suggestedMax: 100,    // minimum will be 0, unless there is a lower value.
+                    // OR //
+                    beginAtZero: true   // minimum value will be 0.
+                }
+            }]
+        }
+
     }
 });
 
