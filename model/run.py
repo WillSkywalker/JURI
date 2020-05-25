@@ -308,6 +308,14 @@ def evaluate():
         length += 1
         if pred.gold == pred.result:
             correct += 1
+
+    correct = 0
+    length = 0
+    for pred in session.query(Prediction).filter(Prediction.gold != None).filter(Prediction.jdgdate < end).order_by(-Prediction.jdgdate):
+        length += 1
+        if pred.gold == pred.result:
+            correct += 1
+
     overall = correct / float(length)
     e = Evaluation(overall=overall, last_year=acc_ly, last_half_year=acc_lhy)
     session.add(e)
