@@ -163,7 +163,7 @@ function initAcc(){
             var info = res.accuracy;
             var correct = res.correct;
             var total = res.total;
-            if (info == 1) {
+            if (info == 1 || info == 0) {
                 $("#accuracy").text(parseFloat(info * 100).toFixed(0)+"%");
                 $("#percentage").text(" ("+correct.toString()+"/"+total.toString()+")");
             } else {
