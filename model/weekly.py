@@ -1,5 +1,5 @@
 from model.random_guess import RandomModel
-from model.naive_bayes_allcase_use_facts import NBModel_judgments, NBModel_comms
+from model.naive_bayes import NBModel_judgments, NBModel_comms
 
 import os
 import logging

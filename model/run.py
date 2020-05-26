@@ -1,5 +1,5 @@
 from model.random_guess import RandomModel
-from model.naive_bayes_allcase_use_facts import NBModel_judgments, NBModel_comms
+from model.naive_bayes import NBModel_judgments, NBModel_comms
 
 import os
 import re
@@ -7,6 +7,7 @@ import logging
 import json
 import datetime
 import joblib
+import random
 from sqlalchemy import create_engine, or_
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import exists
@@ -25,6 +26,8 @@ engine = create_engine(Config.SQLALCHEMY_DATABASE_URI, encoding='utf-8', echo=Tr
 Session = sessionmaker(bind=engine)
 session = Session()
 DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+
+random.seed(42)
 
 
 def decision_predict(m):
