@@ -1,6 +1,6 @@
 from model.random_guess import RandomModel
 from model.naive_bayes import NBModel_judgments, NBModel_comms
-from model.lstm import BiLSTM_model
+from model.lstm import BiLSTM_model, BiLSTM_trim
 
 import os
 import re
@@ -146,7 +146,7 @@ def predict_communicated(date, load_model=False):
             return
 
     # m = NBModel_comms()
-    m = BiLSTM_model()
+    m = BiLSTM_trim()
     if load_model and os.path.exists(os.path.join(DIRECTORY, 'models/', m.name+str(date)+'.joblib')):
         m.clf = joblib.load(os.path.join(DIRECTORY, 'models/', m.name+str(date)+'.joblib'))
     else:
