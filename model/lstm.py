@@ -18,14 +18,14 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC, LinearSVC
-
 from sklearn import metrics
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
-from keras.models import Model
-from keras.layers import LSTM, Activation, Dense, Dropout, Input, Embedding
-from keras.optimizers import RMSprop
-from keras.preprocessing.text import Tokenizer
-from keras.preprocessing import sequence
+
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import LSTM, Activation, Dense, Dropout, Input, Embedding
+from tensorflow.keras.optimizers import RMSprop
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing import sequence
 
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import (TimeDistributed, Dense, Embedding, Input, LSTM,
