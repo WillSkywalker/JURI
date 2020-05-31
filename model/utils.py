@@ -43,11 +43,11 @@ def load_embedding(filename, word_set=False):
 
 def create_batch(x, y, embeddings, charmap={}, character=False):
     if character:
-        data = [[(embeddings[word.lower()] if word in embeddings else embeddings['UNKNOWN_TOKEN'],
-                tuple(word), label) for word in word_tokenize(art)] for art, label in zip(x, y)]
+        data = [[[embeddings[word.lower()] if word in embeddings else embeddings['UNKNOWN_TOKEN'],
+                tuple(word), label] for word in word_tokenize(art)] for art, label in zip(x, y)]
     else:
-        data = [([embeddings[word.lower()] if word in embeddings else embeddings['UNKNOWN_TOKEN']
-                for word in word_tokenize(art)], label) for art, label in zip(x, y)]
+        data = [[[embeddings[word.lower()] if word in embeddings else embeddings['UNKNOWN_TOKEN']
+                for word in word_tokenize(art)], label] for art, label in zip(x, y)]
     lengths = {}
     for elem in data:
         length = int(math.ceil(len(elem[0]) / 50.0)) * 50
