@@ -77,7 +77,7 @@ class BiLSTM_model(BaseCommunicatedCasesModel):
         else:
             return 1
 
-     def train(self, date):
+    def train(self, date):
 
         # comms = session.query(CommunicatedCases).all()
         dt = datetime.datetime.combine(date, datetime.datetime.min.time())
@@ -119,8 +119,8 @@ class BiLSTM_model(BaseCommunicatedCasesModel):
             # j = session.query(Judgments).filter_by(appno=comm.appno).with_entities(Judgments.conclusion).first()
             results.append(1)
 
-        assert len(new_decisions) == len(results)
-        batches = create_batch(new_decisions, results, self.embeddings)
+        assert len(new_comms) == len(results)
+        batches = create_batch(new_comms, results, self.embeddings)
         for batch in batches:
             tokens, labels = batch[0], batch[1]
             self.clf.train_on_batch(tokens, labels)
