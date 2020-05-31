@@ -256,15 +256,17 @@ class BiLSTM_trim(BaseCommunicatedCasesModel):
         resn = random.random()
         sents = json.loads(x.sents)  # [:20]  # suppose we use first 20 sents
         seq = self.tok.texts_to_sequences([' '.join(sents)])
-        raw_res = self.clf.predict(seq)[0]
+        seq_mat = sequence.pad_sequences(seq, maxlen=MAX_LEN)
+        raw_res = self.clf.predict(seq_mat)[0]
         res = int(np.argmax(raw_res))  # class
         resn = float(raw_res[res])  # proba
 
         sent_result = []
         sent_proba = []
         for sent in sents:
-            string = create_batch([' '.join(sents)], [-1], self.embeddings)[0][0]
-            raw_res = self.clf.predict(string)[0]
+            seq = self.tok.texts_to_sequences([sent])
+            seq_mat = sequence.pad_sequences(seq, maxlen=MAX_LEN)
+            raw_res = self.clf.predict(seq_mat)[0]
             sent_res = np.argmax(raw_res)  # class
             sent_resn = raw_res[sent_res]  # proba
             sent_result.append(int(sent_res))
