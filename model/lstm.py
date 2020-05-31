@@ -174,7 +174,7 @@ class BiLSTM_model(BaseCommunicatedCasesModel):
 class BiLSTM_trim(BaseCommunicatedCasesModel):
 
     def __init__(self, name=MODEL_NAME, author=AUTHOR, description=DESCRIPTION, date=DATE):
-        super(BiLSTM_model, self).__init__(name, author, description, date)
+        super(BiLSTM_trim, self).__init__(name, author, description, date)
         self.le = LabelEncoder()
         self.ohe = OneHotEncoder()
         self.tok = Tokenizer(num_words=MAX_WORDS)
