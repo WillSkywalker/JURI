@@ -62,7 +62,7 @@ class BiLSTM_model(BaseCommunicatedCasesModel):
         ao = Bidirectional(LSTM(200, dropout=0.50, recurrent_dropout=0.25))(words)
         output = Dense(2, activation='softmax')(ao)
         model = Model(inputs=[words_input], outputs=[output])
-        model.compile(loss='binary_crossentropy', optimizer='nadam')
+        model.compile(loss='sparse_categorical_crossentropy', optimizer='nadam')
         model.summary()
         self.embeddings = embeddings
         self.clf = model
