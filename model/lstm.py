@@ -131,16 +131,16 @@ class BiLSTM_model(BaseCommunicatedCasesModel):
         resn = random.random()
         sents = json.loads(x.sents)  # [:20]  # suppose we use first 20 sents
 
-        string = create_batch([' '.join(sents)], [-1])[0][0]  # for prediction
-        raw_res = self.clf.predict(string)
-        res = np.argmax(raw_res)  # class
-        resn = raw_res[res]  # proba
+        string = create_batch([' '.join(sents)], [-1], self.embeddings)[0][0]  # for prediction
+        raw_res = self.clf.predict(string)[0]
+        res = int(np.argmax(raw_res))  # class
+        resn = float(raw_res[res])  # proba
 
         sent_result = []
         sent_proba = []
         for sent in sents:
-            string = create_batch([' '.join(sents)], [-1])[0][0]
-            raw_res = self.clf.predict(string)
+            string = create_batch([' '.join(sents)], [-1], self.embeddings)[0][0]
+            raw_res = self.clf.predict(string)[0]
             sent_res = np.argmax(raw_res)  # class
             sent_resn = raw_res[sent_res]  # proba
             sent_result.append(int(sent_res))
