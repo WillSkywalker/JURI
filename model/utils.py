@@ -50,9 +50,11 @@ def create_batch(x, y, embeddings, charmap={}, character=False):
                 for word in word_tokenize(art)], label) for art, label in zip(x, y)]
     lengths = {}
     for elem in data:
-        length = int(math.floor(len(elem[0]) / 50.0)) * 50
+        length = int(math.floor(len(elem[0]) / 100.0)) * 100
         text = elem[0][-length:]
-        lengths.setdefault(length, []).append((text, elem[-1]))
+        if length < 100:
+            text = pad_sequences([elem[0]], 100)[0]
+        lengths.setdefault(length, []).append((np.array(text), elem[-1]))
     batches = []
     if character:
         for batch in lengths.values():
