@@ -247,7 +247,7 @@ class BiLSTM_trim(BaseCommunicatedCasesModel):
         self.tok.fit_on_texts(new_comms)
         train_seq = self.tok.texts_to_sequences(new_comms)
         train_seq_mat = sequence.pad_sequences(train_seq, maxlen=MAX_LEN)
-        train_y = self.le.fit_transform(train_y).reshape(-1, 1)
+        train_y = self.le.fit_transform(results).reshape(-1, 1)
 
         self.clf.fit(train_seq_mat, train_y, batch_size=128, epochs=10)
 
