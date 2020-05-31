@@ -255,7 +255,7 @@ class BiLSTM_trim(BaseCommunicatedCasesModel):
         # conclusion = self.conclusion(x.conclusion)
         resn = random.random()
         sents = json.loads(x.sents)  # [:20]  # suppose we use first 20 sents
-        seq = self.tok.texts_to_sequences([new_comms])
+        seq = self.tok.texts_to_sequences([' '.join(sents)])
         raw_res = self.clf.predict(seq)[0]
         res = int(np.argmax(raw_res))  # class
         resn = float(raw_res[res])  # proba
