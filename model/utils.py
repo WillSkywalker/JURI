@@ -1,3 +1,4 @@
+import math
 import numpy as np
 from keras.preprocessing.sequence import pad_sequences
 from keras.utils import to_categorical
@@ -49,6 +50,8 @@ def create_batch(x, y, embeddings, charmap={}, character=False):
                 for word in word_tokenize(art)], label) for art, label in zip(x, y)]
     lengths = {}
     for elem in data:
+        length = int(math.ceil(x / 50.0)) * 50
+        elem[0] = elem[0][-length:]
         lengths.setdefault(len(elem[0]), []).append(elem)
     batches = []
     if character:
