@@ -125,21 +125,14 @@ def predict(m, pred_type):
 
 
 def predict_communicated(date, load_model=False):
-    # m = NBModel_comms()
-    m = BiLSTM_model()
-    if load_model and os.path.exists(os.path.join(DIRECTORY, 'models/', m.name+str(date)+'.joblib')):
-        m.clf = joblib.load(os.path.join(DIRECTORY, 'models/', m.name+str(date)+'.joblib'))
-    else:
-        m.train(date)
     end_date = date + relativedelta(months=+1)
     dt = datetime.datetime.combine(date, datetime.datetime.min.time())
     edt = datetime.datetime.combine(end_date, datetime.datetime.min.time())
-    # Make predictions on cases that aren't published yet
-    # for comm in session.query(CommunicatedCases):
 
     today = datetime.date.today()
     this_month = datetime.date(today.year, today.month, 1)
-    model = session.query(Model).filter_by(modelname=m.name, date=date, pred_type='COMM').first()
+    # model = session.query(Model).filter_by(modelname=m.name, date=date, pred_type='COMM').first()
+    model = session.query(Model).filter_by(date=date, pred_type='COMM').first()
     if model:
         if model.date == this_month:
             for p in model.predictions:
@@ -151,6 +144,17 @@ def predict_communicated(date, load_model=False):
             session.commit()
         else:
             return
+
+    # m = NBModel_comms()
+    m = BiLSTM_model()
+    if load_model and os.path.exists(os.path.join(DIRECTORY, 'models/', m.name+str(date)+'.joblib')):
+        m.clf = joblib.load(os.path.join(DIRECTORY, 'models/', m.name+str(date)+'.joblib'))
+    else:
+        m.train(date)
+
+    # Make predictions on cases that aren't published yet
+    # for comm in session.query(CommunicatedCases):
+
     model = Model(modelname=m.name,
                   description=m.description,
                   author=m.author,
