@@ -414,12 +414,21 @@ def predict_all_train_vected(X_train_eng, X_test_eng, y_train_eng, y_test_eng, X
 
 if __name__ == '__main__':
 
+
     logging.basicConfig(filename='master_wvcom.log', level=logging.CRITICAL)
     logging.critical('\n\n\n\n\n\n\n\n ==============')
 
-    em = W2VModel('en_w2v_0525.model')
+    parser = argparse.ArgumentParser(description='Run models')
+    parser.add_argument('eng', type=str, help='Name of English embedding')
+    parser.add_argument('fre', type=str, help='Name of French embedding')
+
+    args = vars(parser.parse_args())
+    eng = args['eng']
+    fre = args['fre']
+
+    em = W2VModel(eng)
     predict_en(em)
-    fm = W2VModel('fr_w2v_0525.model')
+    fm = W2VModel(fre)
     predict_fr(fm)
-    cm = CombinedW2VModel('fr_w2v_0525.model', 'en_w2v_0525.model')
+    cm = CombinedW2VModel(fre, eng)
     predict_all(cm)
