@@ -7,6 +7,7 @@ import logging
 import itertools
 import datetime
 import argparse
+import importlib
 import unicodedata
 from urllib.parse import unquote
 from multiprocessing.pool import ThreadPool
@@ -19,9 +20,12 @@ import tqdm
 from bs4 import BeautifulSoup
 from sqlalchemy import create_engine
 from sqlalchemy.dialects import mysql
+from sqlalchemy.orm import sessionmaker
 from nltk.tokenize import sent_tokenize
 
 from config.config import Config
+
+engine = create_engine(Config.SQLALCHEMY_DATABASE_URI, encoding='utf-8', echo=True)
 
 DOC_URL = 'https://hudoc.echr.coe.int/app/conversion/docx/html/body?library=ECHR&id=%s'
 LIST_FULL_URL = 'https://hudoc.echr.coe.int/app/query/results?query=contentsitename:ECHR AND (NOT (doctype=PR OR doctype=HFCOMOLD OR doctype=HECOMOLD)) AND ((languageisocode="%s")) AND ((documentcollectionid="%s"))&select=sharepointid,Rank,ECHRRanking,itemid,docname,doctype,application,appno,conclusion,importance,originatingbody,typedescription,kpdate,extractedappno,doctypebranch,respondent,article&sort=&start=%d&length=%d&rankingModelId=1111111-0000-0000-0000-0000'
@@ -29,7 +33,7 @@ LIST_FULL_URL = 'https://hudoc.echr.coe.int/app/query/results?query=contentsiten
 DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
 HEADER_INFO = {
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.80 Safari/537.36',
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2526.80 Safari/537.36',
     'Host': 'hudoc.echr.coe.int',
     'Origin': 'https://hudoc.echr.coe.int',
     'Connection': 'keep-alive',
@@ -108,10 +112,24 @@ def get_text_from_url(url):
         return ''
 
 
-def download_documents(col, lang='ENG'):
-    df = pandas.read_csv(os.path.join(DIRECTORY, '%s_%s.csv' % (col, lang)))
-    urls = df['url'].tolist()
-    texts = list(tqdm.tqdm(ThreadPool(8).imap(get_text_from_url, urls, 16)))
+def download_documents(col, lang='ENG', table=None):
+    if table and engine.dialect.has_table(engine, table):
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        t = importlib.import_module("db.database."+table)
+        df = pandas.read_csv(os.path.join(DIRECTORY, '%s_%s.csv' % (col, lang)))
+        texts = []
+        for url in df['url']:
+            q = session.query(t).filter_by(url=url).first()
+            if q:
+                texts.append(q.text)
+            else:
+                texts.append(get_text_from_url(url))
+
+    else:
+        df = pandas.read_csv(os.path.join(DIRECTORY, '%s_%s.csv' % (col, lang)))
+        urls = df['url'].tolist()
+        texts = list(tqdm.tqdm(ThreadPool(8).imap(get_text_from_url, urls, 16)))
 
     # texts = list(map(get_text_from_url, urls))
 
@@ -124,7 +142,6 @@ def update_datetime(s):
 
 def update_database(lang='ENG'):
     lang_postfix = '' if lang == 'ENG' else '_' + lang
-    engine = create_engine(Config.SQLALCHEMY_DATABASE_URI, encoding='utf-8', echo=True)
     collections = pandas.read_csv(os.path.join(DIRECTORY, '%s_%s.csv' % ('COMMUNICATEDCASES', lang)))
     decisions = pandas.read_csv(os.path.join(DIRECTORY, '%s_%s.csv' % ('DECISIONS', lang)))
     judgements = pandas.read_csv(os.path.join(DIRECTORY, '%s_%s.csv' % ('JUDGMENTS', lang)))
@@ -135,8 +152,10 @@ def update_database(lang='ENG'):
                   'sents': mysql.LONGTEXT(unicode=True),
                   'extractedappno': mysql.LONGTEXT}
 
-    collection_text = download_documents('COMMUNICATEDCASES', lang=lang)
+    # comm_created = engine.dialect.has_table(engine, 'CommunicatedCases%s' % lang_postfix)
+    collection_text = download_documents('COMMUNICATEDCASES', lang=lang, table='CommunicatedCases'+lang_postfix)
     print(len(collections), len(collection_text))
+
     collections['kpdate'] = list(map(update_datetime, collections['kpdate']))
     collections['text'] = collection_text
     collections['sents'] = list(map(lambda x: json.dumps(sent_tokenize(x)), collection_text))
@@ -149,7 +168,7 @@ def update_database(lang='ENG'):
         con.execute('ALTER TABLE CommunicatedCases%s ADD INDEX idx_text(appno(15));' % lang_postfix)
 
 
-    decisions_text = download_documents('DECISIONS', lang=lang)
+    decisions_text = download_documents('DECISIONS', lang=lang, table='Decisions'+lang_postfix)
     decisions['kpdate'] = list(map(update_datetime, decisions['kpdate']))
     decisions['text'] = decisions_text
     decisions['sents'] = list(map(lambda x: json.dumps(sent_tokenize(x)), decisions_text))
@@ -161,7 +180,7 @@ def update_database(lang='ENG'):
         con.execute('alter table Decisions%s add column `id` int(10) unsigned PRIMARY KEY AUTO_INCREMENT;' % lang_postfix)
         con.execute('ALTER TABLE Decisions%s ADD INDEX idx_text(appno(15));' % lang_postfix)
 
-    judgements_text = download_documents('JUDGMENTS', lang=lang)
+    judgements_text = download_documents('JUDGMENTS', lang=lang, table='Judgments'+lang_postfix)
     judgements['kpdate'] = list(map(update_datetime, judgements['kpdate']))
     judgements['text'] = judgements_text
     judgements['sents'] = list(map(lambda x: json.dumps(sent_tokenize(x)), judgements_text))
@@ -189,6 +208,8 @@ def main():
     if args['download']:
         # download_documents(args['collection'], args['language'])
         update_database(lang=args['language'])
+
+
 
 
 if __name__ == '__main__':
