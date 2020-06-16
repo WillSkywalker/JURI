@@ -136,6 +136,7 @@ def download_documents(col, lang='ENG', table=None):
 
         # when parallel is not working
         for url in df['url']:
+            print(url)
             texts.append(get_text_from_url(url))
 
     # texts = list(map(get_text_from_url, urls))
