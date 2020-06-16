@@ -414,10 +414,12 @@ def predict_all_train_vected(X_train_eng, X_test_eng, y_train_eng, y_test_eng, X
 
 if __name__ == '__main__':
 
-    logging.basicConfig(filename='master_wv.log', level=logging.CRITICAL)
+    logging.basicConfig(filename='master_wvcom.log', level=logging.CRITICAL)
     logging.critical('\n\n\n\n\n\n\n\n ==============')
 
-    em = W2VModel('en_w2v_0525.model')
+    em = W2VModel('eng_full_w2v.model')
     predict_en(em)
-    fm = W2VModel('fr_w2v_0525.model')
+    fm = W2VModel('fre_full_w2v.model')
     predict_fr(fm)
+    cm = CombinedW2VModel('fre_full_w2v.model', 'eng_full_w2v.model')
+    predict_all(cm)
