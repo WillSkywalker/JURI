@@ -131,6 +131,7 @@ def download_documents(col, lang='ENG', table=None):
         # parallel download
         df = pandas.read_csv(os.path.join(DIRECTORY, '%s_%s.csv' % (col, lang)))
         # urls = df['url'].tolist()
+        texts = []
         # texts = list(tqdm.tqdm(ThreadPool(8).imap(get_text_from_url, urls, 16)))
 
         # when parallel is not working
