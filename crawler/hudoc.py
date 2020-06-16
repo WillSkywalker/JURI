@@ -116,7 +116,8 @@ def download_documents(col, lang='ENG', table=None):
     if table and engine.dialect.has_table(engine, table):
         Session = sessionmaker(bind=engine)
         session = Session()
-        t = importlib.import_module("db.database."+table)
+        database = importlib.import_module("db.database")
+        t = getattr(database, table)
         df = pandas.read_csv(os.path.join(DIRECTORY, '%s_%s.csv' % (col, lang)))
         texts = []
         for url in df['url']:
