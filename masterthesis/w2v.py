@@ -11,7 +11,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import exists
 
 from config.config import Config
-from db.database import CommunicatedCases, Decisions, Judgments, Prediction, Model
+from db.database import Decisions, Judgments, Prediction, Model
 from masterthesis.base import BaseDecisionModel, BaseModel
 from collections import Counter
 
