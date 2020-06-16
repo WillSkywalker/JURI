@@ -45,11 +45,15 @@ class TfidfEmbeddingVectorizer:
         self.word2vec = word2vec
         self.word2weight = None
         self.dim = word2vec.vector_size
+        self.max_idf = 0
         print('DIM: ', str(self.dim))
 
     @staticmethod
     def dummy(x):
         return x
+
+    def maxidf(self):
+        return self.max_idf
 
     def fit(self, X, y):
         tfidf = TfidfVectorizer(analyzer=self.dummy)
@@ -57,13 +61,10 @@ class TfidfEmbeddingVectorizer:
         # if a word was never seen - it must be at least as infrequent
         # as any of the known words - so the default idf is the max of
         # known idf's
-        max_idf = max(tfidf.idf_)
-
-        def maxidf(*args):
-            return max_idf
+        self.max_idf = max(tfidf.idf_)
 
         self.word2weight = defaultdict(
-            maxidf,
+            self.maxidf,
             [(w, tfidf.idf_[i]) for w, i in tfidf.vocabulary_.items()])
 
         return self
@@ -80,6 +81,7 @@ class MergedTfidfEmbeddingVectorizer:
         self.wv_en = wv_en
         self.word2vec = {}
         self.word2weight = None
+        self.max_idf = 0
         self.dim = wv_fr.vector_size
         print('DIM: ', str(self.dim))
 
@@ -97,19 +99,19 @@ class MergedTfidfEmbeddingVectorizer:
     def dummy(x):
         return x
 
+    def maxidf(self):
+        return self.max_idf
+
     def fit(self, X, y):
         tfidf = TfidfVectorizer(analyzer=self.dummy)
         tfidf.fit(X)
         # if a word was never seen - it must be at least as infrequent
         # as any of the known words - so the default idf is the max of
         # known idf's
-        max_idf = max(tfidf.idf_)
-
-        def maxidf(*args):
-            return max_idf
+        self.max_idf = max(tfidf.idf_)
 
         self.word2weight = defaultdict(
-            maxidf,
+            self.maxidf,
             [(w, tfidf.idf_[i]) for w, i in tfidf.vocabulary_.items()])
 
         return self
