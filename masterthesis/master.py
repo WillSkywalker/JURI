@@ -1,4 +1,4 @@
-from masterthesis.naive_bayes_allcase_use_facts import NBModel, CombinedModel
+# from masterthesis.naive_bayes_allcase_use_facts import NBModel, CombinedModel
 from masterthesis.w2v import W2VModel, CombinedW2VModel
 
 import os
