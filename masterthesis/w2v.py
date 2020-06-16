@@ -176,7 +176,7 @@ class CombinedW2VModel(BaseModel):
         wv_fr = KeyedVectors.load(os.path.join(DIRECTORY, 'embeddings/', embedding_fr), mmap='r')
         wv_en = KeyedVectors.load(os.path.join(DIRECTORY, 'embeddings/', embedding_en), mmap='r')
         wordlist = []
-        with open(word_pairs) as f:
+        with open(os.path.join(DIRECTORY, word_pairs)) as f:
             for line in f:
                 spr = line.split()
                 if len(spr) == 3:
