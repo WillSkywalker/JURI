@@ -79,7 +79,7 @@ Base = automap_base(metadata=metadata)
 Base.prepare(engine, reflect=True)
 
 
-CommunicatedCases = getattr(Base.classes, 'CommunicatedCases')
+# CommunicatedCases = getattr(Base.classes, 'CommunicatedCases')
 Decisions = getattr(Base.classes, 'Decisions')
 Judgments = getattr(Base.classes, 'Judgments')
 Press = getattr(Base.classes, 'Press')
