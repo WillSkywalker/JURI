@@ -417,9 +417,9 @@ if __name__ == '__main__':
     logging.basicConfig(filename='master_wvcom.log', level=logging.CRITICAL)
     logging.critical('\n\n\n\n\n\n\n\n ==============')
 
-    em = W2VModel('eng_full_w2v.model')
+    em = W2VModel('en_w2v_0525.model')
     predict_en(em)
-    fm = W2VModel('fre_full_w2v.model')
+    fm = W2VModel('fr_w2v_0525.model')
     predict_fr(fm)
-    cm = CombinedW2VModel('fre_full_w2v.model', 'eng_full_w2v.model')
+    cm = CombinedW2VModel('fr_w2v_0525.model', 'en_w2v_0525.model')
     predict_all(cm)

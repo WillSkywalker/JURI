@@ -39,6 +39,7 @@ DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 # Session = sessionmaker(bind=engine)
 # session = Session()
 
+
 class TfidfEmbeddingVectorizer:
     def __init__(self, word2vec):
         self.word2vec = word2vec
@@ -57,8 +58,12 @@ class TfidfEmbeddingVectorizer:
         # as any of the known words - so the default idf is the max of
         # known idf's
         max_idf = max(tfidf.idf_)
+
+        def maxidf(*args):
+            return max_idf
+
         self.word2weight = defaultdict(
-            lambda: max_idf,
+            maxidf,
             [(w, tfidf.idf_[i]) for w, i in tfidf.vocabulary_.items()])
 
         return self
@@ -99,8 +104,12 @@ class MergedTfidfEmbeddingVectorizer:
         # as any of the known words - so the default idf is the max of
         # known idf's
         max_idf = max(tfidf.idf_)
+
+        def maxidf(*args):
+            return max_idf
+
         self.word2weight = defaultdict(
-            lambda: max_idf,
+            maxidf,
             [(w, tfidf.idf_[i]) for w, i in tfidf.vocabulary_.items()])
 
         return self
