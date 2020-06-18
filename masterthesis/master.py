@@ -181,6 +181,8 @@ def predict_all(m, X_train_eng, X_test_eng, y_train_eng, y_test_eng, X_train_fre
     y_train = pd.concat([y_train_eng, y_train_fre], ignore_index=True)
     y_test = pd.concat([y_test_eng, y_test_fre], ignore_index=True)
 
+    samples = random.sample(20, zip(X_train, y_train))
+
     if load_model:
         m.clf = joblib.load(os.path.join(DIRECTORY, 'models/', m.name+'.joblib'))
     else:
@@ -428,8 +430,8 @@ if __name__ == '__main__':
     fre = args['fre']
 
     em = W2VModel(eng)
-    predict_en(em)
+    X_train_eng, X_test_eng, y_train_eng, y_test_eng = predict_en(em)
     fm = W2VModel(fre)
-    predict_fr(fm)
+    X_train_fre, X_test_fre, y_train_fre, y_test_fre = predict_fr(fm)
     cm = CombinedW2VModel(fre, eng)
-    predict_all(cm)
+    predict_all(cm, X_train_eng, X_test_eng, y_train_eng, y_test_eng, X_train_fre, X_test_fre, y_train_fre, y_test_fre)

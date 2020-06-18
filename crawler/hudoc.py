@@ -100,10 +100,10 @@ def get_text(response, **kwargs):
 
 
 def get_text_from_url(url):
-    try:
-        response = requests.get(url, stream=True, headers=HEADER_INFO)
-    except:
-        response = requests.get(url, headers=HEADER_INFO)
+    # try:
+    #     response = s.get(url, stream=True, headers=HEADER_INFO)
+    # except:
+    response = s.get(url, headers=HEADER_INFO)
     try:
         return get_text(response)
     except NoDocxException:

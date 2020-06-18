@@ -89,9 +89,9 @@ class MergedTfidfEmbeddingVectorizer:
         source_space = Space.build(transmat.source_lang_vec, wv_fr.vocab.keys())
         source_space.normalize()
         mapped_source_space = transmat.apply_transmat(source_space)
-        for word, idx in mapped_source_space.items():
+        for word, idx in mapped_source_space.word2index.items():
             self.word2vec[word] = mapped_source_space.mat[idx]
-        for word, vec in self.wv_en.vocab.items:
+        for word, vec in self.wv_en.vocab.items():
             if word not in self.word2vec:
                 self.word2vec[word] = vec
 
