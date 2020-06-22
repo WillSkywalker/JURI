@@ -181,7 +181,7 @@ def predict_all(m, X_train_eng, X_test_eng, y_train_eng, y_test_eng, X_train_fre
     y_train = pd.concat([y_train_eng, y_train_fre], ignore_index=True)
     y_test = pd.concat([y_test_eng, y_test_fre], ignore_index=True)
 
-    samples = random.sample(20, zip(X_train, y_train))
+    # samples = random.sample(20, zip(X_train, y_train))
 
     if load_model:
         m.clf = joblib.load(os.path.join(DIRECTORY, 'models/', m.name+'.joblib'))
