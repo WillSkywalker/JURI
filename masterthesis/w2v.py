@@ -93,7 +93,7 @@ class MergedTfidfEmbeddingVectorizer:
             self.word2vec[word] = mapped_source_space.mat[idx]
         for word, vec in self.wv_en.vocab.items():
             if word not in self.word2vec:
-                self.word2vec[word] = vec
+                self.word2vec[word] = self.wv_en.word_vec(word)
 
     @staticmethod
     def dummy(x):
@@ -117,6 +117,7 @@ class MergedTfidfEmbeddingVectorizer:
         return self
 
     def transform(self, X):
+        print(X)
         return np.array([np.mean([self.word2vec[w] * self.word2weight[w]
                         for w in words if w in self.word2vec] or
                         [np.zeros(self.dim)], axis=0) for words in X])
