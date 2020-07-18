@@ -132,12 +132,6 @@ def predict_fr(m, load_model=False):
 
     X_train, X_test, y_train, y_test = train_test_split(new_decs, results)
     if load_model:
-        m.clf = joblib.load(os.path.join(DIRECTORY, 'models/', m.name+'.joblib'))
-    else:
-        m.train(X_train, y_train)
-
-    X_train, X_test, y_train, y_test = train_test_split(new_decs, results)
-    if load_model:
         m.clf = joblib.load(os.path.join(DIRECTORY, 'models/', 'en_'+m.name+'.joblib'))
     else:
         m.train(X_train, y_train)
@@ -274,12 +268,11 @@ def predict_all(m, X_train_eng, X_test_eng, y_train_eng, y_test_eng, X_train_fre
         results.append(1)
 
     # samples = random.sample(20, zip(X_train, y_train))
-
+    X_train, X_test, y_train, y_test = train_test_split(new_decs, results)
     if load_model:
-        m.clf = joblib.load(os.path.join(DIRECTORY, 'models/', m.name+'.joblib'))
+        m.clf = joblib.load(os.path.join(DIRECTORY, 'models/', 'all_'+m.name+'.joblib'))
     else:
         m.train(X_train, y_train)
-
     # for comm in session.query(Decisions):
     #     result, proba, sents, sent_result, sent_proba = m.predict(comm)
 
