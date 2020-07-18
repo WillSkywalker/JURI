@@ -1,5 +1,5 @@
 # from masterthesis.naive_bayes_allcase_use_facts import NBModel, CombinedModel
-from masterthesis.w2v import W2VModel, CombinedW2VModel
+from masterthesis.aligned_mokolov import W2VModel, CombinedW2VModel
 
 import os
 import re
@@ -32,12 +32,41 @@ random.seed(42)
 
 def predict_en(m, om=None, load_model=False):
 
-    df = pd.read_csv('eng.csv')
-    new_appnos = df['appno']
-    new_decs = df['text']
+    # comms = session.query(CommunicatedCases).all()
+    decs = session.query(Decisions).filter(exists().where(Judgments.appno == Decisions.appno)).all()
+    new_appnos = []
+    new_decs = []
+    for d in decs:
+        print('OOOOO:', d.appno)
+        # text = d.text.split('\n')
+        c = session.query(CommunicatedCases).filter_by(appno=d.appno).first()
+        text = d.text + c.text if c else d.text
+        new_decs.append(text)
+        new_appnos.append(d.appno)
+
 
     # all conclusions (strings)
-    results = df['result']
+    results = []
+    for a in new_appnos:
+        j = session.query(Judgments).filter(Judgments.appno == a).with_entities(Judgments.conclusion).first()
+        if j:
+            results.append(m.conclusion_simple(j.conclusion))
+        else:
+            results.append(1)
+
+    violation_num = Counter(results)[0] - Counter(results)[1]
+    for comm in random.sample(session.query(Decisions).filter(~exists().where(Judgments.appno == Decisions.appno)).all(), violation_num):
+        # if i >= violation_num:
+        #     break
+        new_decs.append(comm.text)
+        # j = session.query(Judgments).filter_by(appno=comm.appno).with_entities(Judgments.conclusion).first()
+        results.append(1)
+
+    X_train, X_test, y_train, y_test = train_test_split(new_decs, results)
+    if load_model:
+        m.clf = joblib.load(os.path.join(DIRECTORY, 'models/', m.name+'.joblib'))
+    else:
+        m.train(X_train, y_train)
 
     X_train, X_test, y_train, y_test = train_test_split(new_decs, results)
     if load_model:
@@ -66,18 +95,36 @@ def predict_en(m, om=None, load_model=False):
 
 def predict_fr(m, load_model=False):
 
-    df = pd.read_csv('fre.csv')
-    new_appnos = df['appno']
-    new_decs = df['text']
+    # comms = session.query(CommunicatedCases).all()
+    decs = session.query(Decisions_FRE).filter(exists().where(Judgments_FRE.appno == Decisions_FRE.appno))\
+        .filter(~exists().where(Decisions.appno == Decisions_FRE.appno)).all()
+    new_appnos = []
+    new_decs = []
+    for d in decs:
+        print('OOOOO:', d.appno)
+        # text = d.text.split('\n')
+        c = session.query(CommunicatedCases_FRE).filter_by(appno=d.appno).first()
+        text = d.text + c.text if c else d.text
+        new_decs.append(text)
+        new_appnos.append(d.appno)
+
 
     # all conclusions (strings)
-    results = df['result']
+    results = []
+    for a in new_appnos:
+        j = session.query(Judgments_FRE).filter(Judgments_FRE.appno == a).with_entities(Judgments_FRE.conclusion).first()
+        if j:
+            results.append(m.conclusion_simple(j.conclusion))
+        else:
+            results.append(1)
 
-    X_train, X_test, y_train, y_test = train_test_split(new_decs, results)
-    if load_model:
-        m.clf = joblib.load(os.path.join(DIRECTORY, 'models/', 'fr_'+m.name+'.joblib'))
-    else:
-        m.train(X_train, y_train)
+    violation_num = max(0, Counter(results)[0] - Counter(results)[1])
+    for comm in random.sample(session.query(Decisions_FRE).filter(~exists().where(Judgments_FRE.appno == Decisions_FRE.appno)).all(), violation_num):
+        # if i >= violation_num:
+        #     break
+        new_decs.append(comm.text)
+        # j = session.query(Judgments).filter_by(appno=comm.appno).with_entities(Judgments.conclusion).first()
+        results.append(1)
 
     # for comm in session.query(Decisions):
     #     result, proba, sents, sent_result, sent_proba = m.predict(comm)
@@ -167,20 +214,48 @@ def predict_fr(m, load_model=False):
 
 
 def predict_all(m, X_train_eng, X_test_eng, y_train_eng, y_test_eng, X_train_fre, X_test_fre, y_train_fre, y_test_fre, load_model=False):
-    df1 = pd.read_csv('eng.csv')
-    df2 = pd.read_csv('fre.csv')
-    df = pd.concat([df1, df2], ignore_index=True)
-    eng_texts = df1['text']
-    fre_texts = df2['text']
-    all_texts = df['text']
-    eng_results = df1['result']
-    fre_results = df2['result']
-    all_results = df['result']
+    decs = session.query(Decisions_FRE).filter(exists().where(Judgments_FRE.appno == Decisions_FRE.appno)).all()
+    new_appnos = []
+    new_decs = []
+    for d in decs:
+        print('OOOOO:', d.appno)
+        # text = d.text.split('\n')
+        c = session.query(CommunicatedCases_FRE).filter_by(appno=d.appno).first()
+        if not c:
+            c = session.query(CommunicatedCases).filter_by(appno=d.appno).first()
+        text = d.text + c.text if c else d.text
+        new_decs.append(text)
+        new_appnos.append(d.appno)
 
-    X_train = pd.concat([X_train_eng, X_train_fre], ignore_index=True)
-    X_test = pd.concat([X_test_eng, X_test_fre], ignore_index=True)
-    y_train = pd.concat([y_train_eng, y_train_fre], ignore_index=True)
-    y_test = pd.concat([y_test_eng, y_test_fre], ignore_index=True)
+    decs = session.query(Decisions).filter(exists().where(Judgments_FRE.appno == Decisions_FRE.appno))\
+        .filter(~exists().where(Decisions.appno == Decisions_FRE.appno)).all()
+    for d in decs:
+        print('OOOOO:', d.appno)
+        # text = d.text.split('\n')
+        c = session.query(CommunicatedCases).filter_by(appno=d.appno).first()
+        if not c:
+            c = session.query(CommunicatedCases_FRE).filter_by(appno=d.appno).first()
+        text = d.text + c.text if c else d.text
+        new_decs.append(text)
+        new_appnos.append(d.appno)
+
+
+    # all conclusions (strings)
+    results = []
+    for a in new_appnos:
+        j = session.query(Judgments_FRE).filter(Judgments_FRE.appno == a).with_entities(Judgments_FRE.conclusion).first()
+        if j:
+            results.append(m.conclusion_simple(j.conclusion))
+        else:
+            results.append(1)
+
+    violation_num = Counter(results)[0] - Counter(results)[1]
+    for comm in random.sample(session.query(Decisions_FRE).filter(~exists().where(Judgments_FRE.appno == Decisions_FRE.appno)).all(), violation_num):
+        # if i >= violation_num:
+        #     break
+        new_decs.append(comm.text)
+        # j = session.query(Judgments).filter_by(appno=comm.appno).with_entities(Judgments.conclusion).first()
+        results.append(1)
 
     # samples = random.sample(20, zip(X_train, y_train))
 
