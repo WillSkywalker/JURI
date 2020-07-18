@@ -265,7 +265,7 @@ def predict_all(m, X_train_eng, X_test_eng, y_train_eng, y_test_eng, X_train_fre
         else:
             results.append(1)
 
-    violation_num = Counter(results)[0] - Counter(results)[1]
+    violation_num = max(0, Counter(results)[0] - Counter(results)[1])
     for comm in random.sample(session.query(Decisions_FRE).filter(~exists().where(Judgments_FRE.appno == Decisions_FRE.appno)).all(), violation_num):
         # if i >= violation_num:
         #     break
