@@ -17,6 +17,8 @@ from sqlalchemy.sql import exists
 from collections import Counter
 
 from config.config import Config
+from masterthesis.db import CommunicatedCases, Decisions, Judgments, Prediction, Model, ECHRArticle, CommunicatedCases_FRE, Decisions_FRE, Judgments_FRE
+from masterthesis.base import BaseDecisionModel
 from masterthesis.extract_facts_judgments import extract_parts_judgments, JudgmentNoTextError
 
 from sklearn.metrics import accuracy_score, f1_score, classification_report, confusion_matrix
