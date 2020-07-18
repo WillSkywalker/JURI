@@ -130,6 +130,18 @@ def predict_fr(m, load_model=False):
         # j = session.query(Judgments).filter_by(appno=comm.appno).with_entities(Judgments.conclusion).first()
         results.append(1)
 
+    X_train, X_test, y_train, y_test = train_test_split(new_decs, results)
+    if load_model:
+        m.clf = joblib.load(os.path.join(DIRECTORY, 'models/', m.name+'.joblib'))
+    else:
+        m.train(X_train, y_train)
+
+    X_train, X_test, y_train, y_test = train_test_split(new_decs, results)
+    if load_model:
+        m.clf = joblib.load(os.path.join(DIRECTORY, 'models/', 'en_'+m.name+'.joblib'))
+    else:
+        m.train(X_train, y_train)
+
     # for comm in session.query(Decisions):
     #     result, proba, sents, sent_result, sent_proba = m.predict(comm)
 
