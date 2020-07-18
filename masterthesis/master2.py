@@ -25,7 +25,9 @@ from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC, LinearSVC
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-
+engine = create_engine(Config.SQLALCHEMY_DATABASE_URI, encoding='utf-8', echo=True)
+Session = sessionmaker(bind=engine)
+session = Session()
 DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 random.seed(42)
 
