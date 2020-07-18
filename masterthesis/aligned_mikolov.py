@@ -133,7 +133,7 @@ class W2VModel(BaseModel):
     """naive bayes"""
     def __init__(self, embedding, name=MODEL_NAME, author=AUTHOR, description=DESCRIPTION, date=DATE):
         super(W2VModel, self).__init__(name, author, description, date)
-        wv = KeyedVectors.load_word2vec_format(os.path.join(DIRECTORY, 'embeddings/', embedding), mmap='r')
+        wv = KeyedVectors.load_word2vec_format(embedding)
         self.clf = Pipeline([
             ('vect', TfidfEmbeddingVectorizer(wv.wv)),
             ('clf', LinearSVC()),
@@ -180,8 +180,8 @@ class CombinedW2VModel(BaseModel):
     def __init__(self, embedding_fr, embedding_en, word_pairs='french.txt',
                  name=MODEL_NAME, author=AUTHOR, description=DESCRIPTION, date=DATE):
         super(CombinedW2VModel, self).__init__(name, author, description, date)
-        wv_fr = KeyedVectors.load_word2vec_format(os.path.join(DIRECTORY, 'embeddings/', embedding_fr), mmap='r')
-        wv_en = KeyedVectors.load_word2vec_format(os.path.join(DIRECTORY, 'embeddings/', embedding_en), mmap='r')
+        wv_fr = KeyedVectors.load_word2vec_format(embedding_fr)
+        wv_en = KeyedVectors.load_word2vec_format(embedding_en)
         wordlist = []
         with open(os.path.join(DIRECTORY, word_pairs)) as f:
             for line in f:
