@@ -56,7 +56,7 @@ class Experiment2:
         self.logger = open('master2-'+str(datetime.datetime.now())+'.log', 'w')
 
     def log(self, message):
-        self.logger.write(message)
+        self.logger.write(str(message))
         self.logger.write('\n')
 
     def predict_en(self, load_model=False):
