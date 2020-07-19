@@ -34,6 +34,7 @@ DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 random.seed(42)
 
 
+
 class Experiment2:
 
     def __init__(self, eng_embedding, fre_embedding):
@@ -51,6 +52,12 @@ class Experiment2:
         self.y_train = []
         self.X_test = []
         self.y_test = []
+
+        self.logger = open('master2-'+str(datetime.datetime.now())+'.log', 'w')
+
+    def log(self, message):
+        self.logger.write(message)
+        self.logger.write('\n')
 
     def predict_en(self, load_model=False):
 
@@ -114,12 +121,12 @@ class Experiment2:
         predictions = self.em.predict(X_test)
         accuracy = accuracy_score(predictions, y_test)
         fscore = f1_score(predictions, y_test, average='micro')
-        logging.critical('\nEnglish\n ==============')
-        logging.critical('accuracy: ' + str(accuracy))
-        logging.critical('fscore: ' + str(fscore))
+        self.log('\nEnglish\n ==============')
+        self.log('accuracy: ' + str(accuracy))
+        self.log('fscore: ' + str(fscore))
         self.em.fscore = fscore
-        logging.critical(classification_report(predictions, y_test))
-        logging.critical(confusion_matrix(predictions, y_test))
+        self.log(classification_report(predictions, y_test))
+        self.log(confusion_matrix(predictions, y_test))
         if not os.path.exists(os.path.join(DIRECTORY, 'models/')):
             os.makedirs(os.path.join(DIRECTORY, 'models/'))
         if not load_model:
@@ -190,12 +197,12 @@ class Experiment2:
         predictions = self.fm.predict(X_test)
         accuracy = accuracy_score(predictions, y_test)
         fscore = f1_score(predictions, y_test, average='micro')
-        logging.critical('\nFrench\n ==============')
-        logging.critical('accuracy: ' + str(accuracy))
-        logging.critical('fscore: ' + str(fscore))
+        self.log('\nFrench\n ==============')
+        self.log('accuracy: ' + str(accuracy))
+        self.log('fscore: ' + str(fscore))
         self.fm.fscore = fscore
-        logging.critical(classification_report(predictions, y_test))
-        logging.critical(confusion_matrix(predictions, y_test))
+        self.log(classification_report(predictions, y_test))
+        self.log(confusion_matrix(predictions, y_test))
         if not os.path.exists(os.path.join(DIRECTORY, 'models/')):
             os.makedirs(os.path.join(DIRECTORY, 'models/'))
         if not load_model:
@@ -255,35 +262,38 @@ class Experiment2:
         # predictions = m.predict(X_test_eng)
         # accuracy = accuracy_score(predictions, y_test_eng)
         # fscore = f1_score(predictions, y_test_eng, average='micro')
-        # logging.critical('\nCombined on English cases\n ==============')
-        # logging.critical('accuracy: ' + str(accuracy))
-        # logging.critical('fscore: ' + str(fscore))
-        # logging.critical(classification_report(predictions, y_test_eng))
-        # logging.critical(confusion_matrix(predictions, y_test_eng))
+        # self.log('\nCombined on English cases\n ==============')
+        # self.log('accuracy: ' + str(accuracy))
+        # self.log('fscore: ' + str(fscore))
+        # self.log(classification_report(predictions, y_test_eng))
+        # self.log(confusion_matrix(predictions, y_test_eng))
 
         # predictions = m.predict(X_test_fre)
         # accuracy = accuracy_score(predictions, y_test_fre)
         # fscore = f1_score(predictions, y_test_fre, average='micro')
-        # logging.critical('\nCombined on French cases\n ==============')
-        # logging.critical('accuracy: ' + str(accuracy))
-        # logging.critical('fscore: ' + str(fscore))
-        # logging.critical(classification_report(predictions, y_test_fre))
-        # logging.critical(confusion_matrix(predictions, y_test_fre))
+        # self.log('\nCombined on French cases\n ==============')
+        # self.log('accuracy: ' + str(accuracy))
+        # self.log('fscore: ' + str(fscore))
+        # self.log(classification_report(predictions, y_test_fre))
+        # self.log(confusion_matrix(predictions, y_test_fre))
 
         predictions = self.cm.predict(X_test)
         accuracy = accuracy_score(predictions, y_test)
         fscore = f1_score(predictions, y_test, average='micro')
-        logging.critical('\nAll cases\n ==============')
-        logging.critical('accuracy: ' + str(accuracy))
-        logging.critical('fscore: ' + str(fscore))
-        logging.critical(classification_report(predictions, y_test))
-        logging.critical(confusion_matrix(predictions, y_test))
+        self.log('\nAll cases\n ==============')
+        self.log('accuracy: ' + str(accuracy))
+        self.log('fscore: ' + str(fscore))
+        self.log(classification_report(predictions, y_test))
+        self.log(confusion_matrix(predictions, y_test))
+
+    def close(self):
+        self.logger.close()
 
 
 if __name__ == '__main__':
 
-    logging.basicConfig(filename='master_wvcom.log', level=logging.CRITICAL)
-    logging.critical('\n\n\n\n\n\n\n\n ==============')
+    logging.basicConfig(filename='master_wvcom.log', level=self.log)
+    self.log('\n\n\n\n\n\n\n\n ==============')
 
     parser = argparse.ArgumentParser(description='Run models')
     parser.add_argument('eng', type=str, help='Name of English embedding')
@@ -303,3 +313,4 @@ if __name__ == '__main__':
     exp.predict_en()
     exp.predict_fr()
     exp.predict_all()
+    exp.close()

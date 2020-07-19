@@ -122,7 +122,6 @@ class MergedTfidfEmbeddingVectorizer:
         return self
 
     def transform(self, X):
-        print(X)
         return np.array([np.mean([self.word2vec[w] * self.word2weight[w]
                         for w in word_tokenize(words) if w in self.word2vec] or
                         # for w in words if w in self.word2vec] or
