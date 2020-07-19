@@ -219,7 +219,7 @@ class Experiment2:
                     text += fre_desc.text
             eng_comm = session.query(CommunicatedCases).filter_by(appno=appno).first()
             if eng_comm:
-                text += eng_comm
+                text += eng_comm.text
             else:
                 fre_comm = session.query(CommunicatedCases_FRE).filter_by(appno=appno).first()
                 if fre_desc:
@@ -237,7 +237,7 @@ class Experiment2:
                     text += fre_desc.text
             eng_comm = session.query(CommunicatedCases).filter_by(appno=appno).first()
             if eng_comm:
-                text += eng_comm
+                text += eng_comm.text
             else:
                 fre_comm = session.query(CommunicatedCases_FRE).filter_by(appno=appno).first()
                 if fre_desc:
