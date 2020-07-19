@@ -91,6 +91,7 @@ class Experiment2:
         for comm in random.sample(session.query(Decisions).filter(~exists().where(Judgments.appno == Decisions.appno)).all(), violation_num):
             # if i >= violation_num:
             #     break
+            new_appnos.append(comm.appno)
             new_decs.append(comm.text)
             # j = session.query(Judgments).filter_by(appno=comm.appno).with_entities(Judgments.conclusion).first()
             results.append(1)
@@ -166,6 +167,7 @@ class Experiment2:
         for comm in random.sample(session.query(Decisions_FRE).filter(~exists().where(Judgments_FRE.appno == Decisions_FRE.appno)).all(), violation_num):
             # if i >= violation_num:
             #     break
+            new_appnos.append(comm.appno)
             new_decs.append(comm.text)
             # j = session.query(Judgments).filter_by(appno=comm.appno).with_entities(Judgments.conclusion).first()
             results.append(1)
