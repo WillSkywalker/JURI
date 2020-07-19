@@ -292,8 +292,8 @@ class Experiment2:
 
 if __name__ == '__main__':
 
-    logging.basicConfig(filename='master_wvcom.log', level=self.log)
-    self.log('\n\n\n\n\n\n\n\n ==============')
+    # logging.basicConfig(filename='master_wvcom.log', level=self.log)
+    # self.log('\n\n\n\n\n\n\n\n ==============')
 
     parser = argparse.ArgumentParser(description='Run models')
     parser.add_argument('eng', type=str, help='Name of English embedding')
