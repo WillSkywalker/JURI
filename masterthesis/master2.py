@@ -1,6 +1,6 @@
 # from masterthesis.naive_bayes_allcase_use_facts import NBModel, CombinedModel
-# from masterthesis.aligned_mikolov import W2VModel, CombinedW2VModel
-from masterthesis.aligned_muse import W2VModel, CombinedW2VModel
+from masterthesis.aligned_mikolov import W2VModel, CombinedW2VModel
+# from masterthesis.aligned_muse import W2VModel, CombinedW2VModel
 
 import os
 import re
