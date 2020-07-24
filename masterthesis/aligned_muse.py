@@ -93,8 +93,8 @@ class MergedTfidfEmbeddingVectorizer:
         for word, vec in self.wv_en.vocab.items():
             if word not in self.word2vec:
                 self.word2vec[word] = self.wv_en.word_vec(word)
-            # else:
-            #     self.word2vec[word] = (self.word2vec[word] + self.wv_en.word_vec(word)) / 2.0
+            else:
+                self.word2vec[word] = (self.word2vec[word] + self.wv_en.word_vec(word)) / 2.0
 
     @staticmethod
     def dummy(x):
