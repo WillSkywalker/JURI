@@ -181,7 +181,7 @@ class CombinedW2VModel(BaseModel):
         super(CombinedW2VModel, self).__init__(name, author, description, date)
         wv_fr = KeyedVectors.load_word2vec_format(embedding_fr)
         wv_en = KeyedVectors.load_word2vec_format(embedding_en)
-        wordlist = []
+        self.wordlist = []
         with open(os.path.join(DIRECTORY, word_pairs)) as f:
             for line in f:
                 spr = line.split()
