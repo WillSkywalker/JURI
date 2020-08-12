@@ -187,10 +187,10 @@ class CombinedW2VModel(BaseModel):
                 spr = line.split()
                 if len(spr) == 3:
                     if spr[1] in wv_fr.wv and spr[2] in wv_en.wv:
-                        wordlist.append((spr[1], spr[2]))
+                        self.wordlist.append((spr[1], spr[2]))
 
         self.clf = Pipeline([
-            ('vect', MergedTfidfEmbeddingVectorizer(wv_fr.wv, wv_en.wv, wordlist)),
+            ('vect', MergedTfidfEmbeddingVectorizer(wv_fr.wv, wv_en.wv, self.wordlist)),
             ('clf', LinearSVC()),
         ])
 
