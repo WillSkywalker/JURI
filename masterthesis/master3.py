@@ -25,7 +25,7 @@ from masterthesis.base import BaseDecisionModel
 from masterthesis.extract_facts_judgments import extract_parts_judgments, JudgmentNoTextError
 
 from sklearn.metrics import accuracy_score, f1_score, classification_report, confusion_matrix
-from sklearn.model_selection import train_test_split, cross_validate
+from sklearn.model_selection import train_test_split, cross_validate, ShuffleSplit
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC, LinearSVC
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -118,7 +118,9 @@ class Experiment3:
             self.em.clf = joblib.load(os.path.join(DIRECTORY, 'models/', 'en_'+self.em.name+'.joblib'))
         else:
             self.em.train(X_train, y_train)
-        cv_scores = cross_validate(self.fm.clf, new_appnos, new_decs, scoring=['accuracy', 'f1'])
+
+        cv = ShuffleSplit(n_splits=5, test_size=0.25, random_state=42)
+        cv_scores = cross_validate(self.fm.clf, new_appnos, new_decs, scoring=['accuracy', 'f1'], cv=cv)
         plot = plot_learning_curve(self.fm.clf, 'Learning Curves', new_decs, results)
         plot.savefig(self.name+'_english'+'.png')
 
@@ -199,7 +201,9 @@ class Experiment3:
             self.fm.clf = joblib.load(os.path.join(DIRECTORY, 'models/', 'fr_'+self.fm.name+'.joblib'))
         else:
             self.fm.train(X_train, y_train)
-        cv_scores = cross_validate(self.fm.clf, new_appnos, new_decs, scoring=['accuracy', 'f1'])
+
+        cv = ShuffleSplit(n_splits=5, test_size=0.25, random_state=42)
+        cv_scores = cross_validate(self.fm.clf, new_appnos, new_decs, scoring=['accuracy', 'f1'], cv=cv)
         plot = plot_learning_curve(self.fm.clf, 'Learning Curves', new_decs, results)
         plot.savefig(self.name+'_french'+'.png')
         # for comm in session.query(Decisions):
@@ -269,7 +273,9 @@ class Experiment3:
             self.cm.clf = joblib.load(os.path.join(DIRECTORY, 'models/', 'all_'+self.cm.name+'.joblib'))
         else:
             self.cm.train(X_train, y_train)
-        cv_scores = cross_validate(self.fm.clf, X_train+X_test, y_train+y_test, scoring=['accuracy', 'f1'])
+
+        cv = ShuffleSplit(n_splits=5, test_size=0.25, random_state=42)
+        cv_scores = cross_validate(self.fm.clf, X_train+X_test, y_train+y_test, scoring=['accuracy', 'f1'], cv=cv)
         plot = plot_learning_curve(self.fm.clf, 'Learning Curves', X_train+X_test, y_train+y_test)
         plot.savefig(self.name+'_multilingual'+'.png')
         # for comm in session.query(Decisions):
