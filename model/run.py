@@ -247,8 +247,8 @@ def predict_communicated(date, load_model=False):
     if golds:
         accuracy = accuracy_score(golds, results)
         fscore = f1_score(golds, results, average='macro')
-        logging.warning(classification_report(golds, results))
-        logging.warning(confusion_matrix(golds, results))
+        # logging.warning(classification_report(golds, results))
+        # logging.warning(confusion_matrix(golds, results))
         if not os.path.exists(os.path.join(DIRECTORY, 'models/')):
             os.makedirs(os.path.join(DIRECTORY, 'models/'))
         if not os.path.exists(os.path.join(DIRECTORY, 'models/', m.name+str(date)+'.joblib')):
