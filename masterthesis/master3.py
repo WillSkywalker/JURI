@@ -119,7 +119,7 @@ class Experiment3:
         else:
             self.em.train(X_train, y_train)
         cv_scores = cross_validate(self.fm.clf, new_appnos, new_decs, scoring=['accuracy', 'f1'])
-        plot = plot_learning_curve(self.fm.clf, 'Learning Curves', new_appnos, new_decs)
+        plot = plot_learning_curve(self.fm.clf, 'Learning Curves', new_decs, results)
         plot.savefig(self.name+'_english'+'.png')
 
         # for comm in session.query(Decisions):
@@ -200,7 +200,7 @@ class Experiment3:
         else:
             self.fm.train(X_train, y_train)
         cv_scores = cross_validate(self.fm.clf, new_appnos, new_decs, scoring=['accuracy', 'f1'])
-        plot = plot_learning_curve(self.fm.clf, 'Learning Curves', new_appnos, new_decs)
+        plot = plot_learning_curve(self.fm.clf, 'Learning Curves', new_decs, results)
         plot.savefig(self.name+'_french'+'.png')
         # for comm in session.query(Decisions):
         #     result, proba, sents, sent_result, sent_proba = m.predict(comm)
