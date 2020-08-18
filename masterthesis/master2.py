@@ -2,6 +2,8 @@
 from masterthesis.aligned_mikolov import W2VModel, CombinedW2VModel
 # from masterthesis.aligned_muse import W2VModel, CombinedW2VModel
 
+from masterthesis.plot import plot_learning_curve
+
 import os
 import re
 import logging
@@ -23,7 +25,7 @@ from masterthesis.base import BaseDecisionModel
 from masterthesis.extract_facts_judgments import extract_parts_judgments, JudgmentNoTextError
 
 from sklearn.metrics import accuracy_score, f1_score, classification_report, confusion_matrix
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_validate
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC, LinearSVC
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -33,7 +35,6 @@ Session = sessionmaker(bind=engine)
 session = Session()
 DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 random.seed(42)
-
 
 
 class Experiment2:
@@ -54,7 +55,8 @@ class Experiment2:
         self.X_test = []
         self.y_test = []
 
-        self.logger = open('master2-'+str(datetime.datetime.now())+'.log', 'w')
+        self.name = 'master2-'+str(datetime.datetime.now())
+        self.logger = open(self.name+'.log', 'w')
 
     def log(self, message):
         self.logger.write(str(message))
@@ -116,6 +118,10 @@ class Experiment2:
         else:
             self.em.train(X_train, y_train)
 
+        cv_scores = cross_validate(self.fm.clf, new_appnos, new_decs, scoring=['accuracy', 'f1'])
+        plot = plot_learning_curve(self.fm.clf, 'Learning Curves', new_appnos, new_decs)
+        plot.savefig(self.name+'_english'+'.png')
+
         # for comm in session.query(Decisions):
         #     result, proba, sents, sent_result, sent_proba = m.predict(comm)
 
@@ -125,6 +131,10 @@ class Experiment2:
         self.log('\nEnglish\n ==============')
         self.log('accuracy: ' + str(accuracy))
         self.log('fscore: ' + str(fscore))
+
+        self.log('cv_accuracy: ' + str(cv_scores['test_accuracy']))
+        self.log('cv_fscore: ' + str(cv_scores['test_f1']))
+
         self.em.fscore = fscore
         self.log(classification_report(predictions, y_test))
         self.log(confusion_matrix(predictions, y_test))
@@ -194,6 +204,9 @@ class Experiment2:
 
         # for comm in session.query(Decisions):
         #     result, proba, sents, sent_result, sent_proba = m.predict(comm)
+        cv_scores = cross_validate(self.fm.clf, new_appnos, new_decs, scoring=['accuracy', 'f1'])
+        plot = plot_learning_curve(self.fm.clf, 'Learning Curves', new_appnos, new_decs)
+        plot.savefig(self.name+'_french'+'.png')
 
         predictions = self.fm.predict(X_test)
         accuracy = accuracy_score(predictions, y_test)
@@ -201,6 +214,10 @@ class Experiment2:
         self.log('\nFrench\n ==============')
         self.log('accuracy: ' + str(accuracy))
         self.log('fscore: ' + str(fscore))
+
+        self.log('cv_accuracy: ' + str(cv_scores['test_accuracy']))
+        self.log('cv_fscore: ' + str(cv_scores['test_f1']))
+
         self.fm.fscore = fscore
         self.log(classification_report(predictions, y_test))
         self.log(confusion_matrix(predictions, y_test))
@@ -257,6 +274,10 @@ class Experiment2:
             self.cm.clf = joblib.load(os.path.join(DIRECTORY, 'models/', 'all_'+self.cm.name+'.joblib'))
         else:
             self.cm.train(X_train, y_train)
+
+        cv_scores = cross_validate(self.fm.clf, X_train+X_test, y_train+y_test, scoring=['accuracy', 'f1'])
+        plot = plot_learning_curve(self.fm.clf, 'Learning Curves', X_train+X_test, y_train+y_test)
+        plot.savefig(self.name+'_multilingual'+'.png')
         # for comm in session.query(Decisions):
         #     result, proba, sents, sent_result, sent_proba = m.predict(comm)
 
@@ -284,6 +305,10 @@ class Experiment2:
         self.log('\nAll cases\n ==============')
         self.log('accuracy: ' + str(accuracy))
         self.log('fscore: ' + str(fscore))
+
+        self.log('cv_accuracy: ' + str(cv_scores['test_accuracy']))
+        self.log('cv_fscore: ' + str(cv_scores['test_f1']))
+
         self.log(classification_report(predictions, y_test))
         self.log(confusion_matrix(predictions, y_test))
 
