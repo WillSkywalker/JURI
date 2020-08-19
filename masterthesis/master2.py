@@ -119,7 +119,7 @@ class Experiment2:
             self.em.train(X_train, y_train)
 
         cv = ShuffleSplit(n_splits=5, test_size=0.25, random_state=42)
-        cv_scores = cross_validate(self.em.clf, new_decs, results, scoring=['accuracy', 'f1'], cv=cv)
+        cv_scores = cross_validate(self.em.clf, new_decs, results, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
         plot = plot_learning_curve(self.em.clf, 'Learning Curves', new_decs, results)
         plot.savefig(self.name+'_english'+'.png')
 
@@ -206,7 +206,7 @@ class Experiment2:
         # for comm in session.query(Decisions):
         #     result, proba, sents, sent_result, sent_proba = m.predict(comm)
         cv = ShuffleSplit(n_splits=5, test_size=0.25, random_state=42)
-        cv_scores = cross_validate(self.fm.clf, new_decs, results, scoring=['accuracy', 'f1'], cv=cv)
+        cv_scores = cross_validate(self.fm.clf, new_decs, results, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
         plot = plot_learning_curve(self.fm.clf, 'Learning Curves', new_decs, results)
         plot.savefig(self.name+'_french'+'.png')
 
@@ -278,7 +278,7 @@ class Experiment2:
             self.cm.train(X_train, y_train)
 
         cv = ShuffleSplit(n_splits=5, test_size=0.25, random_state=42)
-        cv_scores = cross_validate(self.cm.clf, X_train+X_test, y_train+y_test, scoring=['accuracy', 'f1'], cv=cv)
+        cv_scores = cross_validate(self.cm.clf, X_train+X_test, y_train+y_test, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
         plot = plot_learning_curve(self.cm.clf, 'Learning Curves', X_train+X_test, y_train+y_test)
         plot.savefig(self.name+'_multilingual'+'.png')
         # for comm in session.query(Decisions):

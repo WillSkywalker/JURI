@@ -3,6 +3,7 @@
 from masterthesis.aligned_muse import W2VModel, CombinedW2VModel
 
 from masterthesis.plot import plot_learning_curve
+from sqlalchemy import and_
 
 import os
 import re
@@ -29,13 +30,14 @@ from sklearn.model_selection import train_test_split, cross_validate, ShuffleSpl
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC, LinearSVC
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.base import clone
 
 engine = create_engine(Config.SQLALCHEMY_DATABASE_URI, encoding='utf-8', echo=True)
 Session = sessionmaker(bind=engine)
 session = Session()
 DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 random.seed(42)
-
+MAY = datetime.datetime(2020, 4, 21)
 
 
 class Experiment3:
@@ -49,6 +51,7 @@ class Experiment3:
         self.cm = CombinedW2VModel(fre_embedding, eng_embedding)
 
         self.used_appnos = set([])
+        self.judged = set([])
         self.appno_train = []
         self.appno_test = []
         self.X_train = []
@@ -66,40 +69,59 @@ class Experiment3:
     def predict_en(self, load_model=False):
 
         # start with all English decisions, possibly with communications
-        decs = session.query(Decisions).filter(exists().where(Judgments.appno == Decisions.appno)).all()
+        # decs = session.query(Decisions).filter(exists().where(Judgments.appno == Decisions.appno)).all()
+
+        # for d in decs:
+        #     print('OOOOO:', d.appno)
+        #     # text = d.text.split('\n')
+        #     c = session.query(CommunicatedCases).filter_by(appno=d.appno).first()
+        #     text = d.text + '\n' + c.text if c else d.text
+        #     new_decs.append(text)
+        #     new_appnos.append(d.appno)
+        #     self.used_appnos.add(d.appno)
+
         new_appnos = []
         new_decs = []
-        for d in decs:
-            print('OOOOO:', d.appno)
-            # text = d.text.split('\n')
-            c = session.query(CommunicatedCases).filter_by(appno=d.appno).first()
-            text = d.text + '\n' + c.text if c else d.text
-            new_decs.append(text)
-            new_appnos.append(d.appno)
-            self.used_appnos.add(d.appno)
-
-        # then add possible English communications
-        decs = session.query(CommunicatedCases).filter(exists().where(Judgments.appno == CommunicatedCases.appno))\
-            .filter(~CommunicatedCases.appno.in_(self.used_appnos)).all()
-        for d in decs:
-            print('OOOOO:', d.appno)
-            # text = d.text.split('\n')
-            text = d.text
-            new_decs.append(text)
-            new_appnos.append(d.appno)
-            self.used_appnos.add(d.appno)
-
-        # all conclusions (strings)
         results = []
-        for a in new_appnos:
-            j = session.query(Judgments).filter(Judgments.appno == a).with_entities(Judgments.conclusion).first()
-            if j:
-                results.append(self.em.conclusion_simple(j.conclusion))
+        for jdg in session.query(Judgments).filter(Judgments.kpdate < MAY).all():
+            d = session.query(Decisions).filter(Decisions.appno.in_(jdg.appno.split(';')+[jdg.appno])).first()
+            c = session.query(CommunicatedCases).filter(CommunicatedCases.appno.in_(jdg.appno.split(';')+[jdg.appno])).first()
+            if d:
+                text = d.text + '\n' + c.text if c else d.text
+                self.judged.add(d.appno)
+            elif c:
+                text = c.text
+            else:
+                continue
+            new_decs.append(text)
+            new_appnos.append(jdg.appno)
+            self.used_appnos.add(jdg.appno)
+            if jdg.conclusion:
+                results.append(self.em.conclusion_simple(jdg.conclusion))
             else:
                 results.append(1)
 
+        # then add possible English communications
+        # decs = session.query(CommunicatedCases).filter(exists().where(Judgments.appno == CommunicatedCases.appno))\
+        #     .filter(~CommunicatedCases.appno.in_(self.used_appnos)).all()
+        # for d in decs:
+        #     print('OOOOO:', d.appno)
+        #     text = d.text
+        #     new_decs.append(text)
+        #     new_appnos.append(d.appno)
+        #     self.used_appnos.add(d.appno)
+
+        # all conclusions (strings)
+        # results = []
+        # for a in new_appnos:
+        #     j = session.query(Judgments).filter(Judgments.appno == a).with_entities(Judgments.conclusion).first()
+        #     if j:
+        #         results.append(self.em.conclusion_simple(j.conclusion))
+        #     else:
+        #         results.append(1)
+
         violation_num = max(0, Counter(results)[0] - Counter(results)[1])
-        for comm in random.sample(session.query(Decisions).filter(~exists().where(Judgments.appno == Decisions.appno)).all(), violation_num):
+        for comm in random.sample(session.query(Decisions).filter(Decisions.appno.notin_(self.judged)).all(), violation_num):
             # if i >= violation_num:
             #     break
             new_appnos.append(comm.appno)
@@ -119,15 +141,13 @@ class Experiment3:
         else:
             self.em.train(X_train, y_train)
 
+        predictions = self.em.predict(X_test)
+
         cv = ShuffleSplit(n_splits=5, test_size=0.25, random_state=42)
-        cv_scores = cross_validate(self.em.clf, new_decs, results, scoring=['accuracy', 'f1'], cv=cv)
+        cv_scores = cross_validate(self.em.clf, new_decs, results, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
         plot = plot_learning_curve(self.em.clf, 'Learning Curves', new_decs, results)
         plot.savefig(self.name+'_english'+'.png')
 
-        # for comm in session.query(Decisions):
-        #     result, proba, sents, sent_result, sent_proba = m.predict(comm)
-
-        predictions = self.em.predict(X_test)
         accuracy = accuracy_score(predictions, y_test)
         fscore = f1_score(predictions, y_test, average='micro')
         self.log('\nEnglish\n ==============')
@@ -147,42 +167,63 @@ class Experiment3:
 
     def predict_fr(self, load_model=False):
 
-        # add all French decisions, possibly with communications
-        decs = session.query(Decisions_FRE).filter(exists().where(Judgments_FRE.appno == Decisions_FRE.appno))\
-            .filter(~Decisions_FRE.appno.in_(self.used_appnos)).all()
         new_appnos = []
         new_decs = []
-        for d in decs:
-            print('OOOOO:', d.appno)
-            # text = d.text.split('\n')
-            c = session.query(CommunicatedCases_FRE).filter_by(appno=d.appno).first()
-            text = d.text + '\n' + c.text if c else d.text
-            new_decs.append(text)
-            new_appnos.append(d.appno)
-            self.used_appnos.add(d.appno)
-
-        # then add possible French communications
-        decs = session.query(CommunicatedCases_FRE).filter(exists().where(Judgments_FRE.appno == CommunicatedCases_FRE.appno))\
-            .filter(~CommunicatedCases_FRE.appno.in_(self.used_appnos)).all()
-        for d in decs:
-            print('OOOOO:', d.appno)
-            # text = d.text.split('\n')
-            text = d.text
-            new_decs.append(text)
-            new_appnos.append(d.appno)
-            self.used_appnos.add(d.appno)
-
-        # all conclusions (strings)
         results = []
-        for a in new_appnos:
-            j = session.query(Judgments_FRE).filter(Judgments_FRE.appno == a).with_entities(Judgments_FRE.conclusion).first()
-            if j:
-                results.append(self.fm.conclusion_fr(j.conclusion))
+        for jdg in session.query(Judgments_FRE).filter(~Judgments_FRE.appno.in_(self.used_appnos)).filter(Judgments_FRE.kpdate < MAY).all():
+            d = session.query(Decisions_FRE).filter(Decisions_FRE.appno.in_(jdg.appno.split(';')+[jdg.appno])).first()
+            c = session.query(CommunicatedCases_FRE).filter(CommunicatedCases_FRE.appno.in_(jdg.appno.split(';')+[jdg.appno])).first()
+            if d:
+                text = d.text + '\n' + c.text if c else d.text
+                self.judged.add(d.appno)
+            elif c:
+                text = c.text
+            else:
+                continue
+            new_decs.append(text)
+            new_appnos.append(jdg.appno)
+            self.used_appnos.add(jdg.appno)
+            if jdg.conclusion:
+                results.append(self.fm.conclusion_fr(jdg.conclusion))
             else:
                 results.append(1)
 
+        # add all French decisions, possibly with communications
+        # decs = session.query(Decisions_FRE).filter(exists().where(Judgments_FRE.appno == Decisions_FRE.appno))\
+        #     .filter(~Decisions_FRE.appno.in_(self.used_appnos)).all()
+        # new_appnos = []
+        # new_decs = []
+        # for d in decs:
+        #     print('OOOOO:', d.appno)
+        #     # text = d.text.split('\n')
+        #     c = session.query(CommunicatedCases_FRE).filter_by(appno=d.appno).first()
+        #     text = d.text + '\n' + c.text if c else d.text
+        #     new_decs.append(text)
+        #     new_appnos.append(d.appno)
+        #     self.used_appnos.add(d.appno)
+
+        # # then add possible French communications
+        # decs = session.query(CommunicatedCases_FRE).filter(exists().where(Judgments_FRE.appno == CommunicatedCases_FRE.appno))\
+        #     .filter(~CommunicatedCases_FRE.appno.in_(self.used_appnos)).all()
+        # for d in decs:
+        #     print('OOOOO:', d.appno)
+        #     # text = d.text.split('\n')
+        #     text = d.text
+        #     new_decs.append(text)
+        #     new_appnos.append(d.appno)
+        #     self.used_appnos.add(d.appno)
+
+        # all conclusions (strings)
+        # results = []
+        # for a in new_appnos:
+        #     j = session.query(Judgments_FRE).filter(Judgments_FRE.appno == a).with_entities(Judgments_FRE.conclusion).first()
+        #     if j:
+        #         results.append(self.fm.conclusion_fr(j.conclusion))
+        #     else:
+        #         results.append(1)
+
         violation_num = max(0, Counter(results)[0] - Counter(results)[1])
-        for comm in random.sample(session.query(Decisions_FRE).filter(~exists().where(Judgments_FRE.appno == Decisions_FRE.appno)).all(), violation_num):
+        for comm in random.sample(session.query(Decisions_FRE).filter(Decisions_FRE.appno.notin_(self.judged)).all(), violation_num):
             # if i >= violation_num:
             #     break
             new_appnos.append(comm.appno)
@@ -202,14 +243,13 @@ class Experiment3:
         else:
             self.fm.train(X_train, y_train)
 
+        predictions = self.fm.predict(X_test)
+
         cv = ShuffleSplit(n_splits=5, test_size=0.25, random_state=42)
-        cv_scores = cross_validate(self.fm.clf, new_decs, results, scoring=['accuracy', 'f1'], cv=cv)
+        cv_scores = cross_validate(self.fm.clf, new_decs, results, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
         plot = plot_learning_curve(self.fm.clf, 'Learning Curves', new_decs, results)
         plot.savefig(self.name+'_french'+'.png')
-        # for comm in session.query(Decisions):
-        #     result, proba, sents, sent_result, sent_proba = m.predict(comm)
 
-        predictions = self.fm.predict(X_test)
         accuracy = accuracy_score(predictions, y_test)
         fscore = f1_score(predictions, y_test, average='micro')
         self.log('\nFrench\n ==============')
@@ -233,73 +273,55 @@ class Experiment3:
         y_train = self.y_train
         y_test = self.y_test
         for appno in self.appno_train:
+            appnos = appno.split(';') + [appno]
             text = ''
-            eng_desc = session.query(Decisions).filter_by(appno=appno).first()
+            eng_desc = session.query(Decisions).filter(Decisions.appno.in_(appnos)).first()
             if eng_desc:
                 text += eng_desc.text
             else:
-                fre_desc = session.query(Decisions_FRE).filter_by(appno=appno).first()
+                fre_desc = session.query(Decisions_FRE).filter(Decisions_FRE.appno.in_(appnos)).first()
                 if fre_desc:
                     text += fre_desc.text
-            eng_comm = session.query(CommunicatedCases).filter_by(appno=appno).first()
+            eng_comm = session.query(CommunicatedCases).filter(CommunicatedCases.appno.in_(appnos)).first()
             if eng_comm:
                 text += eng_comm.text
             else:
-                fre_comm = session.query(CommunicatedCases_FRE).filter_by(appno=appno).first()
+                fre_comm = session.query(CommunicatedCases_FRE).filter(CommunicatedCases_FRE.appno.in_(appnos)).first()
                 if fre_comm:
                     text += fre_comm.text
             X_train.append(text)
 
         for appno in self.appno_test:
+            appnos = appno.split(';') + [appno]
             text = ''
-            eng_desc = session.query(Decisions).filter_by(appno=appno).first()
+            eng_desc = session.query(Decisions).filter(Decisions.appno.in_(appnos)).first()
             if eng_desc:
                 text += eng_desc.text
             else:
-                fre_desc = session.query(Decisions_FRE).filter_by(appno=appno).first()
+                fre_desc = session.query(Decisions_FRE).filter(Decisions_FRE.appno.in_(appnos)).first()
                 if fre_desc:
                     text += fre_desc.text
-            eng_comm = session.query(CommunicatedCases).filter_by(appno=appno).first()
+            eng_comm = session.query(CommunicatedCases).filter(CommunicatedCases.appno.in_(appnos)).first()
             if eng_comm:
                 text += eng_comm.text
             else:
-                fre_comm = session.query(CommunicatedCases_FRE).filter_by(appno=appno).first()
+                fre_comm = session.query(CommunicatedCases_FRE).filter(CommunicatedCases_FRE.appno.in_(appnos)).first()
                 if fre_comm:
                     text += fre_comm.text
             X_test.append(text)
-
 
         if load_model:
             self.cm.clf = joblib.load(os.path.join(DIRECTORY, 'models/', 'all_'+self.cm.name+'.joblib'))
         else:
             self.cm.train(X_train, y_train)
 
+        predictions = self.cm.predict(X_test)
+
         cv = ShuffleSplit(n_splits=5, test_size=0.25, random_state=42)
-        cv_scores = cross_validate(self.cm.clf, X_train+X_test, y_train+y_test, scoring=['accuracy', 'f1'], cv=cv)
+        cv_scores = cross_validate(self.cm.clf, X_train+X_test, y_train+y_test, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
         plot = plot_learning_curve(self.cm.clf, 'Learning Curves', X_train+X_test, y_train+y_test)
         plot.savefig(self.name+'_multilingual'+'.png')
-        # for comm in session.query(Decisions):
-        #     result, proba, sents, sent_result, sent_proba = m.predict(comm)
 
-        # predictions = m.predict(X_test_eng)
-        # accuracy = accuracy_score(predictions, y_test_eng)
-        # fscore = f1_score(predictions, y_test_eng, average='micro')
-        # self.log('\nCombined on English cases\n ==============')
-        # self.log('accuracy: ' + str(accuracy))
-        # self.log('fscore: ' + str(fscore))
-        # self.log(classification_report(predictions, y_test_eng))
-        # self.log(confusion_matrix(predictions, y_test_eng))
-
-        # predictions = m.predict(X_test_fre)
-        # accuracy = accuracy_score(predictions, y_test_fre)
-        # fscore = f1_score(predictions, y_test_fre, average='micro')
-        # self.log('\nCombined on French cases\n ==============')
-        # self.log('accuracy: ' + str(accuracy))
-        # self.log('fscore: ' + str(fscore))
-        # self.log(classification_report(predictions, y_test_fre))
-        # self.log(confusion_matrix(predictions, y_test_fre))
-
-        predictions = self.cm.predict(X_test)
         accuracy = accuracy_score(predictions, y_test)
         fscore = f1_score(predictions, y_test, average='micro')
         self.log('\nAll cases\n ==============')
