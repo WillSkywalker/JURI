@@ -372,11 +372,6 @@ class Experiment3:
                 results.append(self.em.conclusion_simple(jdg.conclusion))
             else:
                 results.append(1)
-        violation_num = max(0, Counter(results)[0] - Counter(results)[1])
-        for comm in random.sample(session.query(Decisions_FRE).filter(Decisions_FRE.appno.notin_(self.judged)).all(), violation_num):
-            new_appnos.append(comm.appno)
-            new_decs.append(comm.text)
-            results.append(1)
 
         X_eng = new_decs
         Y_eng = results
@@ -395,7 +390,7 @@ class Experiment3:
         new_appnos = []
         new_decs = []
         results = []
-        for jdg in session.query(Judgments_FRE).filter(~Judgments_FRE.appno.in_(self.used_appnos)).filter(Judgments_FRE.kpdate < MAY).all():
+        for jdg in session.query(Judgments_FRE).filter(~Judgments_FRE.appno.in_(self.used_appnos)).filter(Judgments_FRE.kpdate >= MAY).all():
             if not jdg.appno:
                 continue
             d = session.query(Decisions_FRE).filter(Decisions_FRE.appno.in_(jdg.appno.split(';')+[jdg.appno])).first()
@@ -414,12 +409,6 @@ class Experiment3:
                 results.append(self.fm.conclusion_fr(jdg.conclusion))
             else:
                 results.append(1)
-
-        violation_num = max(0, Counter(results)[0] - Counter(results)[1])
-        for comm in random.sample(session.query(Decisions_FRE).filter(Decisions_FRE.appno.notin_(self.judged)).all(), violation_num):
-            new_appnos.append(comm.appno)
-            new_decs.append(comm.text)
-            results.append(1)
 
         X_fre = new_decs
         Y_fre = results
