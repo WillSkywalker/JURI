@@ -152,7 +152,7 @@ class Experiment2:
         plot.savefig(self.name+'_english'+'.png')
 
         accuracy = accuracy_score(predictions, y_test)
-        fscore = f1_score(predictions, y_test, average='micro')
+        fscore = f1_score(predictions, y_test, average='macro')
         self.log('\nEnglish\n ==============')
         self.log('accuracy: ' + str(accuracy))
         self.log('fscore: ' + str(fscore))
@@ -255,7 +255,7 @@ class Experiment2:
         plot.savefig(self.name+'_french'+'.png')
 
         accuracy = accuracy_score(predictions, y_test)
-        fscore = f1_score(predictions, y_test, average='micro')
+        fscore = f1_score(predictions, y_test, average='macro')
         self.log('\nFrench\n ==============')
         self.log('accuracy: ' + str(accuracy))
         self.log('fscore: ' + str(fscore))
@@ -326,7 +326,7 @@ class Experiment2:
         plot.savefig(self.name+'_multilingual'+'.png')
 
         accuracy = accuracy_score(predictions, y_test)
-        fscore = f1_score(predictions, y_test, average='micro')
+        fscore = f1_score(predictions, y_test, average='macro')
         self.log('\nAll cases\n ==============')
         self.log('accuracy: ' + str(accuracy))
         self.log('fscore: ' + str(fscore))
@@ -381,7 +381,7 @@ class Experiment2:
         predictions = self.fm.predict(X_eng)
 
         accuracy = accuracy_score(predictions, Y_eng)
-        fscore = f1_score(predictions, Y_eng, average='micro')
+        fscore = f1_score(predictions, Y_eng, average='macro')
         self.log('\English test\n ==============')
         self.log('accuracy: ' + str(accuracy))
         self.log('fscore: ' + str(fscore))
@@ -424,7 +424,7 @@ class Experiment2:
         predictions = self.fm.predict(X_fre)
 
         accuracy = accuracy_score(predictions, Y_fre)
-        fscore = f1_score(predictions, Y_fre, average='micro')
+        fscore = f1_score(predictions, Y_fre, average='macro')
         self.log('\nFrench test\n ==============')
         self.log('accuracy: ' + str(accuracy))
         self.log('fscore: ' + str(fscore))
@@ -456,7 +456,7 @@ class Experiment2:
         predictions = self.cm.predict(X_all)
 
         accuracy = accuracy_score(predictions, Y_all)
-        fscore = f1_score(predictions, Y_all, average='micro')
+        fscore = f1_score(predictions, Y_all, average='macro')
         self.log('\nAll cases test\n ==============')
         self.log('accuracy: ' + str(accuracy))
         self.log('fscore: ' + str(fscore))
