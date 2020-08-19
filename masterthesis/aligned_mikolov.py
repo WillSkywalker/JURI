@@ -165,7 +165,6 @@ class W2VModel(BaseModel):
         pass
 
     def train(self, x, y):
-
         # results = [session.query(Judgments).filter_by(appno=a).with_entities(Judgments.conclusion).first() for a in new_appnos]
         assert len(x) == len(y)
         self.clf.fit(x, y)
