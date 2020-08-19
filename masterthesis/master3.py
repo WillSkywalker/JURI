@@ -26,7 +26,7 @@ from masterthesis.base import BaseDecisionModel
 from masterthesis.extract_facts_judgments import extract_parts_judgments, JudgmentNoTextError
 
 from sklearn.metrics import accuracy_score, f1_score, classification_report, confusion_matrix
-from sklearn.model_selection import train_test_split, cross_validate, ShuffleSplit
+from sklearn.model_selection import train_test_split, cross_validate, ShuffleSplit, StratifiedShuffleSplit
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC, LinearSVC
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -143,9 +143,9 @@ class Experiment3:
 
         predictions = self.em.predict(X_test)
 
-        cv = ShuffleSplit(n_splits=5, test_size=0.25, random_state=42)
+        cv = StratifiedShuffleSplit(n_splits=5, test_size=0.25, random_state=42)
         cv_scores = cross_validate(self.em.clf, new_decs, results, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
-        plot = plot_learning_curve(self.em.clf, 'Learning Curves', new_decs, results)
+        plot = plot_learning_curve(self.em.clf, 'Learning Curves', new_decs, results, cv=cv, n_jobs=-1)
         plot.savefig(self.name+'_english'+'.png')
 
         accuracy = accuracy_score(predictions, y_test)
@@ -245,9 +245,9 @@ class Experiment3:
 
         predictions = self.fm.predict(X_test)
 
-        cv = ShuffleSplit(n_splits=5, test_size=0.25, random_state=42)
+        cv = StratifiedShuffleSplit(n_splits=5, test_size=0.25, random_state=42)
         cv_scores = cross_validate(self.fm.clf, new_decs, results, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
-        plot = plot_learning_curve(self.fm.clf, 'Learning Curves', new_decs, results)
+        plot = plot_learning_curve(self.fm.clf, 'Learning Curves', new_decs, results, cv=cv, n_jobs=-1)
         plot.savefig(self.name+'_french'+'.png')
 
         accuracy = accuracy_score(predictions, y_test)
@@ -317,9 +317,9 @@ class Experiment3:
 
         predictions = self.cm.predict(X_test)
 
-        cv = ShuffleSplit(n_splits=5, test_size=0.25, random_state=42)
+        cv = StratifiedShuffleSplit(n_splits=5, test_size=0.25, random_state=42)
         cv_scores = cross_validate(self.cm.clf, X_train+X_test, y_train+y_test, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
-        plot = plot_learning_curve(self.cm.clf, 'Learning Curves', X_train+X_test, y_train+y_test)
+        plot = plot_learning_curve(self.cm.clf, 'Learning Curves', X_train+X_test, y_train+y_test, cv=cv, n_jobs=-1)
         plot.savefig(self.name+'_multilingual'+'.png')
 
         accuracy = accuracy_score(predictions, y_test)
