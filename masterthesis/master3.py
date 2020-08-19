@@ -58,8 +58,10 @@ class Experiment3:
         self.y_train = []
         self.X_test = []
         self.y_test = []
-        self.name = 'master3-'+str(datetime.datetime.now())
-
+        if name:
+            self.name = 'master3-' + name
+        else:
+            self.name = 'master3-'+str(datetime.datetime.now())
         self.logger = open(self.name+'.log', 'w')
 
     def log(self, message):
@@ -477,10 +479,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run models')
     parser.add_argument('eng', type=str, help='Name of English embedding')
     parser.add_argument('fre', type=str, help='Name of French embedding')
+    parser.add_argument('name', type=str, help='Name of log')
 
     args = vars(parser.parse_args())
     eng = args['eng']
     fre = args['fre']
+    name = args['name']
 
     # em = W2VModel(eng)
     # X_train_eng, X_test_eng, y_train_eng, y_test_eng = predict_en(em)
@@ -488,7 +492,7 @@ if __name__ == '__main__':
     # X_train_fre, X_test_fre, y_train_fre, y_test_fre = predict_fr(fm)
     # cm = CombinedW2VModel(fre, eng)
     # predict_all(cm, X_train_eng, X_test_eng, y_train_eng, y_test_eng, X_train_fre, X_test_fre, y_train_fre, y_test_fre)
-    exp = Experiment3(eng, fre)
+    exp = Experiment3(eng, fre, name)
     exp.predict_en()
     exp.predict_fr()
     exp.predict_all()
