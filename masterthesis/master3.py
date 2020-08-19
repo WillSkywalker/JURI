@@ -334,6 +334,129 @@ class Experiment3:
         self.log(classification_report(predictions, y_test))
         self.log(confusion_matrix(predictions, y_test))
 
+    def test(self):
+
+        self.logger.close()
+        self.logger = open(self.name+'_test'+'.log', 'w')
+
+        self.judged = set([])
+        self.used_appnos = set([])
+        self.log('\n\n==========================================')
+        self.log('                   TESTING')
+        self.log('\n\n==========================================')
+
+        new_appnos = []
+        new_decs = []
+        results = []
+        for jdg in session.query(Judgments).filter(Judgments.kpdate >= MAY).all():
+            d = session.query(Decisions).filter(Decisions.appno.in_(jdg.appno.split(';')+[jdg.appno])).first()
+            c = session.query(CommunicatedCases).filter(CommunicatedCases.appno.in_(jdg.appno.split(';')+[jdg.appno])).first()
+            if d:
+                text = d.text + '\n' + c.text if c else d.text
+                self.judged.add(d.appno)
+            elif c:
+                text = c.text
+            else:
+                continue
+            new_decs.append(text)
+            new_appnos.append(jdg.appno)
+            self.used_appnos.add(jdg.appno)
+            if jdg.conclusion:
+                results.append(self.em.conclusion_simple(jdg.conclusion))
+            else:
+                results.append(1)
+        violation_num = max(0, Counter(results)[0] - Counter(results)[1])
+        for comm in random.sample(session.query(Decisions_FRE).filter(Decisions_FRE.appno.notin_(self.judged)).all(), violation_num):
+            new_appnos.append(comm.appno)
+            new_decs.append(comm.text)
+            results.append(1)
+
+        X_eng = new_decs
+        Y_eng = results
+        eng_appnos = new_appnos
+        predictions = self.fm.predict(X_eng)
+
+        accuracy = accuracy_score(predictions, Y_eng)
+        fscore = f1_score(predictions, Y_eng, average='micro')
+        self.log('\English test\n ==============')
+        self.log('accuracy: ' + str(accuracy))
+        self.log('fscore: ' + str(fscore))
+        self.log(classification_report(predictions, Y_eng))
+        self.log(confusion_matrix(predictions, Y_eng))
+
+
+        new_appnos = []
+        new_decs = []
+        results = []
+        for jdg in session.query(Judgments_FRE).filter(~Judgments_FRE.appno.in_(self.used_appnos)).filter(Judgments_FRE.kpdate < MAY).all():
+            d = session.query(Decisions_FRE).filter(Decisions_FRE.appno.in_(jdg.appno.split(';')+[jdg.appno])).first()
+            c = session.query(CommunicatedCases_FRE).filter(CommunicatedCases_FRE.appno.in_(jdg.appno.split(';')+[jdg.appno])).first()
+            if d:
+                text = d.text + '\n' + c.text if c else d.text
+                self.judged.add(d.appno)
+            elif c:
+                text = c.text
+            else:
+                continue
+            new_decs.append(text)
+            new_appnos.append(jdg.appno)
+            self.used_appnos.add(jdg.appno)
+            if jdg.conclusion:
+                results.append(self.fm.conclusion_fr(jdg.conclusion))
+            else:
+                results.append(1)
+
+        violation_num = max(0, Counter(results)[0] - Counter(results)[1])
+        for comm in random.sample(session.query(Decisions_FRE).filter(Decisions_FRE.appno.notin_(self.judged)).all(), violation_num):
+            new_appnos.append(comm.appno)
+            new_decs.append(comm.text)
+            results.append(1)
+
+        X_fre = new_decs
+        Y_fre = results
+        fre_appnos = new_appnos
+        predictions = self.fm.predict(X_fre)
+
+        accuracy = accuracy_score(predictions, Y_fre)
+        fscore = f1_score(predictions, Y_fre, average='micro')
+        self.log('\nFrench test\n ==============')
+        self.log('accuracy: ' + str(accuracy))
+        self.log('fscore: ' + str(fscore))
+        self.log(classification_report(predictions, Y_fre))
+        self.log(confusion_matrix(predictions, Y_fre))
+
+
+        X_all = []
+        Y_all = Y_eng + Y_fre
+        for appno in eng_appnos + fre_appnos:
+            appnos = appno.split(';') + [appno]
+            text = ''
+            eng_desc = session.query(Decisions).filter(Decisions.appno.in_(appnos)).first()
+            if eng_desc:
+                text += eng_desc.text
+            else:
+                fre_desc = session.query(Decisions_FRE).filter(Decisions_FRE.appno.in_(appnos)).first()
+                if fre_desc:
+                    text += fre_desc.text
+            eng_comm = session.query(CommunicatedCases).filter(CommunicatedCases.appno.in_(appnos)).first()
+            if eng_comm:
+                text += eng_comm.text
+            else:
+                fre_comm = session.query(CommunicatedCases_FRE).filter(CommunicatedCases_FRE.appno.in_(appnos)).first()
+                if fre_comm:
+                    text += fre_comm.text
+            X_all.append(text)
+
+        predictions = self.cm.predict(X_all)
+
+        accuracy = accuracy_score(predictions, Y_all)
+        fscore = f1_score(predictions, Y_all, average='micro')
+        self.log('\nAll cases test\n ==============')
+        self.log('accuracy: ' + str(accuracy))
+        self.log('fscore: ' + str(fscore))
+        self.log(classification_report(predictions, Y_all))
+        self.log(confusion_matrix(predictions, Y_all))
+
     def close(self):
         self.logger.close()
 
@@ -361,4 +484,5 @@ if __name__ == '__main__':
     exp.predict_en()
     exp.predict_fr()
     exp.predict_all()
+    exp.test()
     exp.close()
