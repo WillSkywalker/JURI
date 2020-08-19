@@ -53,6 +53,7 @@ class Experiment2:
         self.y_train = []
         self.X_test = []
         self.y_test = []
+        self.name = 'classic-master2-'+str(datetime.datetime.now())
 
         self.logger = open('classic-master2-'+str(datetime.datetime.now())+'.log', 'w')
 
