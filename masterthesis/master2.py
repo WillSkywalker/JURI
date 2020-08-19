@@ -25,7 +25,7 @@ from masterthesis.base import BaseDecisionModel
 from masterthesis.extract_facts_judgments import extract_parts_judgments, JudgmentNoTextError
 
 from sklearn.metrics import accuracy_score, f1_score, classification_report, confusion_matrix
-from sklearn.model_selection import train_test_split, cross_validate, ShuffleSplit
+from sklearn.model_selection import train_test_split, cross_validate, StratifiedShuffleSplit
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC, LinearSVC
 from sklearn.feature_extraction.text import TfidfVectorizer
