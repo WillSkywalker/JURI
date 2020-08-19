@@ -139,17 +139,18 @@ class Experiment2:
         self.X_test.extend(X_test)
         self.y_train.extend(y_train)
         self.y_test.extend(y_test)
+
+        cv = StratifiedShuffleSplit(n_splits=5, test_size=0.25, random_state=777)
+        # cv_scores = cross_validate(self.em.clf, new_decs, results, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
+        plot, cv_scores = plot_learning_curve(self.em.clf, 'Learning Curves', new_decs, results, cv=cv, n_jobs=-1)
+        plot.savefig(self.name+'_english'+'.png')
+
         if load_model:
             self.em.clf = joblib.load(os.path.join(DIRECTORY, 'models/', 'en_'+self.em.name+'.joblib'))
         else:
             self.em.train(X_train, y_train)
 
         predictions = self.em.predict(X_test)
-
-        cv = StratifiedShuffleSplit(n_splits=5, test_size=0.25, random_state=777)
-        # cv_scores = cross_validate(self.em.clf, new_decs, results, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
-        plot, cv_scores = plot_learning_curve(self.em.clf, 'Learning Curves', new_decs, results, cv=cv, n_jobs=-1)
-        plot.savefig(self.name+'_english'+'.png')
 
         accuracy = accuracy_score(predictions, y_test)
         fscore = f1_score(predictions, y_test, average='macro')
@@ -242,17 +243,18 @@ class Experiment2:
         self.X_test.extend(X_test)
         self.y_train.extend(y_train)
         self.y_test.extend(y_test)
+
+        cv = StratifiedShuffleSplit(n_splits=5, test_size=0.25, random_state=777)
+        # cv_scores = cross_validate(self.fm.clf, new_decs, results, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
+        plot, cv_scores = plot_learning_curve(self.fm.clf, 'Learning Curves', new_decs, results, cv=cv, n_jobs=-1)
+        plot.savefig(self.name+'_french'+'.png')
+
         if load_model:
             self.fm.clf = joblib.load(os.path.join(DIRECTORY, 'models/', 'fr_'+self.fm.name+'.joblib'))
         else:
             self.fm.train(X_train, y_train)
 
         predictions = self.fm.predict(X_test)
-
-        cv = StratifiedShuffleSplit(n_splits=5, test_size=0.25, random_state=777)
-        # cv_scores = cross_validate(self.fm.clf, new_decs, results, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
-        plot, cv_scores = plot_learning_curve(self.fm.clf, 'Learning Curves', new_decs, results, cv=cv, n_jobs=-1)
-        plot.savefig(self.name+'_french'+'.png')
 
         accuracy = accuracy_score(predictions, y_test)
         fscore = f1_score(predictions, y_test, average='macro')
@@ -313,17 +315,17 @@ class Experiment2:
                     text += fre_comm.text
             X_test.append(text)
 
+        cv = StratifiedShuffleSplit(n_splits=5, test_size=0.25, random_state=777)
+        # cv_scores = cross_validate(self.cm.clf, X_train+X_test, y_train+y_test, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
+        plot, cv_scores = plot_learning_curve(self.cm.clf, 'Learning Curves', X_train+X_test, y_train+y_test, cv=cv, n_jobs=-1)
+        plot.savefig(self.name+'_multilingual'+'.png')
+
         if load_model:
             self.cm.clf = joblib.load(os.path.join(DIRECTORY, 'models/', 'all_'+self.cm.name+'.joblib'))
         else:
             self.cm.train(X_train, y_train)
 
         predictions = self.cm.predict(X_test)
-
-        cv = StratifiedShuffleSplit(n_splits=5, test_size=0.25, random_state=777)
-        # cv_scores = cross_validate(self.cm.clf, X_train+X_test, y_train+y_test, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
-        plot, cv_scores = plot_learning_curve(self.cm.clf, 'Learning Curves', X_train+X_test, y_train+y_test, cv=cv, n_jobs=-1)
-        plot.savefig(self.name+'_multilingual'+'.png')
 
         accuracy = accuracy_score(predictions, y_test)
         fscore = f1_score(predictions, y_test, average='macro')
