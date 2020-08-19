@@ -84,6 +84,8 @@ class Experiment3:
         new_decs = []
         results = []
         for jdg in session.query(Judgments).filter(Judgments.kpdate < MAY).all():
+            if not jdg.appno:
+                continue
             d = session.query(Decisions).filter(Decisions.appno.in_(jdg.appno.split(';')+[jdg.appno])).first()
             c = session.query(CommunicatedCases).filter(CommunicatedCases.appno.in_(jdg.appno.split(';')+[jdg.appno])).first()
             if d:
@@ -171,6 +173,8 @@ class Experiment3:
         new_decs = []
         results = []
         for jdg in session.query(Judgments_FRE).filter(~Judgments_FRE.appno.in_(self.used_appnos)).filter(Judgments_FRE.kpdate < MAY).all():
+            if not jdg.appno:
+                continue
             d = session.query(Decisions_FRE).filter(Decisions_FRE.appno.in_(jdg.appno.split(';')+[jdg.appno])).first()
             c = session.query(CommunicatedCases_FRE).filter(CommunicatedCases_FRE.appno.in_(jdg.appno.split(';')+[jdg.appno])).first()
             if d:
@@ -349,6 +353,8 @@ class Experiment3:
         new_decs = []
         results = []
         for jdg in session.query(Judgments).filter(Judgments.kpdate >= MAY).all():
+            if not jdg.appno:
+                continue
             d = session.query(Decisions).filter(Decisions.appno.in_(jdg.appno.split(';')+[jdg.appno])).first()
             c = session.query(CommunicatedCases).filter(CommunicatedCases.appno.in_(jdg.appno.split(';')+[jdg.appno])).first()
             if d:
@@ -389,6 +395,8 @@ class Experiment3:
         new_decs = []
         results = []
         for jdg in session.query(Judgments_FRE).filter(~Judgments_FRE.appno.in_(self.used_appnos)).filter(Judgments_FRE.kpdate < MAY).all():
+            if not jdg.appno:
+                continue
             d = session.query(Decisions_FRE).filter(Decisions_FRE.appno.in_(jdg.appno.split(';')+[jdg.appno])).first()
             c = session.query(CommunicatedCases_FRE).filter(CommunicatedCases_FRE.appno.in_(jdg.appno.split(';')+[jdg.appno])).first()
             if d:
