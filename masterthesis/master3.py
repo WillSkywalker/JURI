@@ -36,7 +36,7 @@ engine = create_engine(Config.SQLALCHEMY_DATABASE_URI, encoding='utf-8', echo=Tr
 Session = sessionmaker(bind=engine)
 session = Session()
 DIRECTORY = os.path.dirname(os.path.abspath(__file__))
-random.seed(42)
+random.seed(777)
 MAY = datetime.datetime(2020, 4, 21)
 
 
@@ -147,9 +147,9 @@ class Experiment3:
 
         predictions = self.em.predict(X_test)
 
-        cv = StratifiedShuffleSplit(n_splits=5, test_size=0.25, random_state=42)
-        cv_scores = cross_validate(self.em.clf, new_decs, results, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
-        plot = plot_learning_curve(self.em.clf, 'Learning Curves', new_decs, results, cv=cv, n_jobs=-1)
+        cv = StratifiedShuffleSplit(n_splits=5, test_size=0.25, random_state=777)
+        # cv_scores = cross_validate(self.em.clf, new_decs, results, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
+        plot, cv_scores = plot_learning_curve(self.em.clf, 'Learning Curves', new_decs, results, cv=cv, n_jobs=-1)
         plot.savefig(self.name+'_english'+'.png')
 
         accuracy = accuracy_score(predictions, y_test)
@@ -157,8 +157,7 @@ class Experiment3:
         self.log('\nEnglish\n ==============')
         self.log('accuracy: ' + str(accuracy))
         self.log('fscore: ' + str(fscore))
-        self.log('cv_accuracy: ' + str(cv_scores['test_accuracy']))
-        self.log('cv_fscore: ' + str(cv_scores['test_f1']))
+        self.log('cv_accuracy: ' + str(cv_scores))
         self.em.fscore = fscore
         self.log(classification_report(predictions, y_test))
         self.log(confusion_matrix(predictions, y_test))
@@ -251,9 +250,9 @@ class Experiment3:
 
         predictions = self.fm.predict(X_test)
 
-        cv = StratifiedShuffleSplit(n_splits=5, test_size=0.25, random_state=42)
-        cv_scores = cross_validate(self.fm.clf, new_decs, results, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
-        plot = plot_learning_curve(self.fm.clf, 'Learning Curves', new_decs, results, cv=cv, n_jobs=-1)
+        cv = StratifiedShuffleSplit(n_splits=5, test_size=0.25, random_state=777)
+        # cv_scores = cross_validate(self.fm.clf, new_decs, results, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
+        plot, cv_scores = plot_learning_curve(self.fm.clf, 'Learning Curves', new_decs, results, cv=cv, n_jobs=-1)
         plot.savefig(self.name+'_french'+'.png')
 
         accuracy = accuracy_score(predictions, y_test)
@@ -261,8 +260,7 @@ class Experiment3:
         self.log('\nFrench\n ==============')
         self.log('accuracy: ' + str(accuracy))
         self.log('fscore: ' + str(fscore))
-        self.log('cv_accuracy: ' + str(cv_scores['test_accuracy']))
-        self.log('cv_fscore: ' + str(cv_scores['test_f1']))
+        self.log('cv_accuracy: ' + str(cv_scores))
         self.fm.fscore = fscore
         self.log(classification_report(predictions, y_test))
         self.log(confusion_matrix(predictions, y_test))
@@ -323,9 +321,9 @@ class Experiment3:
 
         predictions = self.cm.predict(X_test)
 
-        cv = StratifiedShuffleSplit(n_splits=5, test_size=0.25, random_state=42)
-        cv_scores = cross_validate(self.cm.clf, X_train+X_test, y_train+y_test, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
-        plot = plot_learning_curve(self.cm.clf, 'Learning Curves', X_train+X_test, y_train+y_test, cv=cv, n_jobs=-1)
+        cv = StratifiedShuffleSplit(n_splits=5, test_size=0.25, random_state=777)
+        # cv_scores = cross_validate(self.cm.clf, X_train+X_test, y_train+y_test, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
+        plot, cv_scores = plot_learning_curve(self.cm.clf, 'Learning Curves', X_train+X_test, y_train+y_test, cv=cv, n_jobs=-1)
         plot.savefig(self.name+'_multilingual'+'.png')
 
         accuracy = accuracy_score(predictions, y_test)
@@ -334,8 +332,7 @@ class Experiment3:
         self.log('accuracy: ' + str(accuracy))
         self.log('fscore: ' + str(fscore))
 
-        self.log('cv_accuracy: ' + str(cv_scores['test_accuracy']))
-        self.log('cv_fscore: ' + str(cv_scores['test_f1']))
+        self.log('cv_accuracy: ' + str(cv_scores))
 
         self.log(classification_report(predictions, y_test))
         self.log(confusion_matrix(predictions, y_test))
