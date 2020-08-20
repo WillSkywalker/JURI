@@ -47,6 +47,7 @@ class Experiment2:
         self.em = W2VModel(eng_embedding)
         self.fm = W2VModel(fre_embedding)
         self.cm = CombinedW2VModel(fre_embedding, eng_embedding)
+        self.cm_nc = CombinedW2VModel(fre_embedding, eng_embedding)
 
         self.used_appnos = set([])
         self.judged = set([])
@@ -344,6 +345,37 @@ class Experiment2:
         self.log(classification_report(predictions, y_test))
         self.log(confusion_matrix(predictions, y_test))
 
+    def predict_all_no_comb(self, load_model=False):
+        X_train = self.X_train
+        X_test = self.X_test
+        y_train = self.y_train
+        y_test = self.y_test
+
+        if self.cross_validate:
+            cv = StratifiedShuffleSplit(n_splits=5, test_size=0.25, random_state=777)
+            # cv_scores = cross_validate(self.cm.clf, X_train+X_test, y_train+y_test, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
+            plot, cv_scores = plot_learning_curve(self.cm.clf, 'Learning Curves', X_train+X_test, y_train+y_test, cv=cv, n_jobs=-1)
+            plot.savefig(self.name+'_multilingual_no_comb'+'.png')
+
+        if load_model:
+            self.cm.clf = joblib.load(os.path.join(DIRECTORY, 'models/', 'all_noc_'+self.cm.name+'.joblib'))
+        else:
+            self.cm.train(X_train, y_train)
+
+        predictions = self.cm.predict(X_test)
+
+        accuracy = accuracy_score(predictions, y_test)
+        fscore = f1_score(predictions, y_test, average='macro')
+        self.log('\nAll cases no comb\n ==============')
+        self.log('accuracy: ' + str(accuracy))
+        self.log('fscore: ' + str(fscore))
+
+        if self.cross_validate:
+            self.log('cv_accuracy: ' + str(cv_scores))
+
+        self.log(classification_report(predictions, y_test))
+        self.log(confusion_matrix(predictions, y_test))
+
     def test(self):
 
         self.logger.close()
@@ -491,5 +523,6 @@ if __name__ == '__main__':
     exp.predict_en()
     exp.predict_fr()
     exp.predict_all()
+    exp.predict_all_no_comb()
     exp.test()
     exp.close()
