@@ -135,7 +135,7 @@ class W2VModel(BaseModel):
         wv = KeyedVectors.load_word2vec_format(embedding)
         self.clf = Pipeline([
             ('vect', TfidfEmbeddingVectorizer(wv.wv)),
-            ('clf', LinearSVC()),
+            ('clf', SVC()),
         ])
 
     @staticmethod
@@ -190,7 +190,7 @@ class CombinedW2VModel(BaseModel):
 
         self.clf = Pipeline([
             ('vect', MergedTfidfEmbeddingVectorizer(wv_fr.wv, wv_en.wv, self.wordlist)),
-            ('clf', LinearSVC()),
+            ('clf', SVC()),
         ])
 
     @staticmethod

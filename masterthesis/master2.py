@@ -40,7 +40,7 @@ MAY = datetime.datetime(2020, 4, 21)
 
 class Experiment2:
 
-    def __init__(self, eng_embedding, fre_embedding, name=None):
+    def __init__(self, eng_embedding, fre_embedding, name=None, cross_validate=False):
         self.eng_embedding = eng_embedding
         self.fre_embedding = fre_embedding
 
@@ -60,6 +60,7 @@ class Experiment2:
             self.name = 'master2-' + name
         else:
             self.name = 'master2-'+str(datetime.datetime.now())
+        self.cross_validate = cross_validate
 
         self.logger = open(self.name+'.log', 'w')
 
@@ -140,10 +141,11 @@ class Experiment2:
         self.y_train.extend(y_train)
         self.y_test.extend(y_test)
 
-        cv = StratifiedShuffleSplit(n_splits=5, test_size=0.25, random_state=777)
-        # cv_scores = cross_validate(self.em.clf, new_decs, results, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
-        plot, cv_scores = plot_learning_curve(self.em.clf, 'Learning Curves', new_decs, results, cv=cv, n_jobs=-1)
-        plot.savefig(self.name+'_english'+'.png')
+        if self.cross_validate:
+            cv = StratifiedShuffleSplit(n_splits=5, test_size=0.25, random_state=777)
+            # cv_scores = cross_validate(self.em.clf, new_decs, results, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
+            plot, cv_scores = plot_learning_curve(self.em.clf, 'Learning Curves', new_decs, results, cv=cv, n_jobs=-1)
+            plot.savefig(self.name+'_english'+'.png')
 
         if load_model:
             self.em.clf = joblib.load(os.path.join(DIRECTORY, 'models/', 'en_'+self.em.name+'.joblib'))
@@ -157,8 +159,8 @@ class Experiment2:
         self.log('\nEnglish\n ==============')
         self.log('accuracy: ' + str(accuracy))
         self.log('fscore: ' + str(fscore))
-        self.log('cv_accuracy: ' + str(cv_scores))
-        self.em.fscore = fscore
+        if self.cross_validate:
+            self.log('cv_accuracy: ' + str(cv_scores))
         self.log(classification_report(predictions, y_test))
         self.log(confusion_matrix(predictions, y_test))
         if not os.path.exists(os.path.join(DIRECTORY, 'models/')):
@@ -244,10 +246,11 @@ class Experiment2:
         self.y_train.extend(y_train)
         self.y_test.extend(y_test)
 
-        cv = StratifiedShuffleSplit(n_splits=5, test_size=0.25, random_state=777)
-        # cv_scores = cross_validate(self.fm.clf, new_decs, results, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
-        plot, cv_scores = plot_learning_curve(self.fm.clf, 'Learning Curves', new_decs, results, cv=cv, n_jobs=-1)
-        plot.savefig(self.name+'_french'+'.png')
+        if self.cross_validate:
+            cv = StratifiedShuffleSplit(n_splits=5, test_size=0.25, random_state=777)
+            # cv_scores = cross_validate(self.fm.clf, new_decs, results, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
+            plot, cv_scores = plot_learning_curve(self.fm.clf, 'Learning Curves', new_decs, results, cv=cv, n_jobs=-1)
+            plot.savefig(self.name+'_french'+'.png')
 
         if load_model:
             self.fm.clf = joblib.load(os.path.join(DIRECTORY, 'models/', 'fr_'+self.fm.name+'.joblib'))
@@ -261,7 +264,8 @@ class Experiment2:
         self.log('\nFrench\n ==============')
         self.log('accuracy: ' + str(accuracy))
         self.log('fscore: ' + str(fscore))
-        self.log('cv_accuracy: ' + str(cv_scores))
+        if self.cross_validate:
+            self.log('cv_accuracy: ' + str(cv_scores))
         self.fm.fscore = fscore
         self.log(classification_report(predictions, y_test))
         self.log(confusion_matrix(predictions, y_test))
@@ -315,10 +319,11 @@ class Experiment2:
                     text += fre_comm.text
             X_test.append(text)
 
-        cv = StratifiedShuffleSplit(n_splits=5, test_size=0.25, random_state=777)
-        # cv_scores = cross_validate(self.cm.clf, X_train+X_test, y_train+y_test, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
-        plot, cv_scores = plot_learning_curve(self.cm.clf, 'Learning Curves', X_train+X_test, y_train+y_test, cv=cv, n_jobs=-1)
-        plot.savefig(self.name+'_multilingual'+'.png')
+        if self.cross_validate:
+            cv = StratifiedShuffleSplit(n_splits=5, test_size=0.25, random_state=777)
+            # cv_scores = cross_validate(self.cm.clf, X_train+X_test, y_train+y_test, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
+            plot, cv_scores = plot_learning_curve(self.cm.clf, 'Learning Curves', X_train+X_test, y_train+y_test, cv=cv, n_jobs=-1)
+            plot.savefig(self.name+'_multilingual'+'.png')
 
         if load_model:
             self.cm.clf = joblib.load(os.path.join(DIRECTORY, 'models/', 'all_'+self.cm.name+'.joblib'))
@@ -333,7 +338,8 @@ class Experiment2:
         self.log('accuracy: ' + str(accuracy))
         self.log('fscore: ' + str(fscore))
 
-        self.log('cv_accuracy: ' + str(cv_scores))
+        if self.cross_validate:
+            self.log('cv_accuracy: ' + str(cv_scores))
 
         self.log(classification_report(predictions, y_test))
         self.log(confusion_matrix(predictions, y_test))
@@ -467,11 +473,13 @@ if __name__ == '__main__':
     parser.add_argument('eng', type=str, help='Name of English embedding')
     parser.add_argument('fre', type=str, help='Name of French embedding')
     parser.add_argument('name', type=str, help='Name of log')
+    parser.add_argument('-c', '--cross', help='Cross validation', action='store_true')
 
     args = vars(parser.parse_args())
     eng = args['eng']
     fre = args['fre']
     name = args['name']
+    cross = args['cross']
 
     # em = W2VModel(eng)
     # X_train_eng, X_test_eng, y_train_eng, y_test_eng = predict_en(em)
@@ -479,7 +487,7 @@ if __name__ == '__main__':
     # X_train_fre, X_test_fre, y_train_fre, y_test_fre = predict_fr(fm)
     # cm = CombinedW2VModel(fre, eng)
     # predict_all(cm, X_train_eng, X_test_eng, y_train_eng, y_test_eng, X_train_fre, X_test_fre, y_train_fre, y_test_fre)
-    exp = Experiment2(eng, fre, name)
+    exp = Experiment2(eng, fre, name, cross)
     exp.predict_en()
     exp.predict_fr()
     exp.predict_all()

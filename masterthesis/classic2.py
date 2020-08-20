@@ -448,4 +448,5 @@ if __name__ == '__main__':
     exp.predict_en()
     exp.predict_fr()
     exp.predict_all()
+    exp.test()
     exp.close()
