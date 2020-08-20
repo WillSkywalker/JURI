@@ -33,7 +33,7 @@ Session = sessionmaker(bind=engine)
 session = Session()
 DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 random.seed(42)
-MAY = datetime.datetime(2020, 4, 21)
+MAY = datetime.datetime(2020, 4, 22)
 
 
 class Experiment2:
