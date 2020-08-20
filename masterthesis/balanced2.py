@@ -48,8 +48,8 @@ def balance(appnos, x, y):
     random.shuffle(z)
     zero_count = 0
     for appno, i, j in z:
-        if zero_count >= upper:
-            break
+        if zero_count >= upper and j == 0:
+            continue
         new_appnos.append(appno)
         new_x.append(i)
         new_y.append(j)
