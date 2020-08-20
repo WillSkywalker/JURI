@@ -487,7 +487,7 @@ if __name__ == '__main__':
     # X_train_fre, X_test_fre, y_train_fre, y_test_fre = predict_fr(fm)
     # cm = CombinedW2VModel(fre, eng)
     # predict_all(cm, X_train_eng, X_test_eng, y_train_eng, y_test_eng, X_train_fre, X_test_fre, y_train_fre, y_test_fre)
-    exp = Experiment2(eng, fre, name, cross)
+    exp = Experiment3(eng, fre, name, cross)
     exp.predict_en()
     exp.predict_fr()
     exp.predict_all()
