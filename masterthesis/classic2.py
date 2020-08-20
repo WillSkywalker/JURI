@@ -89,12 +89,21 @@ class Experiment2:
 
         # all conclusions (strings)
         results = []
-        for a in new_appnos:
-            j = session.query(Judgments).filter(Judgments.appno == a).with_entities(Judgments.conclusion).first()
+        to_delete = []
+        for i, a in enumerate(new_appnos):
+            j = session.query(Judgments).filter(Judgments.appno == a).first()
             if j:
                 results.append(self.em.conclusion_simple(j.conclusion))
+                if j.kpdate > MAY:
+                    to_delete.append(i)
             else:
                 results.append(1)
+
+        for i in sorted(to_delete, reverse=True):
+            self.used_appnos.discard(new_appnos[i])
+            del new_appnos[i]
+            del new_decs[i]
+            del results[i]
 
         violation_num = max(0, Counter(results)[0] - Counter(results)[1])
         for comm in random.sample(session.query(Decisions).filter(~exists().where(Judgments.appno == Decisions.appno)).all(), violation_num):
@@ -173,12 +182,21 @@ class Experiment2:
 
         # all conclusions (strings)
         results = []
-        for a in new_appnos:
-            j = session.query(Judgments_FRE).filter(Judgments_FRE.appno == a).with_entities(Judgments_FRE.conclusion).first()
+        to_delete = []
+        for i, a in enumerate(new_appnos):
+            j = session.query(Judgments_FRE).filter(Judgments_FRE.appno == a).first()
             if j:
                 results.append(self.fm.conclusion_fr(j.conclusion))
+                if j.kpdate > MAY:
+                    to_delete.append(i)
             else:
                 results.append(1)
+
+        for i in sorted(to_delete, reverse=True):
+            self.used_appnos.discard(new_appnos[i])
+            del new_appnos[i]
+            del new_decs[i]
+            del results[i]
 
         violation_num = max(0, Counter(results)[0] - Counter(results)[1])
         for comm in random.sample(session.query(Decisions_FRE).filter(~exists().where(Judgments_FRE.appno == Decisions_FRE.appno)).all(), violation_num):
