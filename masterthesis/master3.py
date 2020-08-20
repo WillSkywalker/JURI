@@ -473,11 +473,13 @@ if __name__ == '__main__':
     parser.add_argument('eng', type=str, help='Name of English embedding')
     parser.add_argument('fre', type=str, help='Name of French embedding')
     parser.add_argument('name', type=str, help='Name of log')
+    parser.add_argument('-c', '--cross', help='Cross validation', action='store_true')
 
     args = vars(parser.parse_args())
     eng = args['eng']
     fre = args['fre']
     name = args['name']
+    cross = args['cross']
 
     # em = W2VModel(eng)
     # X_train_eng, X_test_eng, y_train_eng, y_test_eng = predict_en(em)
@@ -485,7 +487,7 @@ if __name__ == '__main__':
     # X_train_fre, X_test_fre, y_train_fre, y_test_fre = predict_fr(fm)
     # cm = CombinedW2VModel(fre, eng)
     # predict_all(cm, X_train_eng, X_test_eng, y_train_eng, y_test_eng, X_train_fre, X_test_fre, y_train_fre, y_test_fre)
-    exp = Experiment3(eng, fre, name)
+    exp = Experiment2(eng, fre, name, cross)
     exp.predict_en()
     exp.predict_fr()
     exp.predict_all()
