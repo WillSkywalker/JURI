@@ -142,7 +142,7 @@ class Experiment2:
         self.log('accuracy: ' + str(accuracy))
         self.log('fscore: ' + str(fscore))
         if self.cross_validate:
-            self.log('cross_validate', str(cv_scores))
+            self.log('cross_validate' + str(cv_scores))
         self.em.fscore = fscore
         self.log(classification_report(predictions, y_test))
         self.log(confusion_matrix(predictions, y_test))
@@ -236,7 +236,7 @@ class Experiment2:
         self.log('accuracy: ' + str(accuracy))
         self.log('fscore: ' + str(fscore))
         if self.cross_validate:
-            self.log('cross_validate', str(cv_scores))
+            self.log('cross_validate' + str(cv_scores))
         self.fm.fscore = fscore
         self.log(classification_report(predictions, y_test))
         self.log(confusion_matrix(predictions, y_test))
@@ -326,7 +326,7 @@ class Experiment2:
         self.log('accuracy: ' + str(accuracy))
         self.log('fscore: ' + str(fscore))
         if self.cross_validate:
-            self.log('cross_validate', str(cv_scores))
+            self.log('cross_validate' + str(cv_scores))
         self.log(classification_report(predictions, y_test))
         self.log(confusion_matrix(predictions, y_test))
 
