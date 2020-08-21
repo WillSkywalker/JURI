@@ -344,6 +344,37 @@ class Experiment3:
         self.log(classification_report(predictions, y_test))
         self.log(confusion_matrix(predictions, y_test))
 
+    def predict_all_no_comb(self, load_model=False):
+        X_train = self.X_train
+        X_test = self.X_test
+        y_train = self.y_train
+        y_test = self.y_test
+
+        if self.cross_validate:
+            cv = StratifiedShuffleSplit(n_splits=5, test_size=0.25, random_state=777)
+            # cv_scores = cross_validate(self.cm.clf, X_train+X_test, y_train+y_test, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
+            plot, cv_scores = plot_learning_curve(self.cm_nc.clf, 'Learning Curves', X_train+X_test, y_train+y_test, cv=cv, n_jobs=-1)
+            plot.savefig(self.name+'_multilingual_no_comb'+'.png')
+
+        if load_model:
+            self.cm_nc.clf = joblib.load(os.path.join(DIRECTORY, 'models/', 'all_noc_'+self.cm_nc.name+'.joblib'))
+        else:
+            self.cm_nc.train(X_train, y_train)
+
+        predictions = self.cm_nc.predict(X_test)
+
+        accuracy = accuracy_score(predictions, y_test)
+        fscore = f1_score(predictions, y_test, average='macro')
+        self.log('\nAll cases no comb\n ==============')
+        self.log('accuracy: ' + str(accuracy))
+        self.log('fscore: ' + str(fscore))
+
+        if self.cross_validate:
+            self.log('cv_accuracy: ' + str(cv_scores))
+
+        self.log(classification_report(predictions, y_test))
+        self.log(confusion_matrix(predictions, y_test))
+
     def test(self):
 
         self.logger.close()
@@ -491,5 +522,6 @@ if __name__ == '__main__':
     exp.predict_en()
     exp.predict_fr()
     exp.predict_all()
+    exp.predict_all_no_comb()
     exp.test()
     exp.close()
