@@ -477,6 +477,15 @@ class Experiment2:
         self.log(classification_report(predictions, Y_all))
         self.log(confusion_matrix(predictions, Y_all))
 
+        predictions = self.cm_nc.predict(X_all)
+
+        accuracy = accuracy_score(predictions, Y_all)
+        fscore = f1_score(predictions, Y_all, average='macro')
+        self.log('\nAll cases no comb test\n ==============')
+        self.log('accuracy: ' + str(accuracy))
+        self.log('fscore: ' + str(fscore))
+        self.log(classification_report(predictions, Y_all))
+        self.log(confusion_matrix(predictions, Y_all))
 
     def close(self):
         self.logger.close()
