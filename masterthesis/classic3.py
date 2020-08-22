@@ -45,6 +45,7 @@ class Experiment2:
         self.em = W2VModel(eng_embedding)
         self.fm = W2VModel(fre_embedding)
         self.cm = CombinedW2VModel(fre_embedding, eng_embedding)
+        self.cm_nc = CombinedW2VModel(fre_embedding, eng_embedding)
 
         self.used_appnos = set([])
         self.appno_train = []
