@@ -36,7 +36,7 @@ random.seed(42)
 MAY = datetime.datetime(2020, 4, 22)
 
 
-class Experiment2:
+class Experiment3:
 
     def __init__(self, eng_embedding, fre_embedding, cross_validate=False):
         self.eng_embedding = eng_embedding
@@ -54,9 +54,9 @@ class Experiment2:
         self.y_train = []
         self.X_test = []
         self.y_test = []
-        self.name = 'classic-master2-'+str(datetime.datetime.now())
+        self.name = 'classic-master3-'+str(datetime.datetime.now())
         self.cross_validate = cross_validate
-        self.logger = open('classic-master2-'+str(datetime.datetime.now())+'.log', 'w')
+        self.logger = open('classic-master3-'+str(datetime.datetime.now())+'.log', 'w')
 
     def log(self, message):
         self.logger.write(str(message))
@@ -502,7 +502,7 @@ if __name__ == '__main__':
     # X_train_fre, X_test_fre, y_train_fre, y_test_fre = predict_fr(fm)
     # cm = CombinedW2VModel(fre, eng)
     # predict_all(cm, X_train_eng, X_test_eng, y_train_eng, y_test_eng, X_train_fre, X_test_fre, y_train_fre, y_test_fre)
-    exp = Experiment2(eng, fre, cross)
+    exp = Experiment3(eng, fre, cross)
     exp.predict_en()
     exp.predict_fr()
     exp.predict_all()
