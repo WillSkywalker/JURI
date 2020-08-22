@@ -341,15 +341,15 @@ class Experiment2:
         if self.cross_validate:
             cv = StratifiedShuffleSplit(n_splits=5, test_size=0.25, random_state=42)
             # cv_scores = cross_validate(self.cm.clf, X_train+X_test, y_train+y_test, scoring=['accuracy', 'f1'], cv=cv, n_jobs=-1)
-            plot, cv_scores = plot_learning_curve(self.cm.clf, 'Learning Curves', X_train+X_test, y_train+y_test, cv=cv, n_jobs=-1)
+            plot, cv_scores = plot_learning_curve(self.cm_nc.clf, 'Learning Curves', X_train+X_test, y_train+y_test, cv=cv, n_jobs=-1)
             plot.savefig(self.name+'_multilingual_nc'+'.png')
 
         if load_model:
-            self.cm.clf = joblib.load(os.path.join(DIRECTORY, 'models/', 'all_'+self.cm.name+'.joblib'))
+            self.cm_nc.clf = joblib.load(os.path.join(DIRECTORY, 'models/', 'all_'+self.cm_nc.name+'.joblib'))
         else:
-            self.cm.train(X_train, y_train)
+            self.cm_nc.train(X_train, y_train)
 
-        predictions = self.cm.predict(X_test)
+        predictions = self.cm_nc.predict(X_test)
         accuracy = accuracy_score(predictions, y_test)
         fscore = f1_score(predictions, y_test, average='micro')
         self.log('\nAll cases no combination\n ==============')
