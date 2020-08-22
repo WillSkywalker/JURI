@@ -190,7 +190,7 @@ class CombinedW2VModel(BaseModel):
 
         self.clf = Pipeline([
             ('vect', MergedTfidfEmbeddingVectorizer(wv_fr.wv, wv_en.wv, self.wordlist)),
-            ('clf', LinearSVC()),
+            ('clf', SVC()),
         ])
 
     @staticmethod
