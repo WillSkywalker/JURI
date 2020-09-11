@@ -127,6 +127,8 @@ def download_documents(col, lang='ENG', table=None):
             else:
                 texts.append(get_text_from_url(url))
 
+        session.close()
+
     else:
         # parallel download
         df = pandas.read_csv(os.path.join(DIRECTORY, '%s_%s.csv' % (col, lang)))
