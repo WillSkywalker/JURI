@@ -1,7 +1,7 @@
 from model.random_guess import RandomModel
 from model.naive_bayes import NBModel_judgments, NBModel_comms
 from model.lstm import BiLSTM_model, BiLSTM_trim
-from masha_svm import Masha_SVM
+from model.masha_svm import Masha_SVM
 
 import os
 import re
