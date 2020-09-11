@@ -72,7 +72,7 @@ class Masha_SVM(BaseCommunicatedCasesModel):
             text = [re.sub('[A-ZĐĆ ]+ v. [A-Z ]+', '', i) for i in text]
             text = [re.sub('^\n$', '', i) for i in text]  # remove end of the lines
             text = [re.sub('\n', '', i) for i in text]
-            text = '\n'.join(text)  # combine lines
+            text = '  '.join(text)  # combine lines
             text = re.sub('  +', ' ', text)
             m = re.search('(.+) QUESTIONS', text)
             m2 = re.search('(.+) COMPLAINTS', text)
@@ -90,6 +90,7 @@ class Masha_SVM(BaseCommunicatedCasesModel):
 
         texts = []
         labels = []
+        appnos = set([])
 
         for jdg in session.query(Judgments).filter(Judgments.kpdate > OLDEST).filter(Judgments.kpdate < dt):
             if not jdg.appno:
@@ -100,11 +101,12 @@ class Masha_SVM(BaseCommunicatedCasesModel):
 
             texts.append(self.extract_input(comm.text))
             labels.append(self.conclusion_simple(jdg.conclusion))
+            appnos.add(comm.appno)
 
         violation_num = Counter(labels)[0] - Counter(labels)[1]
 
         desc_inputs = []
-        for desc in session.query(Decisions).filter(Decisions.kpdate > OLDEST).filter(Decisions.kpdate < dt):
+        for desc in session.query(Decisions).filter(~Decisions.appno.in_(appnos)).filter(Decisions.kpdate > OLDEST).filter(Decisions.kpdate < dt).filter(exists().where(Decisions.appno == CommunicatedCases.appno)):
             comm = session.query(CommunicatedCases).filter_by(appno=desc.appno).first()
             if not comm:
                 continue
