@@ -80,7 +80,8 @@ class Masha_SVM(BaseCommunicatedCasesModel):
                 text = m.group(1)
             elif m2 != None:
                 text = m2.group(1)
-
+        else:
+            text = t
         return text
 
     def train(self, date):
