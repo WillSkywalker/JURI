@@ -59,7 +59,7 @@ def test(date, m):
 
 
 def main():
-    dt = datetime.datetime.date(2020, 1, 1)
+    dt = datetime.date(2020, 1, 1)
     test(NBModel_comms(), dt)
     test(BiLSTM_trim(), dt)
     test(Masha_SVM(), dt)
