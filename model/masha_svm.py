@@ -64,9 +64,9 @@ class Masha_SVM(BaseCommunicatedCasesModel):
     conclusion = conclusion_simple
 
     @staticmethod
-    def extract_input(text):
-        if text:
-            text = text.split('\n')
+    def extract_input(t):
+        if t:
+            text = t.split('\n')
             text = [re.sub('^.*v\. .* STATEMENT OF.*', '', i) for i in text]  # remove the tietles of the pages from getting text from pdf
             text = [re.sub('STATEMENT OF FACTS( AND QUESTIONS)?', '', i) for i in text]  # remove the tietles of the pages from getting text from pdf
             text = [re.sub('[A-ZĐĆ ]+ v. [A-Z ]+', '', i) for i in text]
