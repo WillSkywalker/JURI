@@ -338,7 +338,7 @@ def main():
     with Pool(32) as p:
         for i in p.imap(predict_communicated, rrule(MONTHLY, dtstart=datetime.date(2017, 1, 1), until=end)):
             print(i)
-    evaluate()
+    # evaluate()
 
 if __name__ == '__main__':
     # jm = NBModel_judgments()
@@ -346,5 +346,5 @@ if __name__ == '__main__':
     # cm = NBModel_comms()
     # predict_communicated(datetime.date(2018, 2, 1))
     main()
-    # evaluate()
+    evaluate()
 
