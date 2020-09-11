@@ -39,7 +39,7 @@ class Masha_SVM(BaseCommunicatedCasesModel):
         c = 5
         vec = ('wordvec', TfidfVectorizer(analyzer='word', binary=True, lowercase=True, min_df=2,  ngram_range=(2, 4), norm='l2', stop_words=None, use_idf=True))
         self.clf = Pipeline([vec,
-                            ('classifier', SVC(kernel='linear', probability=True, C=c))])
+                            ('classifier', SVC(kernel='linear', probability=True))])
 
     @staticmethod
     def admissibility(desc):
