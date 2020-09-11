@@ -147,7 +147,7 @@ def predict_communicated(date, load_model=False):
             return
 
     # m = NBModel_comms()
-    m = BiLSTM_trim()
+    m = Masha_SVM()
     if load_model and os.path.exists(os.path.join(DIRECTORY, 'models/', m.name+str(date)+'.joblib')):
         m.clf = joblib.load(os.path.join(DIRECTORY, 'models/', m.name+str(date)+'.joblib'))
     else:
