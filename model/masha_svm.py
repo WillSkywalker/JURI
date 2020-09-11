@@ -81,6 +81,8 @@ class Masha_SVM(BaseCommunicatedCasesModel):
         labels = []
 
         for jdg in session.query(Judgments).filter(Judgments.kpdate > OLDEST).filter(Judgments.kpdate < dt):
+            if not jdg.appno:
+                continue
             comm = session.query(CommunicatedCases).filter(CommunicatedCases.appno.in_(jdg.appno.split(';')+[jdg.appno])).first()
             if not comm:
                 continue
