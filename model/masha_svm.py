@@ -42,6 +42,16 @@ class Masha_SVM(BaseCommunicatedCasesModel):
                             ('classifier', SVC(probability=True, C=c))])
 
     @staticmethod
+    def admissibility(desc):
+        '''you may override this with your own implementation'''
+        if not desc:
+            return 1
+        if 'Admissible' in desc or 'Partly ' in desc:
+            return 0
+        else:
+            return 1
+
+    @staticmethod
     def conclusion_simple(desc):
         # Mark the state of conclusion. 0 for pass and 1 for fail, adding more situation possible
         if not desc:
@@ -97,14 +107,16 @@ class Masha_SVM(BaseCommunicatedCasesModel):
             comm = session.query(CommunicatedCases).filter(exists().where(Decisions.appno == CommunicatedCases.appno)).first()
             if not comm:
                 continue
+            if self.admissibility(desc.conclusion) != 1:
+                continue
 
-            desc_inputs.append((self.extract_input(comm.text), self.conclusion_simple(jdg.conclusion)))
+            desc_inputs.append((self.extract_input(comm.text), 1))
 
         for d in random.sample(desc_inputs, violation_num):
             texts.append(d[0])
             labels.append(d[1])
 
-        assert Counter(labels)[0] == Counter(labels)[1]
+        print('Violation: ', Counter(labels)[0], 'Non-violation: ', Counter(labels)[1])
         self.clf.fit(texts, labels)
 
     def predict(self, x):
