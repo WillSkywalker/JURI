@@ -60,9 +60,9 @@ def test(date, m):
 
 def main():
     dt = datetime.date(2020, 1, 1)
-    test(NBModel_comms(), dt)
-    test(BiLSTM_trim(), dt)
-    test(Masha_SVM(), dt)
+    test(dt, NBModel_comms())
+    test(dt, BiLSTM_trim())
+    test(dt, Masha_SVM())
 
 if __name__ == '__main__':
     main()
