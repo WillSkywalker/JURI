@@ -105,7 +105,7 @@ class Masha_SVM(BaseCommunicatedCasesModel):
 
         desc_inputs = []
         for desc in session.query(Decisions).filter(Decisions.kpdate > OLDEST).filter(Decisions.kpdate < dt):
-            comm = session.query(CommunicatedCases).filter(exists().where(Decisions.appno == CommunicatedCases.appno)).first()
+            comm = session.query(CommunicatedCases).filter_by(appno=desc.appno).first()
             if not comm:
                 continue
             if self.admissibility(desc.conclusion) != 1:
