@@ -14,11 +14,12 @@
                         <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
                         <!-- <li data-target="#carouselExampleIndicators" data-slide-to="3"></li> -->
                       </ol>
- 
+                    {% if monthname %}
                     <div class="carousel-item active">
                         <h1>I'm predicting judgments of the European Court of Human Rights with an accuracy of <a href="{{ url_for('list_comm', time='lm') }}" style='color:#f2849e'>{% if accs[-1] == 1 %}100{% elif accs[-1] == 0 %}0{% else %}{{"%.1f" | format(accs[-2]*100)}}{% endif %}%</a> over the <i>last month</i>.</h1>
                         <p>JURI reads published documents from previous years and decisions of the cases judged by the European Court of Human Rights and predicts decisions the Court will make. Every month it learns from its mistakes.</p>
                     </div>
+                    {% endif %}
 <!--                     <div class="carousel-item">
                         <h1>I'm predicting judgments of the European Court of Human Rights with an accuracy of <a href="{{ url_for('list_comm', time='l3m') }}" style='color:#f2849e'>{{"%.1f" | format(evaluation.last_half_year*100)}}%</a> over the <i>last three months</i>.</h1>
                         <p>JURI reads published documents from previous years and decisions of the cases judged by the European Court of Human Rights and predicts decisions the Court will make. Every month it learns from its mistakes.</p>
