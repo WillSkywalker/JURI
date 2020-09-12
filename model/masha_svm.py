@@ -45,11 +45,13 @@ class Masha_SVM(BaseCommunicatedCasesModel):
     def admissibility(desc):
         '''you may override this with your own implementation'''
         if not desc:
-            return 1
+            return 2
         if 'Admissible' in desc or 'Partly ' in desc:
             return 0
-        else:
+        elif 'Inadmissible' in desc:
             return 1
+        else:
+            return 2
 
     @staticmethod
     def conclusion_simple(desc):
@@ -104,22 +106,35 @@ class Masha_SVM(BaseCommunicatedCasesModel):
             appnos.add(comm.appno)
 
         violation_num = Counter(labels)[0] - Counter(labels)[1]
+        max_count = min(Counter(labels).values())
+        count = 0
 
-        desc_inputs = []
-        for desc in session.query(Decisions).filter(Decisions.kpdate > OLDEST).filter(Decisions.kpdate < dt):
-            comm = session.query(CommunicatedCases).filter(exists().where(Decisions.appno == CommunicatedCases.appno)).first()
+        Xtrain = []
+        ytrain = []
+        for n in zip(texts, labels):
+            if n[1] == 0:
+                if count >= max_count:
+                    continue
+                else:
+                    count += 1
+            Xtrain.append(n[0])
+            ytrain.append(n[1])
 
-            if not comm:
-                continue
+        # desc_inputs = []
+        # for desc in session.query(Decisions).filter(Decisions.kpdate > OLDEST).filter(Decisions.kpdate < dt):
+        #     comm = session.query(CommunicatedCases).filter(exists().where(Decisions.appno == CommunicatedCases.appno)).first()
 
-            desc_inputs.append((self.extract_input(comm.text), 1))
+        #     if not comm:
+        #         continue
 
-        for d in random.sample(desc_inputs, violation_num):
-            texts.append(d[0])
-            labels.append(d[1])
+        #     desc_inputs.append((self.extract_input(comm.text), 1))
 
-        print('Violation: ', Counter(labels)[0], 'Non-violation: ', Counter(labels)[1])
-        self.clf.fit(texts, labels)
+        # for d in random.sample(desc_inputs, violation_num):
+        #     texts.append(d[0])
+        #     labels.append(d[1])
+
+        print('Violation: ', Counter(ytrain)[0], 'Non-violation: ', Counter(ytrain)[1])
+        self.clf.fit(Xtrain, ytrain)
 
     def predict(self, x):
         # conclusion = self.conclusion(x.conclusion)
