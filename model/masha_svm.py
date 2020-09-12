@@ -106,11 +106,10 @@ class Masha_SVM(BaseCommunicatedCasesModel):
         violation_num = Counter(labels)[0] - Counter(labels)[1]
 
         desc_inputs = []
-        for desc in session.query(Decisions).filter(~Decisions.appno.in_(appnos)).filter(Decisions.kpdate > OLDEST).filter(Decisions.kpdate < dt).filter(exists().where(Decisions.appno == CommunicatedCases.appno)):
-            comm = session.query(CommunicatedCases).filter_by(appno=desc.appno).first()
+        for desc in session.query(Decisions).filter(Decisions.kpdate > OLDEST).filter(Decisions.kpdate < dt):
+            comm = session.query(CommunicatedCases).filter(exists().where(Decisions.appno == CommunicatedCases.appno)).first()
+
             if not comm:
-                continue
-            if self.admissibility(desc.conclusion) != 1:
                 continue
 
             desc_inputs.append((self.extract_input(comm.text), 1))
