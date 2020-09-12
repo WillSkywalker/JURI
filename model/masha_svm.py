@@ -180,7 +180,7 @@ class Masha_SVM(BaseCommunicatedCasesModel):
 class Masha_SVM_beta(BaseCommunicatedCasesModel):
     """Masha's SVM"""
     def __init__(self, name=MODEL_NAME, author=AUTHOR, description=DESCRIPTION, date=DATE):
-        super(Masha_SVM, self).__init__(name, author, description, date)
+        super(Masha_SVM_beta, self).__init__(name, author, description, date)
         c = 5
         vec = ('wordvec', TfidfVectorizer(analyzer='word', binary=True, lowercase=True, min_df=2,  ngram_range=(2, 4), norm='l2', stop_words=None, use_idf=True))
         self.clf = Pipeline([vec,
