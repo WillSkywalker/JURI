@@ -255,8 +255,6 @@ class Masha_SVM_beta(BaseCommunicatedCasesModel):
             appnos.add(comm.appno)
 
         violation_num = Counter(labels)[0] - Counter(labels)[1]
-        max_count = min(Counter(labels).values())
-        count = 0
 
         desc_inputs = []
         for desc in session.query(Decisions).filter(~Decisions.appno.in_(appnos)).filter(Decisions.kpdate > OLDEST).filter(Decisions.kpdate < dt).filter(exists().where(Decisions.appno == CommunicatedCases.appno)):
@@ -271,6 +269,9 @@ class Masha_SVM_beta(BaseCommunicatedCasesModel):
         for d in random.sample(desc_inputs, min(len(desc_inputs), violation_num)):
             texts.append(d[0])
             labels.append(d[1])
+
+        max_count = min(Counter(labels).values())
+        count = 0
 
         Xtrain = []
         ytrain = []
