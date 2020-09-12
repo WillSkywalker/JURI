@@ -346,5 +346,5 @@ if __name__ == '__main__':
     # cm = NBModel_comms()
     # predict_communicated(datetime.date(2018, 2, 1))
     main()
-    # evaluate()
+    evaluate()
 

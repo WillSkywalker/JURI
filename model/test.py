@@ -1,7 +1,7 @@
 from model.random_guess import RandomModel
 from model.naive_bayes import NBModel_judgments, NBModel_comms
 from model.lstm import BiLSTM_model, BiLSTM_trim
-from model.masha_svm import Masha_SVM
+from model.masha_svm import Masha_SVM, Masha_SVM_beta
 
 import os
 import re
@@ -52,7 +52,7 @@ def test(date, m):
     print(m.name)
     print('=======================================\n\n')
     print('Accuracy: ', accuracy)
-    print('Accuracy: ', fscore)
+    print('F-score: ', fscore)
     print('\nClassification report:\n', classification_report(golds, results))
     print('\nConfusion matrix:\n', confusion_matrix(golds, results), '\n\n_______________________\n\n')
     print('\n Normalized confusion matrix:\n', confusion_matrix(golds, results, normalize='true'), '\n\n_______________________\n\n')
@@ -62,7 +62,7 @@ def main():
     dt = datetime.date(2020, 1, 1)
     # test(dt, NBModel_comms())
     # test(dt, BiLSTM_trim())
-    test(dt, Masha_SVM())
+    test(dt, Masha_SVM_beta())
 
 if __name__ == '__main__':
     main()

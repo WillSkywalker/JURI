@@ -69,15 +69,19 @@ class Masha_SVM(BaseCommunicatedCasesModel):
     def extract_input(t):
         if t:
             text = t.split('\n')
+            text = [re.sub('^Communicated on.*', '', i) for i in text]  # remove the tietles of the pages from getting text from pdf
+            text = [re.sub('.* SECTION$', '', i) for i in text]  # remove the tietles of the pages from getting text from pdf
+            text = [re.sub('^Application no\. .*', '', i) for i in text]  # remove the tietles of the pages from getting text from pdf
             text = [re.sub('^.*v\. .* STATEMENT OF.*', '', i) for i in text]  # remove the tietles of the pages from getting text from pdf
             text = [re.sub('STATEMENT OF FACTS( AND QUESTIONS)?', '', i) for i in text]  # remove the tietles of the pages from getting text from pdf
+            text = [re.sub('SUBJECT MATTER OF THE CASE', '', i) for i in text]  # remove the tietles of the pages from getting text from pdf
             text = [re.sub('[A-ZĐĆ ]+ v. [A-Z ]+', '', i) for i in text]
             text = [re.sub('^\n$', '', i) for i in text]  # remove end of the lines
             text = [re.sub('\n', '', i) for i in text]
             text = '  '.join(text)  # combine lines
             text = re.sub('  +', ' ', text)
-            m = re.search('(.+) QUESTIONS', text)
-            m2 = re.search('(.+) COMPLAINTS', text)
+            m = re.search('(.+) (QUESTIONS|QUESTION TO THE PARTIES)', text)
+            m2 = re.search('(.+) (COMPLAINTS|COMPLAINT)', text)
             if m != None:
                 text = m.group(1)
             elif m2 != None:
@@ -121,6 +125,22 @@ class Masha_SVM(BaseCommunicatedCasesModel):
             ytrain.append(n[1])
 
         # desc_inputs = []
+        # for desc in session.query(Decisions).filter(~Decisions.appno.in_(appnos)).filter(Decisions.kpdate > OLDEST).filter(Decisions.kpdate < dt).filter(exists().where(Decisions.appno == CommunicatedCases.appno)):
+        #     comm = session.query(CommunicatedCases).filter_by(appno=desc.appno).first()
+        #     if not comm:
+        #         continue
+        #     if self.admissibility(desc.conclusion) != 1:
+        #         continue
+
+        #     desc_inputs.append((self.extract_input(comm.text), 1))
+        #     desc_raw_inputs.append((comm.text, 1))
+
+        # for d in random.sample(desc_inputs, violation_num):
+        #     texts1.append(d[0])
+        #     labels1.append(d[1])
+
+
+        # desc_inputs = []
         # for desc in session.query(Decisions).filter(Decisions.kpdate > OLDEST).filter(Decisions.kpdate < dt):
         #     comm = session.query(CommunicatedCases).filter(exists().where(Decisions.appno == CommunicatedCases.appno)).first()
 
@@ -155,6 +175,138 @@ class Masha_SVM(BaseCommunicatedCasesModel):
             sent_proba.append(float(sent_resn))
 
         return res, resn, sents, sent_result, sent_proba
+
+
+class Masha_SVM_beta(BaseCommunicatedCasesModel):
+    """Masha's SVM"""
+    def __init__(self, name=MODEL_NAME, author=AUTHOR, description=DESCRIPTION, date=DATE):
+        super(Masha_SVM, self).__init__(name, author, description, date)
+        c = 5
+        vec = ('wordvec', TfidfVectorizer(analyzer='word', binary=True, lowercase=True, min_df=2,  ngram_range=(2, 4), norm='l2', stop_words=None, use_idf=True))
+        self.clf = Pipeline([vec,
+                            ('classifier', SVC(kernel='linear', probability=True, C=c))])
+
+    @staticmethod
+    def admissibility(desc):
+        '''you may override this with your own implementation'''
+        if not desc:
+            return 2
+        if 'Admissible' in desc or 'Partly ' in desc:
+            return 0
+        elif 'Inadmissible' in desc:
+            return 1
+        else:
+            return 2
+
+    @staticmethod
+    def conclusion_simple(desc):
+        # Mark the state of conclusion. 0 for pass and 1 for fail, adding more situation possible
+        if not desc:
+            return 1
+        if 'Violation of Article ' in desc or 'Violation of Art. ' in desc or 'Violations of Art. ' in desc or 'Violations of Article ' in desc:
+            return 0
+        else:
+            return 1
+
+    conclusion = conclusion_simple
+
+    @staticmethod
+    def extract_input(t):
+        if t:
+            text = t.split('\n')
+            text = [re.sub('^Communicated on.*', '', i) for i in text]  # remove the tietles of the pages from getting text from pdf
+            text = [re.sub('.* SECTION$', '', i) for i in text]  # remove the tietles of the pages from getting text from pdf
+            text = [re.sub('^Application no\. .*', '', i) for i in text]  # remove the tietles of the pages from getting text from pdf
+            text = [re.sub('^.*v\. .* STATEMENT OF.*', '', i) for i in text]  # remove the tietles of the pages from getting text from pdf
+            text = [re.sub('STATEMENT OF FACTS( AND QUESTIONS)?', '', i) for i in text]  # remove the tietles of the pages from getting text from pdf
+            text = [re.sub('SUBJECT MATTER OF THE CASE', '', i) for i in text]  # remove the tietles of the pages from getting text from pdf
+            text = [re.sub('[A-ZĐĆ ]+ v. [A-Z ]+', '', i) for i in text]
+            text = [re.sub('^\n$', '', i) for i in text]  # remove end of the lines
+            text = [re.sub('\n', '', i) for i in text]
+            text = '  '.join(text)  # combine lines
+            text = re.sub('  +', ' ', text)
+            m = re.search('(.+) (QUESTIONS|QUESTION TO THE PARTIES)', text)
+            m2 = re.search('(.+) (COMPLAINTS|COMPLAINT)', text)
+            if m != None:
+                text = m.group(1)
+            elif m2 != None:
+                text = m2.group(1)
+        else:
+            text = t
+        return text
+
+    def train(self, date):
+        dt = datetime.datetime.combine(date, datetime.datetime.min.time())
+        OLDEST = datetime.datetime(2010, 1, 1)
+
+        texts = []
+        labels = []
+        appnos = set([])
+
+        for jdg in session.query(Judgments).filter(Judgments.kpdate > OLDEST).filter(Judgments.kpdate < dt):
+            if not jdg.appno:
+                continue
+            comm = session.query(CommunicatedCases).filter(CommunicatedCases.appno.in_(jdg.appno.split(';')+[jdg.appno])).first()
+            if not comm:
+                continue
+
+            texts.append(self.extract_input(comm.text))
+            labels.append(self.conclusion_simple(jdg.conclusion))
+            appnos.add(comm.appno)
+
+        violation_num = Counter(labels)[0] - Counter(labels)[1]
+        max_count = min(Counter(labels).values())
+        count = 0
+
+        desc_inputs = []
+        for desc in session.query(Decisions).filter(~Decisions.appno.in_(appnos)).filter(Decisions.kpdate > OLDEST).filter(Decisions.kpdate < dt).filter(exists().where(Decisions.appno == CommunicatedCases.appno)):
+            comm = session.query(CommunicatedCases).filter_by(appno=desc.appno).first()
+            if not comm:
+                continue
+            if self.admissibility(desc.conclusion) != 1:
+                continue
+
+            desc_inputs.append((self.extract_input(comm.text), 1))
+
+        for d in random.sample(desc_inputs, min(len(desc_inputs), violation_num)):
+            texts.append(d[0])
+            labels.append(d[1])
+
+        Xtrain = []
+        ytrain = []
+        new_pairs = list(zip(texts, labels))
+        for n in random.sample(new_pairs, k=len(new_pairs)):
+            if n[1] == 0:
+                if count >= max_count:
+                    continue
+                else:
+                    count += 1
+            Xtrain.append(n[0])
+            ytrain.append(n[1])
+
+        print('Violation: ', Counter(ytrain)[0], 'Non-violation: ', Counter(ytrain)[1])
+        self.clf.fit(Xtrain, ytrain)
+
+    def predict(self, x):
+        # conclusion = self.conclusion(x.conclusion)
+        resn = random.random()
+        text = self.extract_input(x.text)
+        sents = sent_tokenize(text)
+
+        # string = ' '.join(sents)  # for prediction
+        res = int(self.clf.predict([text])[0])  # class
+        resn = float(self.clf.predict_proba([text])[0][res])  # proba
+
+        sent_result = []
+        sent_proba = []
+        for sent in sents:
+            sent_res = self.clf.predict([sent])[0]  # class
+            sent_resn = self.clf.predict_proba([sent])[0][sent_res]  # proba
+            sent_result.append(int(sent_res))
+            sent_proba.append(float(sent_resn))
+
+        return res, resn, sents, sent_result, sent_proba
+
 
 
 if __name__ == '__main__':
