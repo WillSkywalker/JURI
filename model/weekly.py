@@ -137,5 +137,5 @@ def generate_weekly_report(press, modelname):
 
 if __name__ == '__main__':
     # with app.app_context():
-    weekly_report('Balanced Naive Bayes all cases v3')
+    weekly_report('Balanced Naive Bayes all cases v3'+str(datetime.datetime.now())
 
