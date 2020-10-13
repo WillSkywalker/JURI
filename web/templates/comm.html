@@ -115,10 +115,6 @@
                     <p class='predtext'>
                         {% for sent in sents %}
 
-                        <!-- {% if loop.index0 == rand1 and max_sent %}
-                        <blockquote>{{ max_sent }}<h3 style="font-size: 12px; color: grey; font-style: initial; margin: 0">Support for violation</h3></blockquote>
-                        {% endif %} -->
-
                         {% if sent_result[loop.index0] == 0 %}
                         <span data-toggle="popover" data-placement="top" title="VIOLATION" data-content="Probability: {{sent_proba[loop.index0]}}" {% if loop.index0 in critical_indexes %} style="background:{{critical_indexes[loop.index0]}}" class="criticalspan" {% endif %} data-trigger="hover">
                             {% autoescape false %}{{ sent | replace('\n', '<br>') }}{% endautoescape %}</span>

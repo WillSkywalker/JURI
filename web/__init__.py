@@ -485,7 +485,7 @@ def application_comm(appno):
         else:
             critical_indexes[idx] = "hsl(60, 100%, {}%)".format((0.6 - math.log(sent_proba[idx]) * 0.5) * 100)
     sent_num = len(sents)
-    rand1 = random.randrange(sent_num//5, sent_num//2)
+    # rand1 = random.randrange(sent_num//5, sent_num//2)
     # rand2 = random.randrange(sent_num//2, sent_num*4//5)
     return render_template('comm.html', d=comm, j=judg, jp=judg_pred, **locals())
 
