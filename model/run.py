@@ -176,6 +176,7 @@ def predict_communicated(date, load_model=False):
 
         result, proba, sents, sent_result, sent_proba = m.predict(comm)
         old = session.query(Prediction).filter_by(modelname=m.name, appno=comm.appno, pred_type='COMM').first()
+
         if not old:
             # jdg = session.query(Judgments).filter(Judgments.kpdate > dt).filter(Judgments.kpdate < edt)\
             #                               .filter(or_(Judgments.appno == comm.appno,
@@ -205,6 +206,11 @@ def predict_communicated(date, load_model=False):
             golds.append(gold)
             session.add(pred)
             model.predictions.append(pred)
+            session.commit()
+
+        elif old.judgment_id != jdg.id:
+            old.judgment_id = jdg.id
+            session.add(old)
             session.commit()
 
     # Evaluation, further report saved at local
