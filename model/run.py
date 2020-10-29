@@ -207,43 +207,6 @@ def predict_communicated(date, load_model=False):
             model.predictions.append(pred)
             session.commit()
 
-    # for comm in session.query(CommunicatedCases).filter(CommunicatedCases.kpdate < edt):
-    #     if comm.article:
-    #         arts = [art for art in comm.article.split(';') if art.isnumeric() or re.fullmatch(r'P[0-9]*-[0-9]*$', art)]
-    #     else:
-    #         arts = []
-
-    #     result, proba, sents, sent_result, sent_proba = m.predict(comm)
-    #     old = session.query(Prediction).filter_by(modelname=m.name, appno=comm.appno, pred_type='COMM').first()
-    #     if not old:
-    #         jdg = session.query(Judgments).filter(Judgments.kpdate > dt).filter(Judgments.kpdate < edt)\
-    #                                       .filter(or_(Judgments.appno == comm.appno,
-    #                                                   Judgments.appno.like("{};%".format(comm.appno)),
-    #                                                   Judgments.appno.like("%;{}".format(comm.appno)),
-    #                                                   Judgments.appno.like("%;{};%".format(comm.appno)))).first()
-    #         judgment_id = jdg.id if jdg else None
-    #         jdgdate = jdg.kpdate if jdg else None
-    #         gold = m.conclusion(jdg.conclusion) if jdg else None
-    #         pred = Prediction(gold=gold, result=result, proba=proba, sents=json.dumps(sents), sent_result=json.dumps(sent_result),
-    #                           sent_proba=json.dumps(sent_proba), kpdate=comm.kpdate, jdgdate=jdgdate,
-    #                           appno=comm.appno, pred_type='COMM', judgment_id=judgment_id)
-
-    #         for art in arts:
-    #             article = session.query(ECHRArticle).filter_by(number=art).first()
-    #             if not article:
-    #                 if art.startswith('P'):
-    #                     print(art)
-    #                     artname = 'Protocol %s Article %s' % (art.split('-')[0][1:], art.split('-')[1])
-    #                 else:
-    #                     artname = 'Article %s' % art
-    #                 article = ECHRArticle(number=art, name=artname)
-    #                 session.add(article)
-    #             pred.articles.append(article)
-
-    #         session.add(pred)
-    #         model.predictions.append(pred)
-    #         session.commit()
-
     # Evaluation, further report saved at local
     if golds:
         accuracy = accuracy_score(golds, results)
@@ -259,44 +222,6 @@ def predict_communicated(date, load_model=False):
         model.fscore = float(fscore)
         session.add(model)
         session.commit()
-
-    # today = datetime.date.today()
-    # if date.date() >= datetime.date(today.year, today.month, 1) - relativedelta(months=1):
-    #     for comm in session.query(CommunicatedCases).filter(~exists().where(Prediction.appno == CommunicatedCases.appno)):
-    #         if comm.article:
-    #             arts = [art for art in comm.article.split(';') if art.isnumeric() or re.fullmatch(r'P[0-9]*-[0-9]*$', art)]
-    #         else:
-    #             arts = []
-
-    #         result, proba, sents, sent_result, sent_proba = m.predict(comm)
-    #         old = session.query(Prediction).filter_by(modelname=m.name, appno=comm.appno, pred_type='COMM').first()
-    #         if not old:
-    #             jdg = session.query(Judgments).filter(or_(Judgments.appno == comm.appno,
-    #                                                       Judgments.appno.like("{};%".format(comm.appno)),
-    #                                                       Judgments.appno.like("%;{}".format(comm.appno)),
-    #                                                       Judgments.appno.like("%;{};%".format(comm.appno)))).first()
-    #             judgment_id = jdg.id if jdg else None
-    #             jdgdate = jdg.kpdate if jdg else None
-    #             gold = m.conclusion(jdg.conclusion) if jdg else None
-    #             pred = Prediction(gold=gold, result=result, proba=proba, sents=json.dumps(sents), sent_result=json.dumps(sent_result),
-    #                               sent_proba=json.dumps(sent_proba), kpdate=comm.kpdate, jdgdate=jdgdate,
-    #                               appno=comm.appno, pred_type='COMM', judgment_id=judgment_id)
-
-    #             for art in arts:
-    #                 article = session.query(ECHRArticle).filter_by(number=art).first()
-    #                 if not article:
-    #                     if art.startswith('P'):
-    #                         print(art)
-    #                         artname = 'Protocol %s Article %s' % (art.split('-')[0][1:], art.split('-')[1])
-    #                     else:
-    #                         artname = 'Article %s' % art
-    #                     article = ECHRArticle(number=art, name=artname)
-    #                     session.add(article)
-    #                 pred.articles.append(article)
-
-    #             session.add(pred)
-    #             model.predictions.append(pred)
-    #             session.commit()
 
 
 def evaluate():
