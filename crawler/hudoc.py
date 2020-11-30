@@ -170,7 +170,7 @@ def update_database(lang='ENG'):
     collections['text'] = collection_text
     collections['sents'] = list(map(lambda x: json.dumps(sent_tokenize(x)), collection_text))
     collections.to_sql('CommunicatedCases'+lang_postfix, engine, if_exists='replace', dtype=dtype_dict)
-    collections.to_csv(os.path.join(Config.LARGE_FILE_DIRECTORY, 'CommunicatedCases.csv'))
+    collections.to_csv(os.path.join(Config.LARGE_FILE_DIRECTORY, 'CommunicatedCases.csv'), sep='|')
     del collections
     del collection_text
 
@@ -184,7 +184,7 @@ def update_database(lang='ENG'):
     decisions['text'] = decisions_text
     decisions['sents'] = list(map(lambda x: json.dumps(sent_tokenize(x)), decisions_text))
     decisions.to_sql('Decisions'+lang_postfix, engine, if_exists='replace', dtype=dtype_dict)
-    decisions.to_csv(os.path.join(Config.LARGE_FILE_DIRECTORY, 'Decisions.csv'))
+    decisions.to_csv(os.path.join(Config.LARGE_FILE_DIRECTORY, 'Decisions.csv'), sep='|')
     del decisions
     del decisions_text
 
@@ -198,7 +198,7 @@ def update_database(lang='ENG'):
     judgements['sents'] = list(map(lambda x: json.dumps(sent_tokenize(x)), judgements_text))
     print(len(judgements['text']))
     judgements.to_sql('Judgments'+lang_postfix, engine, if_exists='replace', dtype=dtype_dict)
-    judgements.to_csv(os.path.join(Config.LARGE_FILE_DIRECTORY, 'Judgments.csv'))
+    judgements.to_csv(os.path.join(Config.LARGE_FILE_DIRECTORY, 'Judgments.csv'), sep='|')
 
     with engine.connect() as con:
         con.execute('alter table Judgments%s add column `id` int(10) unsigned PRIMARY KEY AUTO_INCREMENT;' % lang_postfix)
