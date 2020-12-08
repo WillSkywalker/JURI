@@ -58,12 +58,16 @@ def get_document_list(col, lang='ENG'):
     HEAD_URL = LIST_FULL_URL % (lang, col, 0, 20)
 
     res = s.get(HEAD_URL)
+    while res.status_code != 200:
+        res = s.get(HEAD_URL)
     length = res.json()['resultcount']
     print(length)
     docs = []
     # docs = pandas.DataFrame(columns=['name', 'id', 'appno', 'date', 'type', 'branch', 'conclusion', 'respondent', 'url'])
     for i in range(0, length, 1000):
         resp = s.get(LIST_FULL_URL % (lang, col, i, 1000))
+        while resp.status_code != 200:
+            resp = s.get(LIST_FULL_URL % (lang, col, i, 1000))
         data = resp.json()
         for result in data['results']:
             res = result['columns']
@@ -72,6 +76,8 @@ def get_document_list(col, lang='ENG'):
 
     if i:
         resp = s.get(LIST_FULL_URL % (lang, col, i, 1000))
+        while resp.status_code != 200:
+            resp = s.get(LIST_FULL_URL % (lang, col, i, 1000))
         data = resp.json()
         for result in data['results']:
             res = result['columns']
