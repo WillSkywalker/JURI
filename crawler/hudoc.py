@@ -74,15 +74,16 @@ def get_document_list(col, lang='ENG'):
             res['url'] = DOC_URL % (res['itemid'])
             docs.append(res)
 
-    if i:
-        resp = s.get(LIST_FULL_URL % (lang, col, i, 1000))
-        while resp.status_code != 200:
-            resp = s.get(LIST_FULL_URL % (lang, col, i, 1000))
-        data = resp.json()
-        for result in data['results']:
-            res = result['columns']
-            res['url'] = DOC_URL % (res['itemid'])
-            docs.append(res)
+    # Unnecessary repetition
+    # if i:
+    #     resp = s.get(LIST_FULL_URL % (lang, col, i, 1000))
+    #     while resp.status_code != 200:
+    #         resp = s.get(LIST_FULL_URL % (lang, col, i, 1000))
+    #     data = resp.json()
+    #     for result in data['results']:
+    #         res = result['columns']
+    #         res['url'] = DOC_URL % (res['itemid'])
+    #         docs.append(res)
 
     df = pandas.DataFrame(data=docs)
     df.to_csv(os.path.join(DIRECTORY, '%s_%s.csv' % (col, lang)))
