@@ -86,6 +86,7 @@ def get_document_list(col, lang='ENG'):
     #         docs.append(res)
 
     df = pandas.DataFrame(data=docs)
+    df = df[~df['appno'].isin(Config.IGNORED_APPNOS)]
     df.to_csv(os.path.join(DIRECTORY, '%s_%s.csv' % (col, lang)))
 
 
