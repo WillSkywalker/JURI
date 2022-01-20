@@ -86,7 +86,7 @@ def index():
 
     evaluation = Evaluation.query.order_by(-Evaluation.id).first()
 
-    preds_comm = Prediction.query.order_by(-Prediction.jdgdate).limit(5).all()
+    preds_comm = Prediction.query.join(Judgments, Prediction.judgment_id==Judgments.id).order_by(-Prediction.jdgdate).limit(5).all()
     res_comm = [Judgments.query.filter_by(appno=p.appno).first() for p in preds_comm]
 
     for r in res_comm:
