@@ -11,6 +11,7 @@ import importlib
 import unicodedata
 from urllib.parse import unquote
 from multiprocessing.pool import ThreadPool
+from http.client import IncompleteRead
 
 # import grequests
 import json
@@ -111,13 +112,17 @@ def get_text_from_url(url):
     # try:
     #     response = s.get(url, stream=True, headers=HEADER_INFO)
     # except:
-    response = s.get(url, headers=HEADER_INFO)
+    try:
+        response = s.get(url, headers=HEADER_INFO)
+    except IncompleteRead:
+        response = requests.get(url, headers=HEADER_INFO)
     try:
         return get_text(response)
     except NoDocxException:
         print('No text available: ', url)
         logging.warning(url)
         return ''
+
 
 
 def download_documents(col, lang='ENG', table=None):

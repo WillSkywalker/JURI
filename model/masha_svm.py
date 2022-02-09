@@ -93,6 +93,8 @@ class Masha_SVM(BaseCommunicatedCasesModel):
     def train(self, date):
         dt = datetime.datetime.combine(date, datetime.datetime.min.time())
         OLDEST = datetime.datetime(2010, 1, 1)
+        if dt.year >= 2020:
+            OLDEST = datetime.datetime(dt.year - 3, 1, 1)
 
         texts = []
         labels = []
