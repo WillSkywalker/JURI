@@ -57,7 +57,7 @@ PySocks==1.7.0
 python-dateutil==2.8.0
 pytz==2019.2
 PyYAML==5.3.1
-requests==2.22.0
+requests==2.32.4
 s3transfer==0.3.3
 scikit-learn==0.22
 scipy==1.4.0
