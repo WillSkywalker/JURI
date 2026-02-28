@@ -39,7 +39,7 @@ Keras-Preprocessing==1.1.2
 MarkupSafe==1.1.1
 natsort==7.0.1
 ndg-httpsclient==0.5.1
-nltk==3.4.5
+nltk==3.9.2
 numpy==1.17.2
 pandas==0.25.1
 parso==0.5.1
